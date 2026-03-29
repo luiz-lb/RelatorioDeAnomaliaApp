@@ -1,0 +1,31 @@
+{
+  "name": "relatoriodeanomaliaapp",
+  "version": "1.0.0",
+  "description": "Sistema criado para envio de relatório de anomalias por fiscais de obra.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luiz-lb/RelatorioDeAnomaliaApp.git"
+  },
+  "keywords": [],
+  "author": "Luiz Matheus, Michael Tolentino, Alex Muniz, by Everest Engenharia",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luiz-lb/RelatorioDeAnomaliaApp/issues"
+  },
+  "homepage": "https://github.com/luiz-lb/RelatorioDeAnomaliaApp#readme",
+  "dependencies": {
+    "@azure/identity": "^4.13.1",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "axios": "^1.14.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "morgan": "^1.10.1",
+    "mssql": "^12.2.1"
+  }
+}
