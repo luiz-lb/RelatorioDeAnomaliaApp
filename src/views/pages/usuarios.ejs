@@ -1,0 +1,70 @@
+<%- include('../partials/header') %>
+    <main>
+        <button class="btn btn-primary btn-sm">
+            <i class="bi bi-person-plus-fill me-1"></i> Adicionar funcionário
+        </button>
+        <table class="table table-hover align-middle mb-0" id="<%= tableidheader %>">
+
+            <% if (typeof tbody !=='undefined' && tbody.length> 0) { %>
+
+                <thead class="table-light">
+                    <tr>
+                        <% thead.forEach(function(colunaTable,index) { %>
+                            <th class="text-center fw-semibold">
+                                <%= thead[index] %>
+                            </th>
+                            <% }); %>
+                    </tr>
+                </thead>
+
+                <tbody id="<%= tableid %>">
+                    <% tbody.forEach(function(linha) { %>
+                        <tr>
+                            <% Object.values(linha).forEach(function(dado) { %>
+                                <td class="text-center">
+                                    <%= dado %>
+                                </td>
+                                <% }); %>
+
+                                    <!-- Ações -->
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="adm/funcionario/<%= Object.values(linha)[0] %>"
+                                                class="btn btn-outline-primary" data-tippy="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+
+                                            <button class="btn btn-outline-danger btn-excluir-funcionario"
+                                                id="<%= Object.values(linha)[0] %>"
+                                                data-tippy="Excluir">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+
+            <% } else { %>
+                <!-- Estado vazio -->
+                <tbody>
+                    <tr>
+                        <td colspan="<%= thead.length + 1 %>">
+                            <div class="text-center py-5">
+                                <i class="bi bi-people fs-1 text-secondary mb-3 d-block"></i>
+                                <h6 class="text-muted mb-1">Nenhum funcionário encontrado</h6>
+                                <p class="text-muted mb-3">Comece adicionando um novo funcionário
+                                </p>
+
+                                <a href="adm/adicionar/" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-person-plus-fill me-1"></i> Adicionar
+                                    funcionário
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            <% } %>
+        </table> 
+    </main>
+<%- include('../partials/footer') %>

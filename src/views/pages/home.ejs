@@ -1,0 +1,23 @@
+<%- include('../partials/header') %>
+    <main>
+        <% botoes.forEach(function(botao) { %>
+            <button id="<%= botao.id %>"><%= botao.nome %></button>
+        <% }) %>
+
+
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tabela-corpo">
+                <% relatorios.forEach(function(relatorio) { %>
+                    <tr>
+                        <td></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table> 
+    </main>
+<%- include('../partials/footer') %>
