@@ -29,7 +29,7 @@ export function paginaUsuarios(req, res, next) {
             "tableid": "corpo-tabela-usuarios",
             "thead": [
                 "Id",
-                "Nome Completo",
+                "Nome Completo ",
                 "Email",
                 "Empresa",
                 "Criado em",
@@ -60,6 +60,49 @@ export function paginaUsuarios(req, res, next) {
         }
         res.status(200).render('pages/usuarios', dadosFuncionarios);
     } catch (erro) {
+        next(erro);
+    }
+}
+
+export function editarUsuario(req, res, next) {
+    try {
+        //if(!req.params.id) {
+          //  throw new Error("ID do usuário não fornecido");
+        //}
+        //const idUsuario = req.params.id;
+
+        const dadosFormulario = {
+            formTitle: "Ferramentas",
+            formAction: "/tabletteste/teste",
+            formMethod: "POST",
+            inputs: [
+                { id: "nomeCompleto", label: "Nome Completo", name: "nomeCompleto", type: "text", required: true, class: "" },
+                { id: "email", label: "Email", name: "email", type: "email", required: true },
+                { id: "teste", label: "Teste", name: "teste", type: "text", required: true },
+            ]
+        }
+        res.status(200).render('pages/form', dadosFormulario);
+    } 
+    catch (erro) {
+        next(erro);
+    }
+}
+
+export function novoUsuario(req, res, next) {
+    try {
+        const dadosFormulario = {
+            formTitle: "Novo Usuário",
+            formAction: "/adm/new",
+            formMethod: "POST",
+            inputs: [
+                { id: "nomeCompleto", label: "Nome Completo", name: "nomeCompleto", type: "text", required: true, class: "" },
+                { id: "email", label: "Email", name: "email", type: "email", required: true },
+                { id: "teste", label: "Teste", name: "teste", type: "text", required: true },
+            ]
+        }
+        res.status(200).render('pages/form', dadosFormulario);
+    } 
+    catch (erro) {
         next(erro);
     }
 }

@@ -1,0 +1,18 @@
+<%- include('../partials/header') %>
+    <main>
+        <div class="row">
+            <div class="text-center">
+                <h1><%= formTitle %></h1>
+            </div>
+            <form action="<%= formAction %>" method="<%= formMethod %>">
+                <% inputs.forEach(function(input) { %>
+                    <div class="mb-3">
+                        <label for="<%= input.id %>" class="form-label"><%= input.label %>:</label>
+                        <input type="<%= input.type %>" class="form-control <%= input.class ? input.class : '' %>" id="<%= input.id %>" name="<%= input.name %>" <%= input.required ? 'required' : '' %>>
+                    </div>
+                <% }); %>
+                <button type="submit" class="btn btn-primary">Enviar</button>
+            </form>
+        </div>
+    </main>
+<%- include('../partials/footer') %>
