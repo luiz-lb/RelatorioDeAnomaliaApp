@@ -1,12 +1,12 @@
 import express from 'express';
-import * as syncController from '../controllers/syncController.js';
+import * as userController from '../controllers/syncController.js';
 
 const router = express.Router();
 
-router.get('/', syncController.paginaUsuarios);
-router.get('/user/edit/:id', syncController.editarUsuario);
-router.get('/user/new', syncController.novoUsuario);
-router.put('/user/:id', syncController.atualizarUsuario);
-router.post('/user', syncController.criarUsuario);
+router.get('/', userController.paginaUsuarios);
+router.get('/user/edit/:id', userController.editarUsuario);
+router.get('/user/new', userController.novoUsuario);
+router.put('/user/:id', userController.atualizarUsuario);
+router.post('/user', userController.criarUsuario);
 
 export default router;

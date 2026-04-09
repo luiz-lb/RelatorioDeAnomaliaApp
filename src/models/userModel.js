@@ -1,5 +1,3 @@
-//importando o axios para fazer requisições HTTP
-import axios from 'axios';
 // importando a configuração do banco de dados
 import {sql, poolPromise} from '../config/dbConfig.js';
 

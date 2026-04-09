@@ -1,8 +1,8 @@
 import express from 'express';
-import * as syncController from '../controllers/syncController.js';
+import * as fiscalController from '../controllers/fiscalController.js';
 
 const router = express.Router();
 
-router.get('/', syncController.paginaHome);
+router.get('/', fiscalController.paginaHome);
 
 export default router;

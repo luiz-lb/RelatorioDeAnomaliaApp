@@ -43,8 +43,4 @@ $(document).ready(function() {
 
         enviarFormulario(idForm, method, formData, redirectUrl ? redirectUrl : '');
     });
-
-    $('.btnDeleteUser').click(function() {
-        const userId = $(this).attr('id');
-
 });

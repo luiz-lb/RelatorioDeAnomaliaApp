@@ -1,39 +1,10 @@
-import * as syncModel from '../models/syncModel.js';
+// Conroller: Responsável por receber as requisições, processar os dados e enviar a resposta para o cliente. Ele atua como um intermediário entre o modelo (dados) e a visão (interface do usuário).
 
-export function paginaLogin(req, res, next) {
-    try {
-        res.status(200).render('pages/index');
-    } catch (erro) {
-        next(erro);
-    }
-}
-
-export function paginaHome(req, res, next) {
-    try {
-        const dados = {
-            "botoes": [
-                { "id": "btnNovoRelatorio", "nome": "Novo relatório" },
-                { "id": "btnConfiguracoes", "nome": "Configurações" }
-            ], "relatorios": [
-                { "id": 1, "nome": "Relatório 1" }
-            ]
-        };
-        res.status(200).render('pages/home', dados);
-    } catch (erro) {
-        next(erro);
-    }
-}
+import * as syncService  from '../services/userService.js';
 
 export async function paginaUsuarios(req, res, next) {
     try {
-        const usuarios = await syncModel.getAllUser();
-
-        const usuariosFormatados = usuarios.map(usuario => ({
-            ...usuario, // Mantém as propriedades originais do usuário
-            ativo: usuario.ativo === true ? "Sim" : "Não",
-            created_at: new Date(usuario.created_at).toLocaleDateString('pt-BR'),
-        }));
-
+        const usuariosFormatados = await syncService.getUsers();
         const dadosFuncionarios = {
             "tableidheader": "tabela-usuarios",
             "tableid": "corpo-tabela-usuarios",
@@ -47,12 +18,13 @@ export async function paginaUsuarios(req, res, next) {
                 "Ativo",
                 "Ações"
             ],
-            "tbody": usuariosFormatados
+            tbody: usuariosFormatados
         }
         res.status(200).render('pages/usuarios', dadosFuncionarios);
-    } catch (erro) {
-        next(erro);
+    } catch (error) {
+        next(error);
     }
+    
 }
 
 export async function editarUsuario(req, res, next) {
@@ -61,36 +33,33 @@ export async function editarUsuario(req, res, next) {
             throw new Error("ID do usuário não fornecido");
         }
         const idUsuario = req.params.id;
-        const usuario = await syncModel.getUserById(idUsuario);
-        if (!usuario) {
-            throw new Error("Usuário não encontrado");
-        }
+        const usuario = await syncService.getUser(idUsuario);
 
         const dadosFormulario = {
-            formTitle: "Editar Usuário",
-            idForm: "editarUsuarioForm",
-            formAction: `/adm/user/${idUsuario}`,
-            formMethod: "PUT",
-            redirectUrl: "/adm",
-            inputs: [
-                { id: "nomeCompleto", label: "Nome Completo", name: "nomeCompleto", type: "text", required: true, value: usuario.nome, placeholder: "Digite o nome completo" },
-                { id: "email", label: "Email", name: "email", type: "email", required: true, value: usuario.email, placeholder: "Digite o email" },
-                { id: "senha", label: "Nova senha(Digite apenas se quiser alterar)", name: "senha", type: "password", placeholder: "Digite a senha" },
-                { id: "empresa", label: "Empresa", name: "empresa", type: "text", required: true, value: usuario.empresa, placeholder: "Digite a empresa" },
-                { id: "permissao", label: "Permissão", name: "permissao", type: "select", required: true, value: usuario.permissao, options: [
-                    { value: "Everest", label: "Everest" },
-                    { value: "Terceiro", label: "Terceiro" }
-                ] },
-                { id: "ativo", label: "Ativo", name: "ativo", type: "select", required: true, value: usuario.ativo, options: [
-                    { value: "1", label: "Sim" },
-                    { value: "0", label: "Não" }
-                ] }
-            ]
-        }
-        res.status(200).render('pages/form', dadosFormulario);
-    } 
-    catch (erro) {
-        next(erro);
+                formTitle: "Editar Usuário",
+                idForm: "editarUsuarioForm",
+                formAction: `/adm/user/${idUsuario}`,
+                formMethod: "PUT",
+                redirectUrl: "/adm",
+                inputs: [
+                    { id: "nomeCompleto", label: "Nome Completo", name: "nomeCompleto", type: "text", required: true, value: usuario.nome, placeholder: "Digite o nome completo" },
+                    { id: "email", label: "Email", name: "email", type: "email", required: true, value: usuario.email, placeholder: "Digite o email" },
+                    { id: "senha", label: "Nova senha(Digite apenas se quiser alterar)", name: "senha", type: "password", placeholder: "Digite a senha" },
+                    { id: "empresa", label: "Empresa", name: "empresa", type: "text", required: true, value: usuario.empresa, placeholder: "Digite a empresa" },
+                    { id: "permissao", label: "Permissão", name: "permissao", type: "select", required: true, value: usuario.permissao, options: [
+                        { value: "Everest", label: "Everest" },
+                        { value: "Terceiro", label: "Terceiro" }
+                    ] },
+                    { id: "ativo", label: "Ativo", name: "ativo", type: "select", required: true, value: usuario.ativo, options: [
+                        { value: "1", label: "Sim" },
+                        { value: "0", label: "Não" }
+                    ] }
+                ]
+            }
+            res.status(200).render('pages/form', dadosFormulario);
+
+    } catch (error) {
+        next(error);
     }
 }
 
@@ -125,9 +94,12 @@ export function novoUsuario(req, res, next) {
 }
 
 export async function atualizarUsuario(req, res, next) {
-    try {
+    try{
         const dadosUsuario = req.body;
-        const resultado = await syncModel.atualizarUsuario(req.params.id, dadosUsuario);
+        const idUsuario = req.params.id;
+
+        const resultado = await syncService.updateUser(idUsuario,dadosUsuario);
+        
         if (resultado) {
             res.status(200).json({ message: "Usuário atualizado com sucesso" });
         } else {
@@ -141,7 +113,8 @@ export async function atualizarUsuario(req, res, next) {
 export async function criarUsuario(req, res, next) {
     try {
         const dadosUsuario = req.body;
-        const resultado = await syncModel.criarUsuario(dadosUsuario);
+
+        const resultado = await syncService.createdUser(dadosUsuario);
         if (resultado) {
             res.status(201).json({ message: "Usuário criado com sucesso" });
         } else {
@@ -151,4 +124,3 @@ export async function criarUsuario(req, res, next) {
         next(erro);
     }
 }
-
