@@ -1,4 +1,4 @@
-import * as syncModel from '../models/syncModel.js';
+import * as syncModel from '../models/userModel.js';
 
 export async function getUsers(dadosFuncionarios) {
     const usuarios = await syncModel.getAllUser();
