@@ -6,6 +6,16 @@ export function paginaLogin(req, res, next) {
     }
 }
 
+export function login(req, res, next) {
+    try {
+        // TODO: Implementar lógica de autenticação
+        // Por enquanto, apenas redireciona para a página inicial
+        res.redirect('/fiscal');
+    } catch (erro) {
+        next(erro);
+    }
+}
+
 export function paginaHome(req, res, next) {
     try {
         const dados = {
