@@ -1,7 +1,9 @@
 <%- include('../partials/header') %>
     <main>
         <% botoes.forEach(function(botao) { %>
-            <button id="<%= botao.id %>" class="btnHome"><%= botao.nome %></button>
+            <a href="<%= botao.link %>">
+                <button id="<%= botao.id %>" class="btnHome"><%= botao.nome %></button>
+            </a>
         <% }) %>
 
 

@@ -36,27 +36,27 @@ export async function editarUsuario(req, res, next) {
         const usuario = await syncService.getUser(idUsuario);
 
         const dadosFormulario = {
-                formTitle: "Editar Usuário",
-                idForm: "editarUsuarioForm",
-                formAction: `/adm/user/${idUsuario}`,
-                formMethod: "PUT",
-                redirectUrl: "/adm",
-                inputs: [
-                    { id: "nomeCompleto", label: "Nome Completo", name: "nomeCompleto", type: "text", required: true, value: usuario.nome, placeholder: "Digite o nome completo" },
-                    { id: "email", label: "Email", name: "email", type: "email", required: true, value: usuario.email, placeholder: "Digite o email" },
-                    { id: "senha", label: "Nova senha(Digite apenas se quiser alterar)", name: "senha", type: "password", placeholder: "Digite a senha" },
-                    { id: "empresa", label: "Empresa", name: "empresa", type: "text", required: true, value: usuario.empresa, placeholder: "Digite a empresa" },
-                    { id: "permissao", label: "Permissão", name: "permissao", type: "select", required: true, value: usuario.permissao, options: [
-                        { value: "Everest", label: "Everest" },
-                        { value: "Terceiro", label: "Terceiro" }
-                    ] },
-                    { id: "ativo", label: "Ativo", name: "ativo", type: "select", required: true, value: usuario.ativo, options: [
-                        { value: "1", label: "Sim" },
-                        { value: "0", label: "Não" }
-                    ] }
-                ]
-            }
-            res.status(200).render('pages/form', dadosFormulario);
+            formTitle: "Editar Usuário",
+            idForm: "editarUsuarioForm",
+            formAction: `/adm/user/${idUsuario}`,
+            formMethod: "PUT",
+            redirectUrl: "/adm",
+            inputs: [
+                { id: "nomeCompleto", label: "Nome Completo", name: "nomeCompleto", type: "text", required: true, value: usuario.nome, placeholder: "Digite o nome completo" },
+                { id: "email", label: "Email", name: "email", type: "email", required: true, value: usuario.email, placeholder: "Digite o email" },
+                { id: "senha", label: "Nova senha(Digite apenas se quiser alterar)", name: "senha", type: "password", placeholder: "Digite a senha" },
+                { id: "empresa", label: "Empresa", name: "empresa", type: "text", required: true, value: usuario.empresa, placeholder: "Digite a empresa" },
+                { id: "permissao", label: "Permissão", name: "permissao", type: "select", required: true, value: usuario.permissao, options: [
+                    { value: "Everest", label: "Everest" },
+                    { value: "Terceiro", label: "Terceiro" }
+                ] },
+                { id: "ativo", label: "Ativo", name: "ativo", type: "select", required: true, value: usuario.ativo, options: [
+                    { value: "1", label: "Sim" },
+                    { value: "0", label: "Não" }
+                ] }
+            ]
+        }
+        res.status(200).render('pages/form', dadosFormulario);
 
     } catch (error) {
         next(error);

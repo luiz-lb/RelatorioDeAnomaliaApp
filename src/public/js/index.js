@@ -21,18 +21,6 @@ async function enviarFormulario(idForm, method, formData, redirectUrl) {
     }
 }
 
-async function deleteUser(id) {
-    try {
-        const response = await axios.delete(`/adm/user/${id}`);
-        alert(response.data.message);
-        window.location.reload();
-    } catch (error) {
-        alert(error.response?.data?.message || "Ocorreu um erro ao enviar o formulário.");
-        console.error(error);
-    }
-    
-}
-
 $(document).ready(function() {
     $('.btnSend').click(function(e) {
         e.preventDefault();
