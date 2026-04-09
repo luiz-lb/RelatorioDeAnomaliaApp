@@ -19,3 +19,11 @@ export function editarUsuario(req, res, next) {
 export function novoUsuario(req, res, next) {
     syncService.novoUsuario(req, res, next);
 }
+
+export function atualizarUsuario(req, res, next) {
+    syncService.atualizarUsuario(req, res, next);
+}
+
+export function criarUsuario(req, res, next) {
+    syncService.criarUsuario(req, res, next);
+}

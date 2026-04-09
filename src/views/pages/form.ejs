@@ -4,14 +4,23 @@
             <div class="text-center">
                 <h1><%= formTitle %></h1>
             </div>
-            <form action="<%= formAction %>" method="<%= formMethod %>">
+            <form action="<%= formAction %>" id="<%= idForm %>">
                 <% inputs.forEach(function(input) { %>
                     <div class="mb-3">
-                        <label for="<%= input.id %>" class="form-label"><%= input.label %>:</label>
-                        <input type="<%= input.type %>" class="form-control <%= input.class ? input.class : '' %>" id="<%= input.id %>" name="<%= input.name %>" <%= input.required ? 'required' : '' %>>
+                        <% if(input.type === 'select') { %>
+                            <label for="<%= input.id %>" class="form-label"><%= input.label %>:</label>
+                            <select class="form-select <%= input.class ? input.class : '' %>" id="<%= input.id %>" name="<%= input.name %>" <%= input.required ? 'required' : '' %>>
+                                <% input.options.forEach(function(option) { %>
+                                    <option value="<%= option.value %>" <%= option.value === input.value ? 'selected' : '' %>><%= option.label %></option>
+                                <% }); %>
+                            </select>
+                        <% } else { %>
+                            <label for="<%= input.id %>" class="form-label"><%= input.label %>:</label>
+                            <input type="<%= input.type %>" class="form-control <%= input.class ? input.class : '' %>" id="<%= input.id %>" name="<%= input.name %>" value="<%= input.value ? input.value : '' %>" <%= input.required ? 'required' : '' %>>
+                        <% } %>
                     </div>
                 <% }); %>
-                <button type="submit" class="btn btn-primary">Enviar</button>
+                <button type="button" data-method="<%= formMethod %>" data-form-id="<%= idForm %>" data-redirect="<%= redirectUrl ? redirectUrl : '' %>" class="btn btn-primary btnSend">Enviar</button>
             </form>
         </div>
     </main>

@@ -1,8 +1,10 @@
 <%- include('../partials/header') %>
     <main>
-        <button class="btn btn-primary btn-sm">
-            <i class="bi bi-person-plus-fill me-1"></i> Adicionar funcionário
-        </button>
+        <a href="adm/user/new">
+            <button class="btn btn-primary btn-sm">
+                <i class="bi bi-person-plus-fill me-1"></i> Adicionar funcionário
+            </button>
+        </a>
         <table class="table table-hover align-middle mb-0" id="<%= tableidheader %>">
 
             <% if (typeof tbody !=='undefined' && tbody.length> 0) { %>
@@ -29,14 +31,13 @@
                                     <!-- Ações -->
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="adm/funcionario/<%= Object.values(linha)[0] %>"
+                                            <a href="adm/user/edit/<%= Object.values(linha)[0] %>"
                                                 class="btn btn-outline-primary" data-tippy="Editar">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
 
-                                            <button class="btn btn-outline-danger btn-excluir-funcionario"
-                                                id="<%= Object.values(linha)[0] %>"
-                                                data-tippy="Excluir">
+                                            <button class="btn btn-outline-danger btnDeleteUser"
+                                                id="<%= Object.values(linha)[0] %>">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
