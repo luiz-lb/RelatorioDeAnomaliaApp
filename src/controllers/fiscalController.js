@@ -40,7 +40,7 @@ export function paginaNovoRelatorio(req, res, next) {
 
 export function paginaEditarRelatorio(req, res, next) {
     try {
-
+        
     } catch (error) {
         next(error);
     }

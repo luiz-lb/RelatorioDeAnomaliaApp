@@ -1,5 +1,5 @@
 import express from 'express';
-import fiscal from './fiscal.js';
+import fiscalizacao from './fiscalizacao.js';
 import adm from './adm.js';
 import auth from './auth.js';
 
@@ -12,6 +12,6 @@ router.use('/', auth);
 router.use('/adm', adm);
 
 // Rota para a página de fiscais
-router.use('/fiscal', fiscal);
+router.use('/fiscalizacao', fiscalizacao);
 
 export default router;
