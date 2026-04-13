@@ -1,7 +1,10 @@
 import express from 'express';
 import * as fiscalController from '../controllers/fiscalController.js';
+import * as authController from '../controllers/authController.js';
 
 const router = express.Router();
+
+router.use(authController.apenasTerceiro);
 
 router.get('/', fiscalController.paginaHome);
 router.get('/novo', fiscalController.paginaNovoRelatorio);

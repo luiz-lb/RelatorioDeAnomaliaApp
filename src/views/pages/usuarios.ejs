@@ -5,6 +5,9 @@
                 <i class="bi bi-person-plus-fill me-1"></i> Adicionar funcionário
             </button>
         </a>
+        <form action="/adm/logout" method="POST">
+            <button type="submit">Sair</button>
+        </form>
         <table class="table table-hover align-middle mb-0" id="<%= tableidheader %>">
 
             <% if (typeof tbody !=='undefined' && tbody.length> 0) { %>
@@ -43,29 +46,29 @@
                                         </div>
                                     </td>
                         </tr>
-                    <% }); %>
+                        <% }); %>
                 </tbody>
 
-            <% } else { %>
-                <!-- Estado vazio -->
-                <tbody>
-                    <tr>
-                        <td colspan="<%= thead.length + 1 %>">
-                            <div class="text-center py-5">
-                                <i class="bi bi-people fs-1 text-secondary mb-3 d-block"></i>
-                                <h6 class="text-muted mb-1">Nenhum funcionário encontrado</h6>
-                                <p class="text-muted mb-3">Comece adicionando um novo funcionário
-                                </p>
+                <% } else { %>
+                    <!-- Estado vazio -->
+                    <tbody>
+                        <tr>
+                            <td colspan="<%= thead.length + 1 %>">
+                                <div class="text-center py-5">
+                                    <i class="bi bi-people fs-1 text-secondary mb-3 d-block"></i>
+                                    <h6 class="text-muted mb-1">Nenhum funcionário encontrado</h6>
+                                    <p class="text-muted mb-3">Comece adicionando um novo funcionário
+                                    </p>
 
-                                <a href="adm/adicionar/" class="btn btn-primary btn-sm">
-                                    <i class="bi bi-person-plus-fill me-1"></i> Adicionar
-                                    funcionário
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            <% } %>
-        </table> 
+                                    <a href="adm/adicionar/" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-person-plus-fill me-1"></i> Adicionar
+                                        funcionário
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <% } %>
+        </table>
     </main>
-<%- include('../partials/footer') %>
+    <%- include('../partials/footer') %>
