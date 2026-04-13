@@ -5,7 +5,7 @@ import auth from './auth.js';
 
 const router = express.Router();
 
-// Rota para a página inicial
+// Rota para a página inicial (login)
 router.use('/', auth);
 
 // Rota para a página de administradores

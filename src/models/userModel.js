@@ -41,3 +41,11 @@ export async function criarUsuario(dadosUsuario) {
         .query('INSERT INTO usuarios (nome, email, senha_hash, empresa, permissao, ativo) VALUES (@nome, @email, @senha, @empresa, @permissao, @ativo)');
     return result.rowsAffected[0] > 0;
 }
+
+export async function getUserByEmail(email) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('email', sql.VarChar(150), email)
+        .query('SELECT id, nome, email, senha_hash, ativo, permissao FROM usuarios WHERE email = @email');
+    return result.recordset[0];
+}
