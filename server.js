@@ -31,7 +31,7 @@ app.use((req, res) => {
 // Error handler
 app.use((err, req, res, next) => {
 	console.error(err);
-	res.status(500).render('pages/erro', { msg: 'Erro interno.' });
+	res.status(500).render('pages/erro', { msg: 'Erro interno.'});
 });
 
 // iniciar servidor
