@@ -32,4 +32,3 @@ $(document).ready(function() {
         enviarFormulario(idForm, method, formData, redirectUrl ? redirectUrl : '');
     });
 });
-
