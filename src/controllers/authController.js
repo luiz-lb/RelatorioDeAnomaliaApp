@@ -15,7 +15,7 @@ export async function login(req, res, next) {
         const resultado = await authService.autenticar(username, password);
 
         if (!resultado.sucesso) {
-            return res.status(401).render('pages/index', { erro: resultado.mensagem });
+            return res.status(401).render('pages/index', { erroLogin : resultado.mensagem });
         }
 
         // Salva o usuário na sessão
@@ -32,7 +32,7 @@ export async function login(req, res, next) {
             return res.redirect('/fiscalizacao');
         }
 
-        return res.status(403).render('pages/index', { erro: 'Permissão não reconhecida.' });
+        return res.status(403).render('pages/index', { erroLogin : 'Permissão não reconhecida.' });
 
     } catch (error) {
         next(error);
