@@ -9,8 +9,10 @@ async function enviarFormulario(idForm, method, formData, redirectUrl) {
             }
         });
         alert(response.data.message);
-        if (redirectUrl !== '') {
+        if (redirectUrl !== '' ) {
             window.location.href = redirectUrl;
+        } else if(response.data.redirectUrl) {
+            window.location.href = response.data.redirectUrl;
         }
         else {
             return response.data;

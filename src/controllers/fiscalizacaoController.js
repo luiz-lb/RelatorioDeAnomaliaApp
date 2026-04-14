@@ -24,8 +24,7 @@ export function paginaNovoRelatorio(req, res, next) {
             idForm: "novoRelatorioForm",
             formAction: "/fiscalizacao/novo",
             formMethod: "POST",
-            btnText: "Próximo",
-            redirectUrl: "/fiscalizacao",//a resposta vai voltar para qual pagina vai fazer o redirecionamento
+            btnText: "Próximo",//a resposta vai voltar para qual pagina vai fazer o redirecionamento
             inputs: [
                 { id: "siteId", label: "Site ID", name: "siteId", type: "text", required: true, placeholder: "Digite o Site ID" },
                 { id: "alturaTorre", label: "Altura da Torre", name: "alturaTorre", type: "text", required: true, placeholder: "Digite a altura da torre" },
@@ -43,9 +42,16 @@ export function paginaNovoRelatorio(req, res, next) {
     }
 }
 
-export function paginaEditarRelatorio(req, res, next) {
+export async function paginaEditarRelatorio(req, res, next) {
     try {
-        
+        const idRelatorio = req.params.id;
+        const idUsuario = req.session.usuario.id_user;
+        const permissaoUsuario = req.session.usuario.permissao;
+        const dadosRelatorio = await fiscalizacaoService.obterRelatorioPorId(idRelatorio, idUsuario, permissaoUsuario);
+
+        console.log('Relatório obtido para edição:');
+
+        res.status(200).render('pages/fiscalizacao', { resultadoHeader: dadosRelatorio.header, resultadoBody: dadosRelatorio.body });
     } catch (error) {
         next(error);
     }
@@ -58,7 +64,13 @@ export async function salvarNovoRelatorio(req, res, next) {
         const status = "Rascunho"; // Status inicial do relatório
 
         const resultado = await fiscalizacaoService.criarRelatorio({ siteId, alturaTorre, cep, municipio, uf, endereco, cadeado, tipoEstrutura, usuarioId, status });
-        console.log("Id do insert", resultado);
+        console.log('Relatório criado com ID:', resultado);
+        if (resultado) {
+            console.log('Avisando pro usuário que o relatório foi criado com sucesso, ID:', resultado);
+            res.status(201).json({ message: "Relatório criado com sucesso", relatorioId: resultado, redirectUrl: `/fiscalizacao/edit/${resultado}` });
+        } else {            
+            res.status(500).json({ message: "Erro ao criar o relatório" });
+        }
     } catch (error) {
         next(error);
     }

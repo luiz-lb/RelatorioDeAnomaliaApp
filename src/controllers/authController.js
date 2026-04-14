@@ -24,6 +24,8 @@ export async function login(req, res, next) {
             permissao: resultado.permissao
         };
 
+        console.log('Sessão do usuário criada com sucesso: ', req.session.usuario);
+
         if (resultado.permissao === 'Terceiro') {
             return res.redirect('/fiscalizacao');
         }

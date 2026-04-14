@@ -18,9 +18,20 @@ export async function autenticar(email, senha) {
         return { sucesso: false, mensagem: 'Usuário ou senha inválidos.' };
     }
 
+    console.log('Usuário autenticado com sucesso: ', usuario.email);
+
     return {
         sucesso: true,
         permissao: usuario.permissao,
         id: usuario.id
     };
+}
+
+export async function verificarPermissaoParaSql(permissaoUsuario) {
+    if(permissaoUsuario === 'Everest') {
+        permissaoUsuario = " or 1=1";
+    }else{
+        permissaoUsuario = "";
+    }
+    return permissaoUsuario;
 }

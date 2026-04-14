@@ -17,3 +17,20 @@ export async function criarRelatorio(dadosRelatorio) {
         .query('Insert into fiscalizacoes(usuario_id, site_id, altura_torre, tipo_cadeado, endereco, CEP, municipio, uf, tipo_estrutura, status) Output inserted.id Values (@user_id, @site_id, @altura_torre, @tipo_cadeado, @endereco, @CEP, @municipio, @uf, @tipo_estrutura, @status)');
     return result.recordset[0].id;
 }
+
+export async function obterRelatorioHeaderPorId(idRelatorio, idUsuario, permissaoSql = "") {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('idRelatorio', sql.Int, idRelatorio)
+        .input('idUsuario', sql.Int, idUsuario)
+        .query(`Select id, usuario_id, site_id, altura_torre, tipo_cadeado, tipo_estrutura, CEP, endereco, municipio, UF, created_at, status From fiscalizacoes where id=@idRelatorio and (usuario_id=@idUsuario ${permissaoSql})`);
+    return result.recordset[0];
+}
+
+export async function obterRelatorioPorId(idRelatorio) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('idRelatorio', sql.Int, idRelatorio)
+        .query(`Select id, fiscalizacao_id, ordem, descricao, foto_path, foto_sharepoint_url From nao_conformidades where fiscalizacao_id=@idRelatorio`);
+    return result.recordset;
+}
