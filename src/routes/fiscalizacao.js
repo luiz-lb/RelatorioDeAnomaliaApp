@@ -1,13 +1,13 @@
 import express from 'express';
-import * as fiscalController from '../controllers/fiscalController.js';
+import * as fiscalizacaoController from '../controllers/fiscalizacaoController.js';
 import * as authController from '../controllers/authController.js';
 
 const router = express.Router();
 
 router.use(authController.Terceiro);
 
-router.get('/', fiscalController.paginaHome);
-router.get('/novo', fiscalController.paginaNovoRelatorio);
-router.get('/edit/:id', fiscalController.paginaEditarRelatorio);
+router.get('/', fiscalizacaoController.paginaHome);
+router.get('/novo', fiscalizacaoController.paginaNovoRelatorio);
+router.get('/edit/:id', fiscalizacaoController.paginaEditarRelatorio);
 
 export default router;

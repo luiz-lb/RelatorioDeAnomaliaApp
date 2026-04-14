@@ -1,8 +1,11 @@
+import * as fiscalizacaoService from '../services/fiscalizacaoService.js';
+
+
 export function paginaHome(req, res, next) {
     try{
         const dados = {
             "botoes": [
-                { "id": "btnNovoRelatorio", "nome": "Novo relatório", "link": "/fiscal/novo" },
+                { "id": "btnNovoRelatorio", "nome": "Novo relatório", "link": "/fiscalizacao/novo" },
                 { "id": "btnConfiguracoes", "nome": "Configurações", "link": "/adm" }
             ], "relatorios": [
                 { "id": 1, "nome": "Relatório 1" }//temporario, depois buscar do banco de dados
@@ -19,10 +22,10 @@ export function paginaNovoRelatorio(req, res, next) {
         const dadosFormulario = {
             formTitle: "Novo Relatório",
             idForm: "novoRelatorioForm",
-            formAction: "/fiscal",
+            formAction: "/fiscalizacao/novo",
             formMethod: "POST",
             btnText: "Próximo",
-            redirectUrl: "/fiscal",//a resposta vai voltar para qual pagina vai fazer o redirecionamento
+            redirectUrl: "/fiscalizacao",//a resposta vai voltar para qual pagina vai fazer o redirecionamento
             inputs: [
                 { id: "siteId", label: "Site ID", name: "siteId", type: "text", required: true, placeholder: "Digite o Site ID" },
                 { id: "cep", label: "CEP", name: "cep", type: "text", placeholder: "Digite o CEP" },
@@ -41,6 +44,18 @@ export function paginaNovoRelatorio(req, res, next) {
 export function paginaEditarRelatorio(req, res, next) {
     try {
         
+    } catch (error) {
+        next(error);
+    }
+}
+
+export function salvarNovoRelatorio(req, res, next) {
+    try {
+        const { siteId, cep, municipio, uf, endereco, cadeado } = req.body;
+        const usuarioEmail = req.session.usuario.email; // Exemplo de como obter o email do usuário logado
+
+        const resultado = fiscalizacaoService.criarRelatorio({ siteId, cep, municipio, uf, endereco, cadeado });
+
     } catch (error) {
         next(error);
     }

@@ -20,6 +20,7 @@ export async function autenticar(email, senha) {
 
     return {
         sucesso: true,
-        permissao: usuario.permissao
+        permissao: usuario.permissao,
+        id: usuario.id
     };
 }

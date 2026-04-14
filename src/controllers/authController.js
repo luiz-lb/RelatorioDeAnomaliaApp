@@ -20,7 +20,7 @@ export async function login(req, res, next) {
 
         // Salva o usuário na sessão
         req.session.usuario = {
-            email: username,
+            id_user: resultado.id,
             permissao: resultado.permissao
         };
 
