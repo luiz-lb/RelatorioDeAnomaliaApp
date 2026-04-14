@@ -29,7 +29,7 @@ export async function login(req, res, next) {
         }
 
         if (resultado.permissao === 'Everest') {
-            return res.redirect('/adm');
+            return res.redirect('/fiscalizacao');
         }
 
         return res.status(403).render('pages/index', { erro: 'Permissão não reconhecida.' });
@@ -60,12 +60,12 @@ export function apenasEverest(req, res, next) {
     next();
 }
 
-// Middleware: apenas Terceiro
-export function apenasTerceiro(req, res, next) {
+// Middleware: Terceiro
+export function Terceiro(req, res, next) {
     if (!req.session.usuario) {
         return res.redirect('/');
     }
-    if (req.session.usuario.permissao !== 'Terceiro') {
+    if (req.session.usuario.permissao !== 'Terceiro' && req.session.usuario.permissao !== 'Everest') {
         return res.status(403).render('pages/erro', { msg: 'Acesso negado.' });
     }
     next();

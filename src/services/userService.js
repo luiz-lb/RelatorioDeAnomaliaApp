@@ -1,4 +1,5 @@
 import * as syncModel from '../models/userModel.js';
+import bcrypt from 'bcrypt';
 
 export async function getUsers(dadosFuncionarios) {
     const usuarios = await syncModel.getAllUser();
@@ -27,7 +28,8 @@ export async function updateUser(idUsuario, dadosUsuario) {
 }
 
 export async function createdUser(dadosUsuario) {
-    const resultado = await syncModel.criarUsuario(dadosUsuario);
+    const senha_hash = await bcrypt.hash(dadosUsuario.senha, 10);
+    const resultado = await syncModel.criarUsuario(dadosUsuario, senha_hash);
     return resultado;
 }
 

@@ -4,7 +4,7 @@ import * as authController from '../controllers/authController.js';
 
 const router = express.Router();
 
-router.use(authController.apenasTerceiro);
+router.use(authController.Terceiro);
 
 router.get('/', fiscalController.paginaHome);
 router.get('/novo', fiscalController.paginaNovoRelatorio);

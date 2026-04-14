@@ -29,12 +29,12 @@ export async function atualizarUsuario(id, dadosUsuario) {
     return result.rowsAffected[0] > 0;
 }
 
-export async function criarUsuario(dadosUsuario) {
+export async function criarUsuario(dadosUsuario, senha_hash) {
     const pool = await poolPromise;
     const result = await pool.request()
         .input('nome', sql.VarChar(255), dadosUsuario.nomeCompleto)
         .input('email', sql.VarChar(255), dadosUsuario.email)
-        .input('senha', sql.VarChar(255), dadosUsuario.senha)
+        .input('senha', sql.VarChar(255), senha_hash)
         .input('empresa', sql.VarChar(255), dadosUsuario.empresa)
         .input('permissao', sql.VarChar(50), dadosUsuario.permissao)
         .input('ativo', sql.Bit, dadosUsuario.ativo)
