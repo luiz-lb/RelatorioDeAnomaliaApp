@@ -28,11 +28,13 @@ export function paginaNovoRelatorio(req, res, next) {
             redirectUrl: "/fiscalizacao",//a resposta vai voltar para qual pagina vai fazer o redirecionamento
             inputs: [
                 { id: "siteId", label: "Site ID", name: "siteId", type: "text", required: true, placeholder: "Digite o Site ID" },
+                { id: "alturaTorre", label: "Altura da Torre", name: "alturaTorre", type: "text", required: true, placeholder: "Digite a altura da torre" },
                 { id: "cep", label: "CEP", name: "cep", type: "text", placeholder: "Digite o CEP" },
                 { id: "municipio", label: "Município", name: "municipio", type: "text", required: true, placeholder: "Digite o município" },
                 { id: "uf", label: "UF", name: "uf", type: "text", required: true, placeholder: "Digite a UF" },
                 { id: "endereco", label: "Endereço", name: "endereco", type: "text", required: true, placeholder: "Digite o endereço" },
                 { id: "cadeado", label: "Tipo do cadeado", name: "cadeado", type: "text", required: true, placeholder: "Digite o tipo do cadeado do local" },
+                { id: "tipoEstrutura", label: "Tipo da Estrutura", name: "tipoEstrutura", type: "text", required: true, placeholder: "Digite o tipo da estrutura" }
             ]
         }
         res.status(200).render('pages/form', dadosFormulario);
@@ -49,13 +51,14 @@ export function paginaEditarRelatorio(req, res, next) {
     }
 }
 
-export function salvarNovoRelatorio(req, res, next) {
+export async function salvarNovoRelatorio(req, res, next) {
     try {
-        const { siteId, cep, municipio, uf, endereco, cadeado } = req.body;
-        const usuarioEmail = req.session.usuario.email; // Exemplo de como obter o email do usuário logado
+        const { siteId, alturaTorre, cep, municipio, uf, endereco, cadeado, tipoEstrutura } = req.body;
+        const usuarioId = req.session.usuario.id_user; // Exemplo de como obter o ID do usuário logado
+        const status = "Rascunho"; // Status inicial do relatório
 
-        const resultado = fiscalizacaoService.criarRelatorio({ siteId, cep, municipio, uf, endereco, cadeado });
-
+        const resultado = await fiscalizacaoService.criarRelatorio({ siteId, alturaTorre, cep, municipio, uf, endereco, cadeado, tipoEstrutura, usuarioId, status });
+        console.log("Id do insert", resultado);
     } catch (error) {
         next(error);
     }

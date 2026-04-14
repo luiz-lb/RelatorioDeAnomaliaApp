@@ -8,6 +8,7 @@ router.use(authController.Terceiro);
 
 router.get('/', fiscalizacaoController.paginaHome);
 router.get('/novo', fiscalizacaoController.paginaNovoRelatorio);
+router.post('/novo', fiscalizacaoController.salvarNovoRelatorio);
 router.get('/edit/:id', fiscalizacaoController.paginaEditarRelatorio);
 
 export default router;
