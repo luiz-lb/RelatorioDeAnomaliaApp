@@ -23,9 +23,9 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'src', 'public')));
 
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'segredo_everest',
+    secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: { maxAge: 1000 * 60 * 60 } // 1 hora
 }));
 
