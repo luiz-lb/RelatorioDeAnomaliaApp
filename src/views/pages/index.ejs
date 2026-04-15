@@ -10,7 +10,7 @@
                             </div>
                             <h1 class="text-center login-title">Relatórios de Anomalias</h1>
                             <p class="text-center login-subtitle">Gerencie e registre anomalias com rapidez e segurança</p>
-                            <form action="/auth" method="POST" id="formLogin">
+                            <form action="/" method="POST" id="formLogin">
                                 <div class="mb-3">
                                     <label for="username" class="form-label">Usuário</label>
                                     <input type="text" id="username" name="username" class="form-control" placeholder="Digite seu usuário" required>
@@ -24,7 +24,9 @@
                             <div class="text-center mt-3">
                                 <a href="#" class="text-muted text-decoration-none">Esqueceu a senha?</a>
                             </div>
-                            <h3><%= typeof erroLogin !== 'undefined' ? erroLogin : '' %></h3>
+                            <% if (typeof erroLogin !== 'undefined' && erroLogin) { %>
+                                <input type="hidden" id="loginErrorMessage" value="<%= erroLogin %>">
+                            <% } %>
                         </div>
                     </div>
                 </div>

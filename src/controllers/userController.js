@@ -1,4 +1,4 @@
-// Conroller: Responsável por receber as requisições, processar os dados e enviar a resposta para o cliente. Ele atua como um intermediário entre o modelo (dados) e a visão (interface do usuário).
+// Controlador: Responsável por receber as requisições, processar os dados e enviar a resposta para o cliente. Ele atua como um intermediário entre o modelo (dados) e a visão (interface do usuário).
 
 import * as syncService  from '../services/userService.js';
 
