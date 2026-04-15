@@ -2,24 +2,30 @@
     <main>
         <% botoes.forEach(function(botao) { %>
             <a href="<%= botao.link %>">
-                <button id="<%= botao.id %>" class="btnHome"><%= botao.nome %></button>
+                <button id="<%= botao.id %>" class="btnHome">
+                    <%= botao.nome %>
+                </button>
             </a>
-        <% }) %>
+            <% }) %>
 
 
-        <table>
-            <thead>
-                <tr>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="tabela-corpo">
-                <% relatorios.forEach(function(relatorio) { %>
-                    <tr>
-                        <td></td>
-                    </tr>
-                <% }) %>
-            </tbody>
-        </table> 
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-corpo">
+                        <% relatorios.forEach(function(relatorio) { %>
+                            <tr>
+                                <td></td>
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+                <form action="/adm/logout" method="POST">
+                    <button type="submit">Sair</button>
+                </form>
     </main>
-<%- include('../partials/footer') %>
+
+    <%- include('../partials/footer') %>

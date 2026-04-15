@@ -3,7 +3,7 @@ import * as authController from '../controllers/authController.js';
 
 const router = express.Router();
 
-// Rota para a página inicial
 router.get('/', authController.paginaLogin);
+router.post('/', authController.login);
 
 export default router;

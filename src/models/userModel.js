@@ -29,15 +29,23 @@ export async function atualizarUsuario(id, dadosUsuario) {
     return result.rowsAffected[0] > 0;
 }
 
-export async function criarUsuario(dadosUsuario) {
+export async function criarUsuario(dadosUsuario, senha_hash) {
     const pool = await poolPromise;
     const result = await pool.request()
         .input('nome', sql.VarChar(255), dadosUsuario.nomeCompleto)
         .input('email', sql.VarChar(255), dadosUsuario.email)
-        .input('senha', sql.VarChar(255), dadosUsuario.senha)
+        .input('senha', sql.VarChar(255), senha_hash)
         .input('empresa', sql.VarChar(255), dadosUsuario.empresa)
         .input('permissao', sql.VarChar(50), dadosUsuario.permissao)
         .input('ativo', sql.Bit, dadosUsuario.ativo)
         .query('INSERT INTO usuarios (nome, email, senha_hash, empresa, permissao, ativo) VALUES (@nome, @email, @senha, @empresa, @permissao, @ativo)');
     return result.rowsAffected[0] > 0;
+}
+
+export async function getUserByEmail(email) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('email', sql.VarChar(150), email)
+        .query('SELECT id, nome, email, senha_hash, ativo, permissao FROM usuarios WHERE email = @email');
+    return result.recordset[0];
 }

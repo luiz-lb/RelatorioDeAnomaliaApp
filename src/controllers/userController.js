@@ -97,15 +97,21 @@ export async function atualizarUsuario(req, res, next) {
     try{
         const dadosUsuario = req.body;
         const idUsuario = req.params.id;
+        const usuarioLogadoId = req.session.usuario.id_user;
+
+        console.log('Usuário ', usuarioLogadoId, ' solicitou atualização do usuário ', idUsuario);
 
         const resultado = await syncService.updateUser(idUsuario,dadosUsuario);
         
         if (resultado) {
+            console.log('Usuário atualizado com sucesso: ', idUsuario);
             res.status(200).json({ message: "Usuário atualizado com sucesso" });
         } else {
+            console.log('Usuário não encontrado para atualização: ', idUsuario);
             res.status(404).json({ message: "Usuário não encontrado" });
         }
     } catch (erro) {
+        console.log('Erro ao atualizar usuário: ', idUsuario, '. Erro: ', erro);
         next(erro);
     }
 }
@@ -113,14 +119,20 @@ export async function atualizarUsuario(req, res, next) {
 export async function criarUsuario(req, res, next) {
     try {
         const dadosUsuario = req.body;
+        const usuarioLogadoId = req.session.usuario.id_user;
+
+        console.log('Usuário ', usuarioLogadoId, ' solicitou criação de um novo usuário(nome, email): ', dadosUsuario.nomeCompleto, ', ', dadosUsuario.email);
 
         const resultado = await syncService.createdUser(dadosUsuario);
         if (resultado) {
+            console.log('Usuário criado com sucesso: ', dadosUsuario.email);
             res.status(201).json({ message: "Usuário criado com sucesso" });
         } else {
+            console.log('Erro ao criar usuário: ', dadosUsuario.email);
             res.status(400).json({ message: "Erro ao criar usuário" });
         }
     } catch (erro) {
+        console.log('Erro ao criar usuário: ', dadosUsuario, '. Erro: ', erro);
         next(erro);
     }
 }

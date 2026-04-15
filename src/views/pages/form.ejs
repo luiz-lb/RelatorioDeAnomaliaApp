@@ -20,7 +20,7 @@
                         <% } %>
                     </div>
                 <% }); %>
-                <button type="button" data-method="<%= formMethod %>" data-form-id="<%= idForm %>" data-redirect="<%= redirectUrl ? redirectUrl : '' %>" class="btn btn-primary btnSend"><%= typeof btnText !== 'undefined' ? btnText : 'Enviar' %></button>
+                <button type="button" data-method="<%= formMethod %>" data-form-id="<%= idForm %>" data-redirect="<%= typeof redirectUrl !== 'undefined' ? redirectUrl : '' %>" class="btn btn-primary btnSend"><%= typeof btnText !== 'undefined' ? btnText : 'Enviar' %></button>
             </form>
         </div>
     </main>

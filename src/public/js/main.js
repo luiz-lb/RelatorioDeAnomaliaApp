@@ -9,8 +9,10 @@ async function enviarFormulario(idForm, method, formData, redirectUrl) {
             }
         });
         alert(response.data.message);
-        if(redirectUrl !==''){
+        if (redirectUrl !== '' ) {
             window.location.href = redirectUrl;
+        } else if(response.data.redirectUrl) {
+            window.location.href = response.data.redirectUrl;
         }
         else {
             return response.data;
@@ -21,8 +23,8 @@ async function enviarFormulario(idForm, method, formData, redirectUrl) {
     }
 }
 
-$(document).ready(function() {
-    $('.btnSend').click(function(e) {
+$(document).ready(function () {
+    $('.btnSend').click(function (e) {
         e.preventDefault();
         const idForm = $(this).data('form-id');
         const method = $(this).data('method');
@@ -32,3 +34,15 @@ $(document).ready(function() {
         enviarFormulario(idForm, method, formData, redirectUrl ? redirectUrl : '');
     });
 });
+
+function testesweetalert() {
+    Swal.fire({
+
+        title: 'Bootstrap 5 theme',
+        theme: 'bootstrap-5',
+        title: 'Teste de SweetAlert',
+        text: 'Este é um teste para verificar se o SweetAlert está funcionando corretamente.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+    });
+}
