@@ -93,6 +93,7 @@ dist
 
 # pasta para updates de fotos
 uploads/temp/
+src/public/uploads/temp/
 
 # vuepress v2.x temp and cache directory
 .temp
