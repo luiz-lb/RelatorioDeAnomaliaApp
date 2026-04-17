@@ -12,7 +12,7 @@
         <h3>UF: <%= typeof resultadoHeader.UF !== 'undefined' ? resultadoHeader.UF : 'N/A' %></h3>
         <h3>Criado em: <%= typeof resultadoHeader.created_at !== 'undefined' ? resultadoHeader.created_at : 'N/A' %></h3>
         <h3>Status: <%= typeof resultadoHeader.status !== 'undefined' ? resultadoHeader.status : 'N/A' %></h3>
-        <button>Enviar</button>
+        <button id="idRelatorio" class="btn-env-relatorio">Enviar</button>
     </section>
     <main>
         <div id="galeria">
@@ -28,6 +28,7 @@
             <input type="file" id="arquivoInput" accept="image/png, image/jpeg, image/jpg" name="arquivo" required>
             <label for="descricao">Descrição:</label>
             <textarea id="descricao" name="descricao" placeholder="Relate a não conformidade..."></textarea>
+            <!-- Colocar um pop com switch alert no button para não enviar varias fotos de uma vez (Colocar um para ficar carregando enquanto não recebeu a informação no banco) -->
             <button type="submit">Enviar Imagem</button>
         </form>
     </main>

@@ -58,6 +58,11 @@ $(document).ready(function () {
     $('#formUpload').submit(async function (e) {
         // Pegando foto e descrição que o usuario subiu
         e.preventDefault();
+        // Evitar múltiplos envios: desabilitar botão enquanto ocorre o upload
+        if (this.dataset.uploadInProgress === 'true') return;
+        this.dataset.uploadInProgress = 'true';
+        const submitButtons = $(this).find('button[type=submit], input[type=submit]');
+        submitButtons.prop('disabled', true);
 
         // Preciso enviar tambem a descricao da nao conformidade, entao vou usar FormData ao invés de serializar o formulário
         const arquivo = $('#arquivoInput')[0].files[0];
@@ -80,17 +85,28 @@ $(document).ready(function () {
                 // Se editar aqui, editar tambem no ejs de fiscalizacao
                 const novaImagem = $(`<img src="${dados.caminhoDaImagem}">`);
                 const Descricao = $(`<p>${dados.descricao}</p>`);
+                const buttonEditar = $(`<button id="${dados.idNaoConformidade}" class="btn btn-primary btn-sm btn-editar">Editar</button>`);
+                const buttonExcluir = $(`<button id="${dados.idNaoConformidade}" class="btn btn-danger btn-sm btn-excluir">Excluir</button>`);
                 $('#galeria').append(novaImagem);
                 $('#galeria').append(Descricao);
+                $('#galeria').append(buttonEditar);
+                $('#galeria').append(buttonExcluir);
 
                 // Limpa o input
                 this.reset();
+                // resetar estado do botão
+                this.dataset.uploadInProgress = 'false';
+                submitButtons.prop('disabled', false);
             } else {
                 alert('Erro ao subir a imagem: ' + dados.mensagem);
+                this.dataset.uploadInProgress = 'false';
+                submitButtons.prop('disabled', false);
             }
         } catch (erro) {
             console.error("Erro na requisição:", erro);
             alert("Ocorreu um erro de conexão com o servidor.");
+            this.dataset.uploadInProgress = 'false';
+            submitButtons.prop('disabled', false);
         }
     });
 });

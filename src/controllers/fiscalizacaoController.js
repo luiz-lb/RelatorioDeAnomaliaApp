@@ -1,6 +1,8 @@
 import * as fiscalizacaoService from '../services/fiscalizacaoService.js';
 import upload from '../config/configMulter.js';
 import multer from 'multer';
+import fs from 'fs';
+import crypto from 'crypto';
 
 
 export async function paginaHome(req, res, next) {
@@ -93,7 +95,7 @@ export async function envioNaoConformidade(req, res, next) {
 
     const processarUpload = upload.single('arquivo');
 
-    processarUpload(req, res, function (err) {
+    processarUpload(req, res, async function (err) {
         if (err instanceof multer.MulterError) {
             // Erros nativos do Multer (Ex: Arquivo passou de 5MB)
             return res.status(400).json({ sucesso: false, mensagem: `Erro de tamanho: ${err.message}` });
@@ -107,19 +109,71 @@ export async function envioNaoConformidade(req, res, next) {
         }
 
         try {
+            // Calcular hash do arquivo para evitar duplicatas por múltiplos cliques
+            const fileBuffer = fs.readFileSync(req.file.path);
+            const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+
+            // Inicializar armazenamento de hashes na sessão se necessário
+            if (!req.session.usuario.uploadHashes) req.session.usuario.uploadHashes = {};
+
+            // Se já houver um hash idêntico para esse relatório na sessão, bloquear o envio
+            if (req.session.usuario.uploadHashes[idRelatorio] === hash) {
+                return res.status(400).json({ sucesso: false, mensagem: "Imagem já foi enviada (duplicata detectada)." });
+            }
+
             // Salvar no banco de dados
-            const resultado = fiscalizacaoService.salvarNaoConformidade(idRelatorio, req.file.path, req.body.descricao);
+            const idNaoConformidadeNova = await fiscalizacaoService.salvarNaoConformidade(idRelatorio, req.file.path, req.body.descricao);
             // Ajustando caminho de URL para tirar o caminho "src/public" e deixar só "uploads/..." para o frontend conseguir acessar a imagem corretamente. 
             const caminhoDaImagem = req.file.path.replace(/\\/g, '/').split('src/public')[1]; // Isso é para garantir que funcione tanto em Windows quanto em Linux/Mac, tirando a parte "src/public" do caminho e deixando só "uploads/..."
-            if (!resultado) {
+            if (!idNaoConformidadeNova) {
                 console.error("Erro ao salvar a não conformidade.");
                 return res.status(500).json({ sucesso: false, mensagem: "Erro ao salvar a não conformidade." });
             }
+            // Marcar hash salvo na sessão para esse relatório
+            req.session.usuario.uploadHashes[idRelatorio] = hash;
             // dizendo caminho da imagem pro frontend, pra ele já mostrar a imagem nova sem precisar atualizar a página
-            return res.status(200).json({ sucesso: true, caminhoDaImagem: caminhoDaImagem, descricao: req.body.descricao });
+            return res.status(200).json({ sucesso: true, caminhoDaImagem: caminhoDaImagem, descricao: req.body.descricao, idNaoConformidade: idNaoConformidadeNova });
         } catch (error) {
-            console.error("Erro ao salvar no banco:", error);
-            return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao salvar no banco de dados." });
+            console.error("Erro ao salvar a não conformidade no banco:", error);
+            return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao salvar a não conformidade no banco de dados." });
         }
     })
+}
+
+export function editarNaoConformidade(req, res, next) {
+    try {
+        const idRelatorio = req.params.idRelatorio; // Obter o ID do relatório a partir do corpo da requisição
+        const idRelatorioSessao = req.session.usuario.relatorio; // Obter o ID do relatório armazenado na sessão
+        if (idRelatorio !== idRelatorioSessao) {
+            return res.status(400).json({ sucesso: false, mensagem: "ID do relatório inválido ou não corresponde ao relatório em edição." });
+        }
+        
+    } catch (error) {
+        console.error("Erro ao editar a não conformidade no banco:", error);
+        return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao editar a não conformidade no banco de dados." });
+    }
+}
+
+export function excluirNaoConformidade(req, res, next) {
+    try {
+        const idRelatorio = req.params.idRelatorio; // Obter o ID do relatório a partir do corpo da requisição
+        const idRelatorioSessao = req.session.usuario.relatorio; // Obter o ID do relatório armazenado na sessão
+        if (idRelatorio !== idRelatorioSessao) {
+            return res.status(400).json({ sucesso: false, mensagem: "ID do relatório inválido ou não corresponde ao relatório em edição." });
+        }
+        const idNaoConformidade = req.params.idNaoConformidade; // Obter o ID da não conformidade a partir dos parâmetros da rota
+        if(!idNaoConformidade) {
+            return res.status(400).json({ sucesso: false, mensagem: "ID da não conformidade inválido." });
+        }
+
+        const resultado = fiscalizacaoService.excluirNaoConformidade(idRelatorio, idNaoConformidade);
+        if (!resultado) {
+            console.error("Erro ao excluir a não conformidade: Não conformidade não encontrada.");
+            return res.status(404).json({ sucesso: false, mensagem: "Não conformidade não encontrada." });
+        }
+        return res.status(200).json({ sucesso: true, mensagem: "Não conformidade excluída com sucesso." });        
+    } catch (error) {
+        console.error("Erro ao excluir a não conformidade no banco:", error);
+        return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao excluir a não conformidade no banco de dados." });
+    }
 }

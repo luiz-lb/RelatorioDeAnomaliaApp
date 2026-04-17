@@ -61,3 +61,12 @@ export async function salvarNaoConformidade(idRelatorio, caminhoArquivo, descric
         throw new Error('Não foi possível salvar a não conformidade. Tente novamente mais tarde.');
     }
 }
+
+export async function excluirNaoConformidade(idRelatorio, idNaoConformidade) {
+    try {
+        const resultado = await fiscalizacaoModel.excluirNaoConformidade(idRelatorio, idNaoConformidade);
+
+    } catch (error) {
+
+    }
+}

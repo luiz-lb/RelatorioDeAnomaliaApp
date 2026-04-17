@@ -50,6 +50,15 @@ export async function salvarNaoConformidade(idRelatorio, caminhoArquivo, descric
         .input('fiscalizacao_id', sql.Int, idRelatorio)
         .input('descricao', sql.VarChar(255), descricao)
         .input('foto_path', sql.VarChar(255), caminhoArquivo)
-        .query(`Insert into nao_conformidades(fiscalizacao_id, descricao, foto_path) Values (@fiscalizacao_id, @descricao, @foto_path)`);
+        .query(`Insert into nao_conformidades(fiscalizacao_id, descricao, foto_path) Output inserted.id Values (@fiscalizacao_id, @descricao, @foto_path)`);
+    return result.recordset[0].id;
+}
+
+export async function excluirNaoConformidade(idRelatorio, idNaoConformidade) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('idNaoConformidade', sql.Int, idNaoConformidade)
+        .input('fiscalizacao_id', sql.Int, idRelatorio)
+        .query(`Delete from nao_conformidades where id=@idNaoConformidade and fiscalizacao_id=@fiscalizacao_id`);
     return result.rowsAffected[0] > 0;
 }
