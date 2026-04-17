@@ -21,9 +21,6 @@
                                 </div>
                                 <button type="submit" class="btn btn-accent w-100">Entrar</button>
                             </form>
-                            <div class="text-center mt-3">
-                                <a href="#" class="text-muted text-decoration-none">Esqueceu a senha?</a>
-                            </div>
                             <% if (typeof erroLogin !== 'undefined' && erroLogin) { %>
                                 <input type="hidden" id="loginErrorMessage" value="<%= erroLogin %>">
                             <% } %>
