@@ -31,7 +31,7 @@ body{
 
 .login-title{
 	color: rgb(78, 78, 78);
-	text-shadow: 0 0.5px 1px rgb(0, 0, 0);
+	text-shadow: 0 2px 2px rgba(0, 0, 0, 0.267);
 	font-weight: 700;
 	font-size: 25pt;
 	margin-bottom: 0.25rem;
@@ -302,6 +302,122 @@ a.d-inline-block:active {
 	.mobile-search-wrapper .input-group .form-control {
 		padding: 0.38rem 0.5rem;
 		font-size: 0.95rem;
+	}
+}
+
+/* Estilos para a página de formulário */
+.form-card {
+	border-radius: 12px;
+	overflow: hidden;
+	border: none;
+	margin: 0 auto;
+}
+
+.form-card .card-body {
+	padding: 1rem;
+}
+
+@media (min-width: 992px) {
+	.form-card {
+		max-width: 100%;
+	}
+}
+
+.form-title {
+	color: rgb(78, 78, 78);
+	text-shadow: 0 2px 2px rgba(0, 0, 0, 0.267);
+	font-weight: 700;
+	font-size: 22pt;
+	margin-bottom: 0.5rem;
+	letter-spacing: 0.4px;
+	text-align: center;
+	padding-bottom: 0.5rem;
+}
+
+.form-title::after {
+	content: "";
+	display: block;
+	width: 64px;
+	height: 4px;
+	background: var(--accent);
+	border-radius: 4px;
+	margin: 10px auto 0;
+}
+
+.form-card .form-label {
+	font-weight: 600;
+	color: #444;
+	font-size: 0.95rem;
+	margin-bottom: 0.5rem;
+	display: block;
+}
+
+.form-card .form-control,
+.form-card .form-select {
+	border-radius: 6px;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	padding: 0.55rem 0.75rem;
+	font-size: 0.95rem;
+	transition: all 0.3s ease;
+}
+
+.form-card .form-control:focus,
+.form-card .form-select:focus {
+	border-color: var(--accent);
+	box-shadow: 0 0 0 0.18rem rgba(191, 57, 57, 0.1);
+	outline: none;
+}
+
+.form-card .btn-accent {
+	background-color: var(--accent) !important;
+	border-color: var(--accent) !important;
+	color: #fff !important;
+	font-weight: 600;
+	border-radius: 6px;
+	padding: 0.65rem 1.25rem;
+	transition: all 0.3s ease;
+}
+
+.form-card .btn-accent:hover,
+.form-card .btn-accent:focus {
+	background-color: var(--accent-dark) !important;
+	border-color: var(--accent-dark) !important;
+	box-shadow: 0 6px 18px rgba(191, 57, 57, 0.18);
+	transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+	.form-card .card-body {
+		padding: 0.75rem;
+	}
+
+	.form-title {
+		font-size: 18pt;
+		margin-bottom: 0.25rem;
+	}
+
+	.form-title::after {
+		margin: 6px auto 0;
+	}
+
+	.form-card .form-label {
+		font-size: 0.9rem;
+		margin-bottom: 0.35rem;
+	}
+
+	.form-card .form-control,
+	.form-card .form-select {
+		padding: 0.5rem 0.65rem;
+		font-size: 0.9rem;
+	}
+
+	.btn-accent {
+		padding: 0.6rem 1rem !important;
+		font-size: 0.95rem;
+	}
+
+	main {
+		padding: 0.5rem 0 !important;
 	}
 }
 
