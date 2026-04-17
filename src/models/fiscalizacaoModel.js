@@ -31,6 +31,25 @@ export async function obterRelatorioPorId(idRelatorio) {
     const pool = await poolPromise;
     const result = await pool.request()
         .input('idRelatorio', sql.Int, idRelatorio)
-        .query(`Select id, fiscalizacao_id, ordem, descricao, foto_path, foto_sharepoint_url From nao_conformidades where fiscalizacao_id=@idRelatorio`);
+        .query(`Select id, fiscalizacao_id, descricao, foto_path, foto_sharepoint_url From nao_conformidades where fiscalizacao_id=@idRelatorio`);
     return result.recordset;
+}
+
+export async function obterRelatoriosPorUsuario(idUsuario, top = 10) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('idUsuario', sql.Int, idUsuario)
+        .input('top', sql.Int, top)
+        .query(`Select top (@top) id, usuario_id, site_id, altura_torre, tipo_cadeado, tipo_estrutura, CEP, endereco, municipio, UF, created_at, status From fiscalizacoes where usuario_id=@idUsuario order by created_at desc`);
+    return result.recordset;
+}
+
+export async function salvarNaoConformidade(idRelatorio, caminhoArquivo, descricao) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('fiscalizacao_id', sql.Int, idRelatorio)
+        .input('descricao', sql.VarChar(255), descricao)
+        .input('foto_path', sql.VarChar(255), caminhoArquivo)
+        .query(`Insert into nao_conformidades(fiscalizacao_id, descricao, foto_path) Values (@fiscalizacao_id, @descricao, @foto_path)`);
+    return result.rowsAffected[0] > 0;
 }

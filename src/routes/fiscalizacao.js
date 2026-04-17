@@ -10,5 +10,6 @@ router.get('/', fiscalizacaoController.paginaHome);
 router.get('/novo', fiscalizacaoController.paginaNovoRelatorio);
 router.post('/novo', fiscalizacaoController.salvarNovoRelatorio);
 router.get('/edit/:id', fiscalizacaoController.paginaEditarRelatorio);
+router.post('/edit/nao-conformidade/:idRelatorio', fiscalizacaoController.envioNaoConformidade);
 
 export default router;

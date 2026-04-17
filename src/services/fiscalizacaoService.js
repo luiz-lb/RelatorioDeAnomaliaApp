@@ -19,7 +19,15 @@ export async function obterRelatorioPorId(idRelatorio, idUsuario, permissaoUsuar
     console.log('Relatorio consultado do id ', idRelatorio, 'com a permissao SQL', permissaoSql); // Log para verificar o valor de permissaoSql
     const resultadoHeader = await fiscalizacaoModel.obterRelatorioHeaderPorId(idRelatorio, idUsuario, permissaoSql);
     const resultadoBody = await fiscalizacaoModel.obterRelatorioPorId(idRelatorio);
-
+    // fazendo o map no resultadoBody para ajustar o caminho da imagem, colocando só a parte "uploads/..." para o frontend conseguir acessar a imagem e mudando o nome da variavel de foto_path para caminhoDaImagem.
+    const resultadoBodyAjustado = resultadoBody.map(item => {
+        return {
+            id: item.id,
+            fiscalizacao_id: item.fiscalizacao_id,
+            descricao: item.descricao,
+            caminhoDaImagem: item.foto_path ? item.foto_path.replace(/\\/g, '/').split('src/public')[1] : null, // Ajusta o caminho da imagem para o formato correto para o frontend
+        };
+    });
     if(!resultadoHeader) {
         console.log('Relatório não encontrado ou acesso negado para o usuário ID:', idUsuario);
         throw new Error('Relatório não encontrado ou acesso negado.');
@@ -29,8 +37,27 @@ export async function obterRelatorioPorId(idRelatorio, idUsuario, permissaoUsuar
 
     const resultado = {
         header: resultadoHeader,
-        body: resultadoBody
+        body: resultadoBodyAjustado
     };
 
     return resultado;
+}
+
+export async function obterRelatoriosPorUsuario(idUsuario, top = 10) {
+    console.log('Consultando relatórios para o usuário do ID ', idUsuario);
+    const resultado = await fiscalizacaoModel.obterRelatoriosPorUsuario(idUsuario, top);
+    console.log('Consulta feita com sucesso. Número de relatórios encontrados: ', resultado.length);
+
+    return resultado;
+}
+
+export async function salvarNaoConformidade(idRelatorio, caminhoArquivo, descricao) {
+    try {
+        const resultado = await fiscalizacaoModel.salvarNaoConformidade(idRelatorio, caminhoArquivo, descricao);
+        console.log('Não conformidade salva com sucesso.');
+        return resultado;
+    } catch (error) {
+        console.error('Erro ao salvar a não conformidade:', error);
+        throw new Error('Não foi possível salvar a não conformidade. Tente novamente mais tarde.');
+    }
 }

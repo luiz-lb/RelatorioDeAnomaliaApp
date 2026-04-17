@@ -15,12 +15,20 @@
         <button>Enviar</button>
     </section>
     <main>
-        <% resultadoBody.forEach(function(foto) { %>
-            <div class="foto-container">
-                <img src="<%= foto.foto_path %>" alt="Foto do Relatório" class="foto-relatorio">
-                <p class="descricao-foto"><%= foto.descricao %></p>
-            </div>
-        <% }); %>
-        <button>Adicionar Não Conformidade</button>
+        <div id="galeria">
+            <% resultadoBody.forEach(function(item) { %>
+                <!-- Se editar aqui, editar tambem no js main.js -->
+                <img src="<%= item.caminhoDaImagem %>" alt="Imagem da não conformidade">
+                <p><%= item.descricao %></p>
+            <% }); %>
+            <!-- Fotos serão exibidas aqui dinamicamente -->
+        </div>
+        <form id="formUpload" data-relatorio="<%= idRelatorio %>">
+            <label for="arquivoInput">Tire uma foto e adicione uma descrição:</label>
+            <input type="file" id="arquivoInput" accept="image/png, image/jpeg, image/jpg" name="arquivo" required>
+            <label for="descricao">Descrição:</label>
+            <textarea id="descricao" name="descricao" placeholder="Relate a não conformidade..."></textarea>
+            <button type="submit">Enviar Imagem</button>
+        </form>
     </main>
 <%- include('../partials/footer') %>

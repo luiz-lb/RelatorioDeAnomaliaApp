@@ -1,15 +1,21 @@
 import * as fiscalizacaoService from '../services/fiscalizacaoService.js';
+import upload from '../config/configMulter.js';
+import multer from 'multer';
 
 
-export function paginaHome(req, res, next) {
+export async function paginaHome(req, res, next) {
     try{
+        const top = parseInt(req.query.top) || 10; // Obter o valor de "top" da query string, ou usar 10 como padrão
+        const idUsuario = req.session.usuario.id_user; 
+        const relatorio = await fiscalizacaoService.obterRelatoriosPorUsuario(idUsuario, top);
+
         const dados = {
             "botoes": [
                 { "id": "btnNovoRelatorio", "nome": "Novo relatório", "link": "/fiscalizacao/novo" },
                 { "id": "btnConfiguracoes", "nome": "Configurações", "link": "/adm" }
-            ], "relatorios": [
-                { "id": 1, "nome": "Relatório 1" }//temporario, depois buscar do banco de dados
-            ]
+            ], 
+            "relatorios": relatorio,
+            "top": top
         };
         res.status(200).render('pages/home', dados);
     } catch (error) {
@@ -51,7 +57,9 @@ export async function paginaEditarRelatorio(req, res, next) {
 
         console.log('Relatório obtido para edição:');
 
-        res.status(200).render('pages/fiscalizacao', { resultadoHeader: dadosRelatorio.header, resultadoBody: dadosRelatorio.body });
+        req.session.usuario.relatorio = idRelatorio; // Armazenar o ID do relatório na sessão para uso posterior
+
+        res.status(200).render('pages/fiscalizacao', { resultadoHeader: dadosRelatorio.header, resultadoBody: dadosRelatorio.body, idRelatorio: idRelatorio });
     } catch (error) {
         next(error);
     }
@@ -74,4 +82,44 @@ export async function salvarNovoRelatorio(req, res, next) {
     } catch (error) {
         next(error);
     }
+}
+
+export async function envioNaoConformidade(req, res, next) {
+    const idRelatorio = req.params.idRelatorio; // Obter o ID do relatório a partir do corpo da requisição
+    const idRelatorioSessao = req.session.usuario.relatorio; // Obter o ID do relatório armazenado na sessão
+    if (idRelatorio !== idRelatorioSessao) {
+        return res.status(400).json({ sucesso: false, mensagem: "ID do relatório inválido ou não corresponde ao relatório em edição." });
+    }
+
+    const processarUpload = upload.single('arquivo');
+
+    processarUpload(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            // Erros nativos do Multer (Ex: Arquivo passou de 5MB)
+            return res.status(400).json({ sucesso: false, mensagem: `Erro de tamanho: ${err.message}` });
+        } else if (err) {
+            // Erros que nós criamos no nosso fileFilter (Ex: "Formato inválido...")
+            return res.status(400).json({ sucesso: false, mensagem: err.message });
+        }
+        // Validando envio
+        if (!req.file) {
+            return res.status(400).json({ sucesso: false, mensagem: "Você precisa selecionar uma imagem." });
+        }
+
+        try {
+            // Salvar no banco de dados
+            const resultado = fiscalizacaoService.salvarNaoConformidade(idRelatorio, req.file.path, req.body.descricao);
+            // Ajustando caminho de URL para tirar o caminho "src/public" e deixar só "uploads/..." para o frontend conseguir acessar a imagem corretamente. 
+            const caminhoDaImagem = req.file.path.replace(/\\/g, '/').split('src/public')[1]; // Isso é para garantir que funcione tanto em Windows quanto em Linux/Mac, tirando a parte "src/public" do caminho e deixando só "uploads/..."
+            if (!resultado) {
+                console.error("Erro ao salvar a não conformidade.");
+                return res.status(500).json({ sucesso: false, mensagem: "Erro ao salvar a não conformidade." });
+            }
+            // dizendo caminho da imagem pro frontend, pra ele já mostrar a imagem nova sem precisar atualizar a página
+            return res.status(200).json({ sucesso: true, caminhoDaImagem: caminhoDaImagem, descricao: req.body.descricao });
+        } catch (error) {
+            console.error("Erro ao salvar no banco:", error);
+            return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao salvar no banco de dados." });
+        }
+    })
 }

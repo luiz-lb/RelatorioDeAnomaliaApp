@@ -7,25 +7,65 @@
                 </button>
             </a>
             <% }) %>
+                                    <!-- Busca mobile: alternável, mantém o layout compacto -->
+                                    <div class="d-md-none mobile-search-wrapper d-flex align-items-center">
+                                        <button id="toggleMobileSearch" class="btn btn-outline-secondary me-2" type="button" aria-label="Abrir busca">
+                                            <i class="bi bi-search"></i>
+                                        </button>
+                                        <div id="mobileSearchContainer" class="d-none" style="flex:1;">
+                                            <div class="input-group search-input shadow-sm">
+                                                <input type="search" id="reportSearchMobile" class="form-control" placeholder="Pesquisar..." aria-label="Pesquisar relatórios">
+                                                <button class="btn btn-outline-secondary" id="clearSearchMobile" type="button" title="Limpar busca" aria-label="Limpar busca">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <div class="table-responsive">
+                                <table class="table table-striped align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Site ID</th>
+                                            <th>Endereço</th>
+                                            <th>Altura da Torre</th>
+                                            <th>Status</th>
+                                            <th>Data da Criação</th>
+                                            <th style="width:120px">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabela-corpo">
+                                        <% relatorios.forEach(function(relatorio) { %>
+                                            <tr data-search="<%= ((relatorio.site_id || '') + ' ' + (relatorio.endereco || '')).replace(/\"/g, '\\"') %>">
+                                                    <td class="fw-semibold" data-label="Site ID"><%= relatorio.site_id || '' %></td>
+                                                    <td class="text-muted small" data-label="Endereço"><%= relatorio.endereco || '' %></td>
+                                                    <td data-label="Altura da Torre"><%= relatorio.altura_torre || '' %></td>
+                                                    <td data-label="Status"><%= relatorio.status || '' %></td>
+                                                    <td data-label="Data da Criação"><%= relatorio.created_at || '' %></td>
+                                                    <td data-label="Ações">
+                                                        <a href="/fiscalizacao/edit/<%= relatorio.id %>" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                                    </td>
+                                                </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                                <select id="topSelect" class="form-select form-select-sm" style="width: auto;">
+                                    <option <%= top === 10 ? 'selected' : '' %> value="10">Mostrar 10</option>
+                                    <option <%= top === 25 ? 'selected' : '' %> value="25">Mostrar 25</option>
+                                    <option <%= top === 50 ? 'selected' : '' %> value="50">Mostrar 50</option>
+                                </select>
+                            </div>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-corpo">
-                        <% relatorios.forEach(function(relatorio) { %>
-                            <tr>
-                                <td></td>
-                            </tr>
-                            <% }) %>
-                    </tbody>
-                </table>
-                <form action="/adm/logout" method="POST">
-                    <button type="submit">Sair</button>
-                </form>
+                            <form action="/adm/logout" method="POST" class="mt-3" id="logoutForm">
+                                <button type="button" id="btnLogout" class="btn btn-outline-secondary">Sair</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <%- include('../partials/footer') %>
