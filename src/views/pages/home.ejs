@@ -12,20 +12,30 @@
                             <div class="mb-3 d-flex justify-content-between align-items-center">
                                 <div>
                                     <% botoes.forEach(function(botao) { %>
-                                        <a href="<%= botao.link %>">
-                                            <button id="<%= botao.id %>" class="btnHome">
-                                                <%= botao.nome %>
-                                            </button>
+                                        <a href="<%= botao.link %>" class="me-2 mb-2 d-inline-block">
+                                            <button id="<%= botao.id %>" class="btn btn-accent btn-sm btnHome"><%= botao.nome %></button>
                                         </a>
                                     <% }) %>
                                 </div>
-                                
+                                <div class="ms-auto d-flex align-items-center">
+                                    <!-- Busca para desktop (visível em md+) -->
+                                    <div class="d-none d-md-block search-wrapper me-2">
+                                        <label for="reportSearch" class="visually-hidden">Pesquisar relatórios</label>
+                                        <div class="input-group search-input shadow-sm">
+                                            <span class="input-group-text bg-white border-end-0 search-icon" id="searchIcon"><i class="bi bi-search"></i></span>
+                                            <input type="search" id="reportSearch" class="form-control" placeholder="Pesquisar..." aria-label="Pesquisar relatórios" aria-describedby="searchIcon clearSearch">
+                                            <button class="btn btn-outline-secondary" id="clearSearch" type="button" title="Limpar busca" aria-label="Limpar busca">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
                                     <!-- Busca mobile: alternável, mantém o layout compacto -->
                                     <div class="d-md-none mobile-search-wrapper d-flex align-items-center">
                                         <button id="toggleMobileSearch" class="btn btn-outline-secondary me-2" type="button" aria-label="Abrir busca">
                                             <i class="bi bi-search"></i>
                                         </button>
-                                        <div id="mobileSearchContainer" class="d-none" style="flex:1;">
+                                        <div id="mobileSearchContainer" class="d-none">
                                             <div class="input-group search-input shadow-sm">
                                                 <input type="search" id="reportSearchMobile" class="form-control" placeholder="Pesquisar..." aria-label="Pesquisar relatórios">
                                                 <button class="btn btn-outline-secondary" id="clearSearchMobile" type="button" title="Limpar busca" aria-label="Limpar busca">
@@ -41,24 +51,24 @@
                                 <table class="table table-striped align-middle">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>Site ID</th>
-                                            <th>Endereço</th>
-                                            <th>Altura da Torre</th>
-                                            <th>Status</th>
-                                            <th>Data da Criação</th>
-                                            <th style="width:120px">Ações</th>
+                                            <th>Título</th>
+                                            <th>Descrição</th>
+                                            <th>Data</th>
+                                            <th>Ações</th>  
                                         </tr>
                                     </thead>
                                     <tbody id="tabela-corpo">
                                         <% relatorios.forEach(function(relatorio) { %>
-                                            <tr data-search="<%= ((relatorio.site_id || '') + ' ' + (relatorio.endereco || '')).replace(/\"/g, '\\"') %>">
-                                                    <td class="fw-semibold" data-label="Site ID"><%= relatorio.site_id || '' %></td>
-                                                    <td class="text-muted small" data-label="Endereço"><%= relatorio.endereco || '' %></td>
-                                                    <td data-label="Altura da Torre"><%= relatorio.altura_torre || '' %></td>
-                                                    <td data-label="Status"><%= relatorio.status || '' %></td>
-                                                    <td data-label="Data da Criação"><%= relatorio.created_at || '' %></td>
+                                            <tr data-search="<%= ((relatorio.nome || relatorio.titulo || '') + ' ' + (relatorio.descricao || '')).replace(/\"/g, '\\"') %>">
+                                                    <td class="fw-semibold" data-label="Título"><%= relatorio.nome || relatorio.titulo || relatorio.id || '' %></td>
+                                                    <td class="text-muted small" data-label="Descrição"><%= relatorio.descricao || '' %></td>
+                                                    <td data-label="Data"><%= relatorio.data || relatorio.created_at || relatorio.date || '' %></td>
                                                     <td data-label="Ações">
-                                                        <a href="/fiscalizacao/edit/<%= relatorio.id %>" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                                        <% if (relatorio.link) { %>
+                                                            <a href="<%= relatorio.link %>" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                                        <% } else { %>
+                                                            <a href="/fiscalizacao/<%= relatorio.id %>" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                                        <% } %>
                                                     </td>
                                                 </tr>
                                         <% }) %>

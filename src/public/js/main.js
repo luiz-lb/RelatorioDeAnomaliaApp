@@ -111,6 +111,28 @@ $(document).ready(function () {
     });
 });
 
+$(document).ready(function () {
+    // Mostrar erro de login com SweetAlert, usando as variáveis CSS da paleta
+    const loginErrorEl = document.getElementById('loginErrorMessage');
+    if (loginErrorEl && loginErrorEl.value) {
+        const msg = loginErrorEl.value;
+        const root = getComputedStyle(document.documentElement);
+        const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+        const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+        const accent = (root.getPropertyValue('--accent') || '#BF3939').trim();
+
+        Swal.fire({
+            title: 'Erro no login',
+            text: msg,
+            icon: 'error',
+            background: bg,
+            color: text,
+            confirmButtonColor: accent,
+            confirmButtonText: 'Fechar'
+        });
+    }
+});
+
 // Confirmação de logout com SweetAlert
 $(document).on('click', '#btnLogout', function (e) {
     e.preventDefault();
