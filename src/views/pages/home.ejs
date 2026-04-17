@@ -1,12 +1,25 @@
 <%- include('../partials/header') %>
-    <main>
-        <% botoes.forEach(function(botao) { %>
-            <a href="<%= botao.link %>">
-                <button id="<%= botao.id %>" class="btnHome">
-                    <%= botao.nome %>
-                </button>
-            </a>
-            <% }) %>
+    <main class="d-flex justify-content-center align-items-start min-vh-100 py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10">
+                    <div class="card login-card shadow bg-white">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h2 class="mb-0">Painel de relatórios</h2>
+                            </div>
+
+                            <div class="mb-3 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <% botoes.forEach(function(botao) { %>
+                                        <a href="<%= botao.link %>">
+                                            <button id="<%= botao.id %>" class="btnHome">
+                                                <%= botao.nome %>
+                                            </button>
+                                        </a>
+                                    <% }) %>
+                                </div>
+                                
                                     <!-- Busca mobile: alternável, mantém o layout compacto -->
                                     <div class="d-md-none mobile-search-wrapper d-flex align-items-center">
                                         <button id="toggleMobileSearch" class="btn btn-outline-secondary me-2" type="button" aria-label="Abrir busca">
