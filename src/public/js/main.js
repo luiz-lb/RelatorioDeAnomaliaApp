@@ -55,6 +55,7 @@ $(document).ready(function () {
         });
     }
 
+    //subindo a não conformidade com AJAX e mostrando na tela sem precisar dar refresh
     $('#formUpload').submit(async function (e) {
         // Pegando foto e descrição que o usuario subiu
         e.preventDefault();
@@ -83,14 +84,20 @@ $(document).ready(function () {
 
             if (dados.sucesso) {
                 // Se editar aqui, editar tambem no ejs de fiscalizacao
-                const novaImagem = $(`<img src="${dados.caminhoDaImagem}">`);
-                const Descricao = $(`<p>${dados.descricao}</p>`);
-                const buttonEditar = $(`<button id="${dados.idNaoConformidade}" class="btn btn-primary btn-sm btn-editar">Editar</button>`);
-                const buttonExcluir = $(`<button id="${dados.idNaoConformidade}" class="btn btn-danger btn-sm btn-excluir">Excluir</button>`);
-                $('#galeria').append(novaImagem);
-                $('#galeria').append(Descricao);
-                $('#galeria').append(buttonEditar);
-                $('#galeria').append(buttonExcluir);
+                const conformidadeDiv = $(`
+                                        <div id="div-${dados.idNaoConformidade}" class="col-12 col-sm-6 col-lg-4">
+                                            <div class="card h-100 shadow-sm">
+                                                <img src="${dados.caminhoDaImagem}" alt="Imagem da não conformidade" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                                <div class="card-body">
+                                                    <p id="descricao-${dados.idNaoConformidade}" class="card-text">${dados.descricao}</p>
+                                                    <div class="d-flex gap-2">
+                                                        <button id="editar-${dados.idNaoConformidade}" data-relatorio="${idRelatorio}" class="btn btn-accent btn-sm btn-editar flex-grow-1">Editar</button>
+                                                        <button id="excluir-${dados.idNaoConformidade}" data-relatorio="${idRelatorio}" class="btn btn-danger btn-sm btn-excluir flex-grow-1">Excluir</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>`);
+                $('#galeria').append(conformidadeDiv);
 
                 // Limpa o input
                 this.reset();
@@ -108,6 +115,125 @@ $(document).ready(function () {
             this.dataset.uploadInProgress = 'false';
             submitButtons.prop('disabled', false);
         }
+    });
+
+    // Editar não conformidade
+    $(document).on('click', '.btn-editar', function () {
+        const id = this.id.split('-')[1]; // extrai o ID do botão (formato: editar-123)
+        const idRelatorio = $(`#editar-${id}`).data('relatorio');
+        // Mostrando switch alert para editar apenas a descrição. Depois usando ajax para enviar a nova descrição pro backend e atualizar na tela sem precisar dar refresh
+        Swal.fire({
+            title: 'Editar não conformidade',
+            input: 'text',
+            inputLabel: 'Descrição',
+            inputValue: $(`#descricao-${id}`).text(),
+            showCancelButton: true,
+            confirmButtonText: 'Salvar',
+            cancelButtonText: 'Cancelar',
+            preConfirm: (novaDescricao) => {
+                if (!novaDescricao) {
+                    Swal.showValidationMessage('A descrição não pode estar vazia');
+                }
+            }
+        })
+        // Depois que o usuário clicar em salvar, enviar a nova descrição pro backend e atualizar na tela sem precisar dar refresh
+        .then(async (result) => {
+            if (result.isConfirmed) {
+                const novaDescricao = result.value;
+                // Enviar a nova descrição para o backend usando AJAX
+                try {
+                    const resposta = await fetch(`/fiscalizacao/edit/nao-conformidade/${idRelatorio}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ descricao: novaDescricao, idNaoConformidade: id })
+                    });
+
+                    const dados = await resposta.json();
+
+                    if (dados.sucesso) {
+                        // Atualizar a descrição na tela sem precisar dar refresh
+                        $(`#descricao-${id}`).text(novaDescricao);
+                        Swal.fire({
+                            title: 'Sucesso',
+                            text: 'Descrição atualizada com sucesso!',
+                            icon: 'success',
+                            confirmButtonText: 'Fechar'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Erro',
+                            text: dados.mensagem,
+                            icon: 'error',
+                            confirmButtonText: 'Fechar'
+                        });
+                    }
+                } catch (erro) {
+                    console.error("Erro na requisição:", erro);
+                    Swal.fire({
+                        title: 'Erro',
+                        text: 'Ocorreu um erro de conexão com o servidor.',
+                        icon: 'error',
+                        confirmButtonText: 'Fechar'
+                    });
+                }
+            }
+        });
+    });
+
+    $(document).on('click', '.btn-excluir', function () {
+        const id = this.id.split('-')[1]; // extrai o ID do botão (formato: excluir-123)
+        const idRelatorio = $(`#excluir-${id}`).data('relatorio');
+        Swal.fire({
+            title: 'Excluir não conformidade',
+            text: 'Tem certeza que deseja excluir esta não conformidade?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sim',
+            cancelButtonText: 'Cancelar',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const resposta = await fetch(`/fiscalizacao/edit/nao-conformidade/${idRelatorio}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ idNaoConformidade: id })
+                    });
+
+                    const dados = await resposta.json();
+
+                    if (dados.sucesso) {
+                        // Remover a não conformidade da tela sem precisar dar refresh
+                        $(`#div-${id}`).closest('.col-12').remove();
+                        Swal.fire({
+                            title: 'Sucesso',
+                            text: 'Não conformidade excluída com sucesso!',
+                            icon: 'success',
+                            confirmButtonText: 'Fechar'
+                        });
+                    }
+                    else {
+                        Swal.fire({
+                            title: 'Erro',
+                            text: dados.mensagem,
+                            icon: 'error',
+                            confirmButtonText: 'Fechar'
+                        });
+                    }
+                } catch (erro) {
+                    console.error("Erro na requisição:", erro);
+                    Swal.fire({
+                        title: 'Erro',
+                        text: 'Ocorreu um erro de conexão com o servidor.',
+                        icon: 'error',
+                        confirmButtonText: 'Fechar'
+                    });
+                }
+            }
+        });
     });
 });
 

@@ -1,35 +1,107 @@
 <%- include('../partials/header') %>
-    <section>
-        <h2>Relatório de Não Conformidade</h2>
-        <h3>Criado por: <%= typeof resultadoHeader.usuario_id !== 'undefined' ? resultadoHeader.usuario_id : 'N/A' %></h3>
-        <h3>Site: <%= typeof resultadoHeader.site_id !== 'undefined' ? resultadoHeader.site_id : 'N/A' %></h3>
-        <h3>Altura da Torre: <%= typeof resultadoHeader.altura_torre !== 'undefined' ? resultadoHeader.altura_torre : 'N/A' %></h3>
-        <h3>Tipo do Cadeado: <%= typeof resultadoHeader.tipo_cadeado !== 'undefined' ? resultadoHeader.tipo_cadeado : 'N/A' %></h3>
-        <h3>Tipo da Estrutura: <%= typeof resultadoHeader.tipo_estrutura !== 'undefined' ? resultadoHeader.tipo_estrutura : 'N/A' %></h3>
-        <h3>CEP: <%= typeof resultadoHeader.CEP !== 'undefined' ? resultadoHeader.CEP : 'N/A' %></h3>
-        <h3>Endereço: <%= typeof resultadoHeader.endereco !== 'undefined' ? resultadoHeader.endereco : 'N/A' %></h3>
-        <h3>Município: <%= typeof resultadoHeader.municipio !== 'undefined' ? resultadoHeader.municipio : 'N/A' %></h3>
-        <h3>UF: <%= typeof resultadoHeader.UF !== 'undefined' ? resultadoHeader.UF : 'N/A' %></h3>
-        <h3>Criado em: <%= typeof resultadoHeader.created_at !== 'undefined' ? resultadoHeader.created_at : 'N/A' %></h3>
-        <h3>Status: <%= typeof resultadoHeader.status !== 'undefined' ? resultadoHeader.status : 'N/A' %></h3>
-        <button id="idRelatorio" class="btn-env-relatorio">Enviar</button>
-    </section>
-    <main>
-        <div id="galeria">
-            <% resultadoBody.forEach(function(item) { %>
-                <!-- Se editar aqui, editar tambem no js main.js -->
-                <img src="<%= item.caminhoDaImagem %>" alt="Imagem da não conformidade">
-                <p><%= item.descricao %></p>
-            <% }); %>
-            <!-- Fotos serão exibidas aqui dinamicamente -->
+    <main class="d-flex justify-content-center align-items-start min-vh-100 py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-11">
+                    <div class="card login-card shadow bg-white">
+                        <div class="card-body p-4">
+                            <div class="mb-4">
+                                <h2 class="mb-3">Relatório de Não Conformidade</h2>
+                                <div class="row g-3">
+                                    <div class="col-12 col-sm-6 col-md-4">
+                                        <p class="mb-1"><strong>Criado por:</strong></p>
+                                        <p><%= typeof resultadoHeader.usuario_id !== 'undefined' ? resultadoHeader.usuario_id : 'N/A' %></p>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-4">
+                                        <p class="mb-1"><strong>Site:</strong></p>
+                                        <p><%= typeof resultadoHeader.site_id !== 'undefined' ? resultadoHeader.site_id : 'N/A' %></p>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-4">
+                                        <p class="mb-1"><strong>Altura da Torre:</strong></p>
+                                        <p><%= typeof resultadoHeader.altura_torre !== 'undefined' ? resultadoHeader.altura_torre : 'N/A' %></p>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-4">
+                                        <p class="mb-1"><strong>Tipo do Cadeado:</strong></p>
+                                        <p><%= typeof resultadoHeader.tipo_cadeado !== 'undefined' ? resultadoHeader.tipo_cadeado : 'N/A' %></p>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-4">
+                                        <p class="mb-1"><strong>Tipo da Estrutura:</strong></p>
+                                        <p><%= typeof resultadoHeader.tipo_estrutura !== 'undefined' ? resultadoHeader.tipo_estrutura : 'N/A' %></p>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-4">
+                                        <p class="mb-1"><strong>CEP:</strong></p>
+                                        <p><%= typeof resultadoHeader.CEP !== 'undefined' ? resultadoHeader.CEP : 'N/A' %></p>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <p class="mb-1"><strong>Endereço:</strong></p>
+                                        <p><%= typeof resultadoHeader.endereco !== 'undefined' ? resultadoHeader.endereco : 'N/A' %></p>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <p class="mb-1"><strong>Município:</strong></p>
+                                        <p><%= typeof resultadoHeader.municipio !== 'undefined' ? resultadoHeader.municipio : 'N/A' %></p>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <p class="mb-1"><strong>UF:</strong></p>
+                                        <p><%= typeof resultadoHeader.UF !== 'undefined' ? resultadoHeader.UF : 'N/A' %></p>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <p class="mb-1"><strong>Criado em:</strong></p>
+                                        <p><%= typeof resultadoHeader.created_at !== 'undefined' ? resultadoHeader.created_at : 'N/A' %></p>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <p class="mb-1"><strong>Status:</strong></p>
+                                        <p><%= typeof resultadoHeader.status !== 'undefined' ? resultadoHeader.status : 'N/A' %></p>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <button id="idRelatorio" class="btn btn-accent btn-lg">Enviar Relatório</button>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="mb-4">
+                                <h3 class="mb-3">Não Conformidades Identificadas</h3>
+                                <div id="galeria" class="row g-3 mb-4">
+                                    <% resultadoBody.forEach(function(item) { %>
+                                        <div id="div-<%= item.id %>" class="col-12 col-sm-6 col-lg-4">
+                                            <div class="card h-100 shadow-sm">
+                                                <img src="<%= item.caminhoDaImagem %>" alt="Imagem da não conformidade" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                                <div class="card-body">
+                                                    <p id="descricao-<%= item.id %>" class="card-text"><%= item.descricao %></p>
+                                                    <div class="d-flex gap-2">
+                                                        <button id="editar-<%= item.id %>" data-relatorio="<%= idRelatorio %>" class="btn btn-accent btn-sm btn-editar flex-grow-1">Editar</button>
+                                                        <button id="excluir-<%= item.id %>" data-relatorio="<%= idRelatorio %>" class="btn btn-danger btn-sm btn-excluir flex-grow-1">Excluir</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div>
+                                <h3 class="mb-3">Adicionar Nova Imagem</h3>
+                                <form id="formUpload" data-relatorio="<%= idRelatorio %>" novalidate>
+                                    <div class="mb-3">
+                                        <label for="arquivoInput" class="form-label">Selecione uma foto:</label>
+                                        <input type="file" id="arquivoInput" accept="image/png, image/jpeg, image/jpg" name="arquivo" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="descricao" class="form-label">Descrição:</label>
+                                        <textarea id="descricao" name="descricao" placeholder="Relate a não conformidade..." class="form-control" rows="4" required></textarea>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-accent btn-lg">Enviar Imagem</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <form id="formUpload" data-relatorio="<%= idRelatorio %>">
-            <label for="arquivoInput">Tire uma foto e adicione uma descrição:</label>
-            <input type="file" id="arquivoInput" accept="image/png, image/jpeg, image/jpg" name="arquivo" required>
-            <label for="descricao">Descrição:</label>
-            <textarea id="descricao" name="descricao" placeholder="Relate a não conformidade..."></textarea>
-            <!-- Colocar um pop com switch alert no button para não enviar varias fotos de uma vez (Colocar um para ficar carregando enquanto não recebeu a informação no banco) -->
-            <button type="submit">Enviar Imagem</button>
-        </form>
     </main>
 <%- include('../partials/footer') %>
