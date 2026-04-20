@@ -1,9 +1,9 @@
 import express from 'express';
-import * as authController from '../controllers/authController.js';
+import * as syncController from '../controllers/syncController.js';
 
 const router = express.Router();
 
-router.get('/', authController.paginaLogin);
-router.post('/', authController.login);
+// Rota para a página inicial
+router.get('/', syncController.paginaLogin);
 
 export default router;
