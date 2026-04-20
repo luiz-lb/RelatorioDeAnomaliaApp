@@ -1,0 +1,14 @@
+<%- include('../partials/header') %>
+</header>
+
+<main class="container mt-4">
+    <h1 class="text-center">Comprovante de Envio</h1>
+    <p class="text-center">Seu relatório foi enviado com sucesso!</p>
+    <h2 class="text-center">Informações do Relatório</h2>
+    <p class="text-center">ID do Relatório: <%=<%# relatorioId  %></p>
+    <p class="text-center">Site ID: <%=<%# siteId  %></p>
+    <p class="text-center">Data do envio: <%=<%# dataEnvio  %></p>
+    <button class="btn btn-primary d-block mx-auto mt-4" onclick="window.print()">Imprimir Comprovante</button>
+</main>
+
+<%- include('../partials/footer') %>
