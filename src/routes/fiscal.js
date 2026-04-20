@@ -3,6 +3,6 @@ import * as syncController from '../controllers/syncController.js';
 
 const router = express.Router();
 
-router.get('/', syncController.paginaUsuarios);
+router.get('/', syncController.paginaHome);
 
 export default router;

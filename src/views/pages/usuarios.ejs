@@ -1,13 +1,8 @@
 <%- include('../partials/header') %>
     <main>
-        <a href="adm/user/new">
-            <button class="btn btn-primary btn-sm">
-                <i class="bi bi-person-plus-fill me-1"></i> Adicionar funcionário
-            </button>
-        </a>
-        <form action="/adm/logout" method="POST">
-            <button type="submit">Sair</button>
-        </form>
+        <button class="btn btn-primary btn-sm">
+            <i class="bi bi-person-plus-fill me-1"></i> Adicionar funcionário
+        </button>
         <table class="table table-hover align-middle mb-0" id="<%= tableidheader %>">
 
             <% if (typeof tbody !=='undefined' && tbody.length> 0) { %>
@@ -34,41 +29,42 @@
                                     <!-- Ações -->
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="adm/user/edit/<%= Object.values(linha)[0] %>"
+                                            <a href="adm/funcionario/<%= Object.values(linha)[0] %>"
                                                 class="btn btn-outline-primary" data-tippy="Editar">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
 
-                                            <button class="btn btn-outline-danger btnDeleteUser"
-                                                id="<%= Object.values(linha)[0] %>">
+                                            <button class="btn btn-outline-danger btn-excluir-funcionario"
+                                                id="<%= Object.values(linha)[0] %>"
+                                                data-tippy="Excluir">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
                                     </td>
                         </tr>
-                        <% }); %>
+                    <% }); %>
                 </tbody>
 
-                <% } else { %>
-                    <!-- Estado vazio -->
-                    <tbody>
-                        <tr>
-                            <td colspan="<%= thead.length + 1 %>">
-                                <div class="text-center py-5">
-                                    <i class="bi bi-people fs-1 text-secondary mb-3 d-block"></i>
-                                    <h6 class="text-muted mb-1">Nenhum funcionário encontrado</h6>
-                                    <p class="text-muted mb-3">Comece adicionando um novo funcionário
-                                    </p>
+            <% } else { %>
+                <!-- Estado vazio -->
+                <tbody>
+                    <tr>
+                        <td colspan="<%= thead.length + 1 %>">
+                            <div class="text-center py-5">
+                                <i class="bi bi-people fs-1 text-secondary mb-3 d-block"></i>
+                                <h6 class="text-muted mb-1">Nenhum funcionário encontrado</h6>
+                                <p class="text-muted mb-3">Comece adicionando um novo funcionário
+                                </p>
 
-                                    <a href="adm/adicionar/" class="btn btn-primary btn-sm">
-                                        <i class="bi bi-person-plus-fill me-1"></i> Adicionar
-                                        funcionário
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <% } %>
-        </table>
+                                <a href="adm/adicionar/" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-person-plus-fill me-1"></i> Adicionar
+                                    funcionário
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            <% } %>
+        </table> 
     </main>
-    <%- include('../partials/footer') %>
+<%- include('../partials/footer') %>
