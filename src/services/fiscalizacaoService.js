@@ -98,13 +98,12 @@ export async function processarNaoConformidade(idRelatorio, arquivo, descricao, 
 
     // Se já houver um hash idêntico para esse relatório, bloquear o envio
     if (usuario.uploadHashes[idRelatorio] === hash) {
-        const erro = new Error("Imagem já foi enviada (duplicata detectada).");
+        const resultado = { erro:"Imagem já foi enviada (duplicata detectada)."};
         // Apagando imagem duplicada do servidor para evitar acúmulo de arquivos
         fs.unlink(arquivo.path, (err) => {
             if (err) console.error('Erro ao apagar arquivo duplicado:', err);
         });
-        erro.statusCode = 400;
-        throw erro;
+        return resultado;
     }
 
     // Salvar no banco de dados
@@ -119,7 +118,7 @@ export async function processarNaoConformidade(idRelatorio, arquivo, descricao, 
     // Marcar hash salvo para esse relatório
     usuario.uploadHashes[idRelatorio] = hash;
 
-    return { caminhoDaImagem, descricao, idNaoConformidade: idNaoConformidadeNova };
+    return { caminhoDaImagem, descricao, id: idNaoConformidadeNova };
 }
 
 export async function editarNaoConformidade(idRelatorio, idNaoConformidade, descricao) {
