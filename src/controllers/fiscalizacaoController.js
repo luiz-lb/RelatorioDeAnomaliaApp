@@ -90,28 +90,15 @@ export async function envioNaoConformidade(req, res, next) {
             return res.status(400).json({ sucesso: false, mensagem: "ID do relatório inválido ou não corresponde ao relatório em edição." });
         }
 
-        // Volta caminho da imagem, descrição e ID da não conformidade.
-        const resultadoNaoConformidade = await fiscalizacaoService.processarNaoConformidade(
+        const resultado = await fiscalizacaoService.processarNaoConformidade(
             idRelatorio,
             req.file,
             req.body.descricao,
             req.session.usuario
         );
 
-        if (resultadoNaoConformidade.erro) {
-            return res.status(400).json({ sucesso: false, mensagem: resultadoNaoConformidade.erro });
-        }
-
-        res.render('partials/card-conformidade', { item: resultadoNaoConformidade, idRelatorio: idRelatorio }, (err, htmlGerado) => {
-            if (err) {
-                return res.json({ sucesso: false, mensagem: "Erro ao gerar visualização." });
-            }
-            
-            // Devolve para o JQuery a variável 'sucesso' e o HTML mastigado!
-            return res.json({ sucesso: true, htmlDoCard: htmlGerado }); 
-        });
+        return res.status(200).json({ sucesso: true, ...resultado });
     } catch (error) {
-
         next(error);
     }
 }
