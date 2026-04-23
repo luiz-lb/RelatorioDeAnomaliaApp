@@ -1,74 +1,88 @@
 <%- include('../partials/header') %>
-    <main>
-        <a href="adm/user/new">
-            <button class="btn btn-primary btn-sm">
-                <i class="bi bi-person-plus-fill me-1"></i> Adicionar funcionário
-            </button>
-        </a>
-        <form action="/adm/logout" method="POST">
-            <button type="submit">Sair</button>
-        </form>
-        <table class="table table-hover align-middle mb-0" id="<%= tableidheader %>">
+<main class="container py-4">
+    <div class="card shadow-sm form-card">
+        <div class="card-header bg-white py-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-header-title mb-0">
+                    <i class="bi bi-people-fill me-2"></i>Gerenciamento de Usuários
+                </h5>
+                <div class="d-flex gap-2">
+                    <a href="/adm/user/new" class="btn btn-accent btn-sm">
+                        <i class="bi bi-person-plus-fill me-1"></i> Adicionar Usuário
+                    </a>
+                    <!-- O ID #btnLogout é usado pelo main.js para mostrar um SweetAlert de confirmação -->
+                    <form id="logoutForm" action="/logout" method="POST" class="d-inline">
+                        <button id="btnLogout" type="button" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-box-arrow-right me-1"></i>Sair
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="<%= tableidheader %>">
 
-            <% if (typeof tbody !=='undefined' && tbody.length> 0) { %>
+                    <% if (typeof tbody !=='undefined' && tbody.length> 0) { %>
 
-                <thead class="table-light">
-                    <tr>
-                        <% thead.forEach(function(colunaTable,index) { %>
-                            <th class="text-center fw-semibold">
-                                <%= thead[index] %>
-                            </th>
-                            <% }); %>
-                    </tr>
-                </thead>
+                        <thead class="table-light">
+                            <tr>
+                                <% thead.forEach(function(colunaTable) { %>
+                                    <th class="text-center fw-semibold">
+                                        <%= colunaTable %>
+                                    </th>
+                                    <% }); %>
+                                <th class="text-center fw-semibold">Ações</th>
+                            </tr>
+                        </thead>
 
-                <tbody id="<%= tableid %>">
-                    <% tbody.forEach(function(linha) { %>
-                        <tr>
-                            <% Object.values(linha).forEach(function(dado) { %>
-                                <td class="text-center">
-                                    <%= dado %>
-                                </td>
+                        <tbody id="<%= tableid %>">
+                            <% tbody.forEach(function(linha) { %>
+                                <tr>
+                                    <% Object.values(linha).forEach(function(dado, index) { %>
+                                        <td class="text-center" data-label="<%= thead[index] %>">
+                                            <%- dado %>
+                                        </td>
+                                        <% }); %>
+
+                                            <!-- Ações -->
+                                            <td class="text-center" data-label="Ações">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="/adm/user/edit/<%= Object.values(linha)[0] %>"
+                                                        class="btn btn-outline-primary" data-tippy="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+
+                                                    <button class="btn btn-outline-danger btnDeleteUser"
+                                                        id="<%= Object.values(linha)[0] %>">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                </tr>
                                 <% }); %>
+                        </tbody>
 
-                                    <!-- Ações -->
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a href="adm/user/edit/<%= Object.values(linha)[0] %>"
-                                                class="btn btn-outline-primary" data-tippy="Editar">
-                                                <i class="bi bi-pencil"></i>
+                        <% } else { %>
+                            <!-- Estado vazio -->
+                            <tbody>
+                                <tr>
+                                    <td colspan="<%= thead.length + 1 %>">
+                                        <div class="text-center py-5">
+                                            <i class="bi bi-people fs-1 text-secondary mb-3 d-block"></i>
+                                            <h6 class="text-muted mb-1">Nenhum usuário encontrado</h6>
+                                            <p class="text-muted mb-3">Comece adicionando um novo usuário para visualizar os dados aqui.</p>
+                                            <a href="/adm/user/new" class="btn btn-accent btn-sm">
+                                                <i class="bi bi-person-plus-fill me-1"></i> Adicionar Usuário
                                             </a>
-
-                                            <button class="btn btn-outline-danger btnDeleteUser"
-                                                id="<%= Object.values(linha)[0] %>">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
                                         </div>
                                     </td>
-                        </tr>
-                        <% }); %>
-                </tbody>
-
-                <% } else { %>
-                    <!-- Estado vazio -->
-                    <tbody>
-                        <tr>
-                            <td colspan="<%= thead.length + 1 %>">
-                                <div class="text-center py-5">
-                                    <i class="bi bi-people fs-1 text-secondary mb-3 d-block"></i>
-                                    <h6 class="text-muted mb-1">Nenhum funcionário encontrado</h6>
-                                    <p class="text-muted mb-3">Comece adicionando um novo funcionário
-                                    </p>
-
-                                    <a href="adm/adicionar/" class="btn btn-primary btn-sm">
-                                        <i class="bi bi-person-plus-fill me-1"></i> Adicionar
-                                        funcionário
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <% } %>
-        </table>
-    </main>
-    <%- include('../partials/footer') %>
+                                </tr>
+                            </tbody>
+                            <% } %>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+<%- include('../partials/footer') %>

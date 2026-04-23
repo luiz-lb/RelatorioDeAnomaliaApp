@@ -16,7 +16,7 @@ body{
 	border-radius: 12px;
 	overflow: hidden;
 	border: none;
-	max-width: 560px;
+	max-width: 900px;
 	margin: 0 auto;
 	max-height: auto;
 }
@@ -54,6 +54,11 @@ body{
 	color: #6c757d;
 	font-size: 1rem;
 	margin-top: 0.35rem;
+}
+
+.login-form-title {
+	color: var(--text-dark);
+	font-weight: 700;
 }
 
 .login-card .text-center.mb-3{
@@ -224,7 +229,7 @@ body{
 	}
 	/* Permitir que o card ocupe a largura do container no desktop */
 	.login-card {
-		max-width: none;
+		max-width: 900px;
 	}
 }
 
@@ -421,3 +426,12 @@ a.d-inline-block:active {
 	}
 }
 
+/* Estilos para cabeçalhos de card (ex: página de usuários) */
+.card-header-title {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: var(--text-dark);
+	margin-bottom: 0;
+	display: flex;
+	align-items: center;
+}
