@@ -165,6 +165,129 @@ async function excluirNaoConformidade() {
     }
 }
 
+async function enviarFormRelatorio(idRelatorio, checklistSelecionado) {
+    try {
+        const resposta = await fetch(`/fiscalizacao/enviar-relatorio/${idRelatorio}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ checklistSelecionado: checklistSelecionado })
+        });
+
+        const dados = await resposta.json();
+
+        if (!dados.sucesso) {
+            await Swal.fire({
+                title: 'Erro',
+                text: dados.mensagem,
+                icon: 'error',
+                confirmButtonText: 'Fechar'
+            });
+            return;
+        }
+        await Swal.fire({
+            title: 'Sucesso',
+            text: 'Relatório enviado com sucesso!',
+            icon: 'success',
+            confirmButtonText: 'Fechar'
+        });
+        return;
+    } catch (erro) {
+        console.error('Erro ao enviar relatorio para backend.');
+        await Swal.fire({
+            title: 'Erro',
+            text: 'Erro ao enviar relatorio.',
+            icon: 'error',
+            confirmButtonText: 'Fechar'
+        });
+        return;
+    }
+}
+
+async function enviarRelatorio() {
+    try {
+        const idRelatorio = $(this).data('relatorio');
+        if (!idRelatorio) {
+            await Swal.fire({
+                title: 'Erro',
+                text: 'ID do relatório não encontrado.',
+                icon: 'error',
+                confirmButtonText: 'Fechar'
+            });
+            return;
+        }
+
+        const resposta = await fetch(`/fiscalizacao/checklist/${idRelatorio}`, {
+            method: 'GET'
+        });
+
+        const dados = await resposta.json();
+
+        if (!dados.sucesso) {
+            await Swal.fire({
+                title: 'Erro',
+                text: dados.mensagem,
+                icon: 'error',
+                confirmButtonText: 'Fechar'
+            });
+            return;
+        }
+        const checklist = dados.checklist;
+        // colocando o checklist em uma variável para usar como checkbox no swal
+        const checklistHtml = checklist.map((item) => `
+            <label style="display:flex;gap:8px;align-items:center;margin:6px 0;">
+                <input type="checkbox" class="swal-check-item" value="${item.id}">
+                <span>${item.descricao}</span>
+            </label>
+        `).join('');
+
+        const result = await Swal.fire({
+            title: 'Enviar relatório',
+            html: `
+                <p style="margin-bottom:10px;">Selecione os itens do checklist que foram atendidos:</p>
+                <div id="swal-checklist" style="text-align:left;max-height:250px;overflow:auto;">
+                    ${checklistHtml}
+                </div>
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Enviar',
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => {
+                const selecionados = Array.from(
+                    $('#swal-checklist .swal-check-item:checked')
+                ).map((el) => Number($(el).val()));
+
+                // Regra: precisa marcar todos
+                if (selecionados.length !== checklist.length) {
+                    Swal.showValidationMessage('Você deve selecionar todos os campos para enviar o relatório.');
+                    return false;
+                }
+
+                return selecionados;
+            }
+        });
+        
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        // Enviando o formulário para o backend com os itens do checklist selecionados
+        await enviarFormRelatorio(idRelatorio, result.value);        
+
+    } catch (erro) {
+        console.error('Erro ao enviar relatorio.');
+        await Swal.fire({
+            title: 'Erro',
+            text: 'Erro ao enviar relatorio.',
+            icon: 'error',
+            confirmButtonText: 'Fechar'
+        });
+        return;
+    }    
+}
+
 export function initFiscalizacaoPage() {
     const formUpload = $('#formUpload');
     if (!formUpload.length) {
@@ -174,4 +297,5 @@ export function initFiscalizacaoPage() {
     formUpload.on('submit', uploadNaoConformidade);
     $(document).on('click', '.btn-editar', editarNaoConformidade);
     $(document).on('click', '.btn-excluir', excluirNaoConformidade);
+    $(document).on('click', '#btn-enviar-relatorio', enviarRelatorio);
 }

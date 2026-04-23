@@ -1,27 +1,27 @@
 export async function enviarFormulario(idForm, method, formData, redirectUrl) {
     try {
-        const response = await axiosClient({
-            method,
-            url: $(`#${idForm}`).attr('action'),
-            data: formData,
+        const url = $(`#${idForm}`).attr('action');
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
-            }
+            },
+            body: formData
         });
-
-        alert(response.data.message);
+        
+        const data = await response.json();
 
         if (redirectUrl !== '') {
             window.location.href = redirectUrl;
             return;
         }
 
-        if (response.data.redirectUrl) {
-            window.location.href = response.data.redirectUrl;
+        if (data.redirectUrl) {
+            window.location.href = data.redirectUrl;
             return;
         }
 
-        return response.data;
+        return data;
     } catch (error) {
         alert(error.response?.data?.message || 'Ocorreu um erro ao enviar o formulário.');
         console.error(error);

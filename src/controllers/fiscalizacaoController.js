@@ -1,5 +1,17 @@
 import * as fiscalizacaoService from '../services/fiscalizacaoService.js';
 
+export async function validarIdRelatorioParams(req, res, next) {
+    const idRelatorio = req.params.idRelatorio;
+    const idRelatorioSessao = req.session.usuario.relatorio; // Obter o ID do relatório armazenado na sessão
+    if (idRelatorio !== idRelatorioSessao) {
+        return res.status(403).json({
+            sucesso: false,
+            mensagem: "ID do relatório inválido ou não corresponde ao relatório em edição."
+        });
+    }
+
+    next();
+}
 
 export async function paginaHome(req, res, next) {
     try{
@@ -85,10 +97,6 @@ export async function salvarNovoRelatorio(req, res, next) {
 export async function envioNaoConformidade(req, res, next) {
     try {
         const idRelatorio = req.params.idRelatorio;
-        const idRelatorioSessao = req.session.usuario.relatorio;
-        if (idRelatorio !== idRelatorioSessao) {
-            return res.status(400).json({ sucesso: false, mensagem: "ID do relatório inválido ou não corresponde ao relatório em edição." });
-        }
 
         // Volta caminho da imagem, descrição e ID da não conformidade.
         const resultadoNaoConformidade = await fiscalizacaoService.processarNaoConformidade(
@@ -118,12 +126,7 @@ export async function envioNaoConformidade(req, res, next) {
 
 export function editarNaoConformidade(req, res, next) {
     try {
-        const idRelatorio = req.params.idRelatorio; // Obter o ID do relatório a partir do corpo da requisição
-        const idRelatorioSessao = req.session.usuario.relatorio; // Obter o ID do relatório armazenado na sessão
-        if (idRelatorio !== idRelatorioSessao) {
-            return res.status(400).json({ sucesso: false, mensagem: "ID do relatório inválido ou não corresponde ao relatório em edição." });
-        }
-
+        const idRelatorio = req.params.idRelatorio; // Obter o ID do relatório a partir dos parâmetros da rota
         const descricao = req.body.descricao;
         const idNaoConformidade = req.body.idNaoConformidade;
 
@@ -142,11 +145,7 @@ export function editarNaoConformidade(req, res, next) {
 
 export function excluirNaoConformidade(req, res, next) {
     try {
-        const idRelatorio = req.params.idRelatorio; // Obter o ID do relatório a partir do corpo da requisição
-        const idRelatorioSessao = req.session.usuario.relatorio; // Obter o ID do relatório armazenado na sessão
-        if (idRelatorio !== idRelatorioSessao) {
-            return res.status(400).json({ sucesso: false, mensagem: "ID do relatório inválido ou não corresponde ao relatório em edição." });
-        }
+        const idRelatorio = req.params.idRelatorio; 
         const idNaoConformidade = req.body.idNaoConformidade; // Obter o ID da não conformidade a partir dos parâmetros da rota
         if(!idNaoConformidade) {
             return res.status(400).json({ sucesso: false, mensagem: "ID da não conformidade inválido." });
@@ -161,5 +160,40 @@ export function excluirNaoConformidade(req, res, next) {
     } catch (error) {
         console.error("Erro ao excluir a não conformidade no banco:", error);
         return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao excluir a não conformidade no banco de dados." });
+    }
+}
+
+export async function pegarChecklistRelatorio(req, res, next) {
+    try {
+        const checklist = await fiscalizacaoService.obterChecklistRelatorio();
+        if (!Array.isArray(checklist) || checklist.length === 0) {
+            return res.status(404).json({
+                sucesso: false,
+                mensagem: "Checklist não encontrado para o relatório especificado."
+            });
+        }
+        return res.status(200).json({ sucesso: true, checklist: checklist });
+
+    } catch (error) {
+        console.error("Erro ao obter o checklist do relatório:", error);
+        return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao obter o checklist do relatório." });
+    }
+}
+
+export async function enviarRelatorio(req, res, next) {
+    try {
+        const idRelatorio = req.params.idRelatorio; // Obter o ID do relatório a partir dos parâmetros da rota
+        const itensSelecionados = req.body.itensSelecionados;
+        if (!Array.isArray(itensSelecionados) || itensSelecionados.length === 0) {
+            return res.status(400).json({ sucesso: false, mensagem: "Nenhum item selecionado para envio." });
+        }
+        const resultado = await fiscalizacaoService.enviarRelatorio(idRelatorio, itensSelecionados);
+        if (!resultado) {
+            return res.status(500).json({ sucesso: false, mensagem: "Erro ao enviar o relatório." });
+        }
+        return res.status(200).json({ sucesso: true, mensagem: "Relatório enviado com sucesso." });
+    } catch (error) {
+        console.error("Erro ao enviar o relatório:", error);
+        return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao enviar o relatório." });
     }
 }

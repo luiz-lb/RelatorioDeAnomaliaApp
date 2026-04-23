@@ -142,3 +142,29 @@ export async function excluirNaoConformidade(idRelatorio, idNaoConformidade) {
         throw new Error('Não foi possível excluir a não conformidade. Tente novamente mais tarde.');
     }
 }
+
+export async function obterChecklistRelatorio() {
+    try {
+        const checklist = await fiscalizacaoModel.obterChecklistRelatorio();
+        console.log('Checklist obtido com sucesso.');
+        return checklist;
+    } catch (error) {
+        console.error('Erro ao obter o checklist do relatório:', error);
+        throw new Error('Não foi possível obter o checklist do relatório. Tente novamente mais tarde.');
+    }
+}
+
+export async function enviarRelatorio(idRelatorio, itensSelecionados) {
+    try {
+        const resultado = await fiscalizacaoModel.inserirCheckListSelecionados(idRelatorio, itensSelecionados);
+        if (!resultado) {
+            throw new Error("Erro ao inserir checklist no banco de dados.");
+        }
+        const resultado2 = await fiscalizacaoModel.enviarRelatorio(idRelatorio, itensSelecionados);
+        console.log('Relatório enviado com sucesso.');
+        return resultado;
+    } catch (error) {
+        console.error('Erro ao enviar o relatório:', error);
+        throw new Error('Não foi possível enviar o relatório. Tente novamente mais tarde.');
+    }
+}

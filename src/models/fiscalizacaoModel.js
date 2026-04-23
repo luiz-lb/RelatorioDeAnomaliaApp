@@ -73,3 +73,10 @@ export async function excluirNaoConformidade(idRelatorio, idNaoConformidade) {
         .query(`Delete from nao_conformidades where id=@idNaoConformidade and fiscalizacao_id=@fiscalizacao_id`);
     return result.rowsAffected[0] > 0;
 }
+
+export async function obterChecklistRelatorio() {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .query(`Select id, descricao, ordem From checklist_itens Where Ativo = 1 Order by ordem`);
+    return result.recordset;
+}
