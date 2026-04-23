@@ -1,4 +1,8 @@
 async function enviarFormulario(idForm, method, formData, redirectUrl) {
+    const root = getComputedStyle(document.documentElement);
+    const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+    const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+
     // Fazer requisão via HTTP usando Axios do FormData serializado, para a URL definida no atributo action do formulário
     try {
         const response = await axios({
@@ -9,17 +13,46 @@ async function enviarFormulario(idForm, method, formData, redirectUrl) {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         });
-        alert(response.data.message);
-        if (redirectUrl !== '' ) {
-            window.location.href = redirectUrl;
-        } else if(response.data.redirectUrl) {
-            window.location.href = response.data.redirectUrl;
-        }
-        else {
+
+        Swal.fire({
+            title: 'Sucesso',
+            text: response.data.message,
+            icon: 'success',
+            background: bg,
+            color: text,
+            confirmButtonText: 'OK',
+            customClass: {
+                popup: 'rounded-4 shadow p-3 p-md-4',
+                title: 'fs-5 fw-bold mb-2',
+                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm m-0'
+            },
+            buttonsStyling: false
+        }).then(() => {
+            if (redirectUrl !== '' ) {
+                window.location.href = redirectUrl;
+            } else if(response.data.redirectUrl) {
+                window.location.href = response.data.redirectUrl;
+            }
+        });
+
+        if (!redirectUrl && !response.data.redirectUrl) {
             return response.data;
         }
     } catch (error) {
-        alert(error.response?.data?.message || "Ocorreu um erro ao enviar o formulário.");
+        Swal.fire({
+            title: 'Erro',
+            text: error.response?.data?.message || "Ocorreu um erro ao enviar o formulário.",
+            icon: 'error',
+            background: bg,
+            color: text,
+            confirmButtonText: 'Fechar',
+            customClass: {
+                popup: 'rounded-4 shadow p-3 p-md-4',
+                title: 'fs-5 fw-bold mb-2',
+                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm m-0'
+            },
+            buttonsStyling: false
+        });
         console.error(error);
     }
 }
@@ -29,6 +62,33 @@ $(document).ready(function () {
         // Evitar o comportamento padrão do botão (submissão do formulário)
         e.preventDefault();
         const idForm = $(this).data('form-id');
+        const formElement = document.getElementById(idForm);
+
+        // Verifica se os campos obrigatórios foram preenchidos
+        if (formElement && !formElement.checkValidity()) {
+            formElement.classList.add('was-validated'); // Ativa o feedback visual em vermelho nos campos
+            
+            const root = getComputedStyle(document.documentElement);
+            const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+            const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+            
+            Swal.fire({
+                title: 'Atenção',
+                text: 'Ocorreu um erro ao enviar o formulário. Preencha todos os campos obrigatórios.',
+                icon: 'warning',
+                background: bg,
+                color: text,
+                confirmButtonText: 'Fechar',
+                customClass: {
+                    popup: 'rounded-4 shadow p-3 p-md-4',
+                    title: 'fs-5 fw-bold mb-2',
+                    confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm m-0'
+                },
+                buttonsStyling: false
+            });
+            return; // Interrompe a função aqui
+        }
+
         const method = $(this).data('method');
         const redirectUrl = $(this).data('redirect');
         const formData = $(`#${idForm}`).serialize();
@@ -83,20 +143,23 @@ $(document).ready(function () {
             const dados = await resposta.json();
 
             if (dados.sucesso) {
-                // Se editar aqui, editar tambem no ejs de fiscalizacao
+                // Remove a mensagem de empty state se for a primeira imagem subida
+                $('#empty-state-galeria').remove();
+
+                // Estilização atualizada para combinar com os cards do EJS
                 const conformidadeDiv = $(`
-                                        <div id="div-${dados.idNaoConformidade}" class="col-12 col-sm-6 col-lg-4">
-                                            <div class="card h-100 shadow-sm">
-                                                <img src="${dados.caminhoDaImagem}" alt="Imagem da não conformidade" class="card-img-top" style="height: 200px; object-fit: cover;">
-                                                <div class="card-body">
-                                                    <p id="descricao-${dados.idNaoConformidade}" class="card-text">${dados.descricao}</p>
-                                                    <div class="d-flex gap-2">
-                                                        <button id="editar-${dados.idNaoConformidade}" data-relatorio="${idRelatorio}" class="btn btn-accent btn-sm btn-editar flex-grow-1">Editar</button>
-                                                        <button id="excluir-${dados.idNaoConformidade}" data-relatorio="${idRelatorio}" class="btn btn-danger btn-sm btn-excluir flex-grow-1">Excluir</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>`);
+                    <div id="div-${dados.idNaoConformidade}" class="col-12 col-sm-6 col-lg-4">
+                        <div class="card h-100 shadow-sm border-0 rounded-4">
+                            <img src="${dados.caminhoDaImagem}" alt="Imagem da não conformidade" class="card-img-top rounded-top-4 img-nao-conformidade">
+                            <div class="card-body d-flex flex-column">
+                                <p id="descricao-${dados.idNaoConformidade}" class="card-text text-muted small flex-grow-1">${dados.descricao}</p>
+                                <div class="d-flex gap-2 mt-3">
+                                    <button id="editar-${dados.idNaoConformidade}" data-relatorio="${idRelatorio}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 btn-editar flex-grow-1">Editar</button>
+                                    <button id="excluir-${dados.idNaoConformidade}" data-relatorio="${idRelatorio}" class="btn btn-sm btn-outline-danger rounded-pill px-3 btn-excluir flex-grow-1">Excluir</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`);
                 $('#galeria').append(conformidadeDiv);
 
                 // Limpa o input
@@ -121,19 +184,37 @@ $(document).ready(function () {
     $(document).on('click', '.btn-editar', function () {
         const id = this.id.split('-')[1]; // extrai o ID do botão (formato: editar-123)
         const idRelatorio = $(`#editar-${id}`).data('relatorio');
+        
+        const root = getComputedStyle(document.documentElement);
+        const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+        const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+
         // Mostrando switch alert para editar apenas a descrição. Depois usando ajax para enviar a nova descrição pro backend e atualizar na tela sem precisar dar refresh
         Swal.fire({
-            title: 'Editar não conformidade',
-            input: 'text',
-            inputLabel: 'Descrição',
-            inputValue: $(`#descricao-${id}`).text(),
+            title: 'Editar Não Conformidade',
+            input: 'textarea',
+            inputLabel: 'Altere a descrição da imagem:',
+            inputValue: $(`#descricao-${id}`).text().trim(),
             showCancelButton: true,
             confirmButtonText: 'Salvar',
             cancelButtonText: 'Cancelar',
+            background: bg,
+            color: text,
+            customClass: {
+                popup: 'rounded-4 shadow p-3 p-md-4',
+                title: 'fs-5 fw-bold mb-2',
+                inputLabel: 'text-start w-100 d-block text-muted small mb-2',
+                input: 'form-control shadow-sm m-0 w-100 mw-100',
+                actions: 'd-flex flex-wrap gap-2 w-100 justify-content-center mt-4',
+                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm m-0',
+                cancelButton: 'btn btn-light border rounded-pill px-4 text-secondary m-0'
+            },
+            buttonsStyling: false,
             preConfirm: (novaDescricao) => {
-                if (!novaDescricao) {
+                if (!novaDescricao || novaDescricao.trim() === '') {
                     Swal.showValidationMessage('A descrição não pode estar vazia');
                 }
+                return novaDescricao.trim();
             }
         })
         // Depois que o usuário clicar em salvar, enviar a nova descrição pro backend e atualizar na tela sem precisar dar refresh
@@ -159,14 +240,28 @@ $(document).ready(function () {
                             title: 'Sucesso',
                             text: 'Descrição atualizada com sucesso!',
                             icon: 'success',
-                            confirmButtonText: 'Fechar'
+                            background: bg,
+                            color: text,
+                            confirmButtonText: 'Fechar',
+                            customClass: {
+                                popup: 'rounded-4',
+                                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                            },
+                            buttonsStyling: false
                         });
                     } else {
                         Swal.fire({
                             title: 'Erro',
                             text: dados.mensagem,
                             icon: 'error',
-                            confirmButtonText: 'Fechar'
+                            background: bg,
+                            color: text,
+                            confirmButtonText: 'Fechar',
+                            customClass: {
+                                popup: 'rounded-4',
+                                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                            },
+                            buttonsStyling: false
                         });
                     }
                 } catch (erro) {
@@ -175,7 +270,14 @@ $(document).ready(function () {
                         title: 'Erro',
                         text: 'Ocorreu um erro de conexão com o servidor.',
                         icon: 'error',
-                        confirmButtonText: 'Fechar'
+                        background: bg,
+                        color: text,
+                        confirmButtonText: 'Fechar',
+                        customClass: {
+                            popup: 'rounded-4',
+                            confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                        },
+                        buttonsStyling: false
                     });
                 }
             }
@@ -185,13 +287,29 @@ $(document).ready(function () {
     $(document).on('click', '.btn-excluir', function () {
         const id = this.id.split('-')[1]; // extrai o ID do botão (formato: excluir-123)
         const idRelatorio = $(`#excluir-${id}`).data('relatorio');
+        
+        const root = getComputedStyle(document.documentElement);
+        const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+        const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+
         Swal.fire({
             title: 'Excluir não conformidade',
             text: 'Tem certeza que deseja excluir esta não conformidade?',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Sim',
+            confirmButtonText: 'Sim, excluir',
             cancelButtonText: 'Cancelar',
+            background: bg,
+            color: text,
+            customClass: {
+                popup: 'rounded-4 shadow p-3 p-md-4',
+                title: 'fs-5 fw-bold mb-2',
+                htmlContainer: 'm-0 text-muted',
+                actions: 'd-flex flex-wrap gap-2 w-100 justify-content-center mt-4',
+                confirmButton: 'btn btn-danger rounded-pill px-4 shadow-sm m-0',
+                cancelButton: 'btn btn-light border rounded-pill px-4 text-secondary m-0'
+            },
+            buttonsStyling: false
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
@@ -212,7 +330,14 @@ $(document).ready(function () {
                             title: 'Sucesso',
                             text: 'Não conformidade excluída com sucesso!',
                             icon: 'success',
-                            confirmButtonText: 'Fechar'
+                            background: bg,
+                            color: text,
+                            confirmButtonText: 'Fechar',
+                            customClass: {
+                                popup: 'rounded-4',
+                                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                            },
+                            buttonsStyling: false
                         });
                     }
                     else {
@@ -220,7 +345,14 @@ $(document).ready(function () {
                             title: 'Erro',
                             text: dados.mensagem,
                             icon: 'error',
-                            confirmButtonText: 'Fechar'
+                            background: bg,
+                            color: text,
+                            confirmButtonText: 'Fechar',
+                            customClass: {
+                                popup: 'rounded-4',
+                                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                            },
+                            buttonsStyling: false
                         });
                     }
                 } catch (erro) {
@@ -229,7 +361,14 @@ $(document).ready(function () {
                         title: 'Erro',
                         text: 'Ocorreu um erro de conexão com o servidor.',
                         icon: 'error',
-                        confirmButtonText: 'Fechar'
+                        background: bg,
+                        color: text,
+                        confirmButtonText: 'Fechar',
+                        customClass: {
+                            popup: 'rounded-4',
+                            confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                        },
+                        buttonsStyling: false
                     });
                 }
             }
@@ -322,7 +461,7 @@ $(document).on('submit', '#formLogin', function (e) {
     }
 
     function filterReports(query) {
-        const rows = document.querySelectorAll('#tabela-corpo tr');
+        const rows = document.querySelectorAll('#tabela-corpo .searchable-item, #tabela-corpo tr');
         const q = normalize(query);
         rows.forEach(row => {
             const target = normalize(row.getAttribute('data-search'));
@@ -405,4 +544,3 @@ $("#topSelect").on("change", function() {
     // Lógica para atualizar a lista de relatórios com o novo valor de "top"
     window.location.href = `/fiscalizacao?top=${top}`;
 });
-
