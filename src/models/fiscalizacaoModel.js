@@ -44,14 +44,25 @@ export async function obterRelatoriosPorUsuario(idUsuario, top = 10) {
     return result.recordset;
 }
 
-export async function salvarNaoConformidade(idRelatorio, caminhoArquivo, descricao) {
+export async function salvarNaoConformidade(idRelatorio, caminhoArquivo, descricao, hash) {
     const pool = await poolPromise;
     const result = await pool.request()
         .input('fiscalizacao_id', sql.Int, idRelatorio)
         .input('descricao', sql.VarChar(255), descricao)
         .input('foto_path', sql.VarChar(255), caminhoArquivo)
-        .query(`Insert into nao_conformidades(fiscalizacao_id, descricao, foto_path) Output inserted.id Values (@fiscalizacao_id, @descricao, @foto_path)`);
+        .input('hash_foto', sql.VarChar(64), hash)
+        .query(`Insert into nao_conformidades(fiscalizacao_id, descricao, foto_path, hash_foto) Output inserted.id Values (@fiscalizacao_id, @descricao, @foto_path, @hash_foto)`);
     return result.recordset[0].id;
+}
+
+export async function editarNaoConformidade(idRelatorio, idNaoConformidade, descricao) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('idNaoConformidade', sql.Int, idNaoConformidade)
+        .input('fiscalizacao_id', sql.Int, idRelatorio)
+        .input('descricao', sql.VarChar(255), descricao)
+        .query(`Update nao_conformidades set descricao=@descricao where id=@idNaoConformidade and fiscalizacao_id=@fiscalizacao_id`);
+    return result.rowsAffected[0] > 0;
 }
 
 export async function excluirNaoConformidade(idRelatorio, idNaoConformidade) {
@@ -61,4 +72,11 @@ export async function excluirNaoConformidade(idRelatorio, idNaoConformidade) {
         .input('fiscalizacao_id', sql.Int, idRelatorio)
         .query(`Delete from nao_conformidades where id=@idNaoConformidade and fiscalizacao_id=@fiscalizacao_id`);
     return result.rowsAffected[0] > 0;
+}
+
+export async function obterChecklistRelatorio() {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .query(`Select id, descricao, ordem From checklist_itens Where Ativo = 1 Order by ordem`);
+    return result.recordset;
 }

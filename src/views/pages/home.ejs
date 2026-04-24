@@ -51,23 +51,29 @@
                                 <table class="table table-striped align-middle">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>Título</th>
-                                            <th>Descrição</th>
-                                            <th>Data</th>
+                                            <th>Site ID</th>
+                                            <th>Altura da Torre</th>
+                                            <th>Tipo de Estrutura</th>
+                                            <th>Endereço</th>
+                                            <th>Criado em</th>
+                                            <th>Status</th>
                                             <th>Ações</th>  
                                         </tr>
                                     </thead>
                                     <tbody id="tabela-corpo">
                                         <% relatorios.forEach(function(relatorio) { %>
                                             <tr data-search="<%= ((relatorio.nome || relatorio.titulo || '') + ' ' + (relatorio.descricao || '')).replace(/\"/g, '\\"') %>">
-                                                    <td class="fw-semibold" data-label="Título"><%= relatorio.nome || relatorio.titulo || relatorio.id || '' %></td>
-                                                    <td class="text-muted small" data-label="Descrição"><%= relatorio.descricao || '' %></td>
-                                                    <td data-label="Data"><%= relatorio.data || relatorio.created_at || relatorio.date || '' %></td>
+                                                    <td class="fw-semibold" data-label="Site ID"><%= relatorio.site_id || '' %></td>
+                                                    <td class="text-muted small" data-label="Altura da Torre"><%= relatorio.altura_torre || '' %></td>
+                                                    <td data-label="Tipo de Estrutura"><%= relatorio.tipo_estrutura || '' %></td>
+                                                    <td data-label="Endereço"><%= relatorio.endereco + ", " + relatorio.municipio + ", " + relatorio.UF || '' %></td>
+                                                    <td data-label="Criado em"><%= relatorio.created_at || '' %></td>
+                                                    <td data-label="Status"><%= relatorio.status || '' %></td>
                                                     <td data-label="Ações">
                                                         <% if (relatorio.link) { %>
                                                             <a href="<%= relatorio.link %>" class="btn btn-sm btn-outline-secondary">Ver</a>
                                                         <% } else { %>
-                                                            <a href="/fiscalizacao/<%= relatorio.id %>" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                                            <a href="/fiscalizacao/edit/<%= relatorio.id %>" class="btn btn-sm btn-outline-secondary">Ver</a>
                                                         <% } %>
                                                     </td>
                                                 </tr>

@@ -42,4 +42,18 @@ const upload = multer({
     }
 });
 
+// Middleware reutilizável que processa o upload de um único arquivo e trata erros do Multer
+export function handleUpload(fieldName) {
+    return function (req, res, next) {
+        upload.single(fieldName)(req, res, function (err) {
+            if (err instanceof multer.MulterError) {
+                return res.status(400).json({ sucesso: false, mensagem: `Erro de upload: ${err.message}` });
+            } else if (err) {
+                return res.status(400).json({ sucesso: false, mensagem: err.message });
+            }
+            next();
+        });
+    };
+}
+
 export default upload;
