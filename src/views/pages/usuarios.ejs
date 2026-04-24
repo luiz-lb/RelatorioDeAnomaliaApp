@@ -15,17 +15,18 @@
                         </div>
 
                         <div class="d-grid gap-2 d-sm-flex justify-content-sm-end mt-3 mt-md-0">
+                            <a href="/fiscalizacao"
+                                class="btn btn-light shadow-sm text-secondary border d-flex align-items-center gap-2 px-2 fw-medium">
+                                <i class="bi bi-arrow-left"></i> Voltar ao Painel
+                            </a>
                             <a href="/adm/user/new" class="text-decoration-none d-grid d-sm-block">
                                 <button
                                     class="btn btn-accent shadow-sm d-flex justify-content-center align-items-center gap-2 w-100 px-4 fw-medium">
                                     <i class="bi bi-person-plus-fill"></i> Adicionar Usuário
                                 </button>
                             </a>
-                            <a href="/fiscalizacao"
+                            <form id="logoutForm" action="/adm/logout" method="POST"
                                 class="btn btn-light shadow-sm text-secondary border d-flex align-items-center gap-2 px-2 fw-medium">
-                                <i class="bi bi-arrow-left"></i> Voltar ao Painel
-                            </a>
-                            <form id="logoutForm" action="/adm/logout" method="POST" class="btn btn-light shadow-sm text-secondary border d-flex align-items-center gap-2 px-2 fw-medium">
                                 <button id="btnLogout" type="button" class="botao-tranparente">
                                     <i class="bi bi-box-arrow-right"></i> Sair
                                 </button>
