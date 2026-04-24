@@ -1,30 +1,36 @@
 <%- include('../partials/header') %>
     <main class="d-flex justify-content-center align-items-center min-vh-100">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-6">
-                    <div class="card login-card shadow bg-white">
-                        <div class="card-body p-4">
-                            <div class="text-center mb-3">
-                                <img src="/img/RelatorioDeNaoConformidade.png" alt="Logo RNC" class="img-fluid login-logo mx-auto d-block">
+        <div class="container py-4">
+            <div class="card login-card shadow bg-white mx-auto">
+                <div class="row g-0">
+                    <!-- Esquerda: Logo e Textos -->
+                    <div class="col-md-6 d-flex flex-column justify-content-center align-items-center p-4 p-md-5 bg-light">
+                        <img src="/img/RelatorioDeNaoConformidade.png" alt="Logo RNC" class="img-fluid login-logo mb-4">
+                        <h1 class="login-title">Relatórios de Anomalias</h1>
+                        <p class="login-subtitle text-center">Gerencie e registre anomalias com rapidez e segurança</p>
+                    </div>
+                    
+                    <!-- Direita: Formulário de Login -->
+                    <div class="col-md-6 d-flex flex-column justify-content-center p-4 p-md-5">
+                        <h2 class="mb-2 login-form-title">Acesse sua conta</h2>
+                        <p class="text-muted mb-4">Insira suas credenciais para continuar</p>
+                        <form action="/" method="POST" id="formLogin">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Usuário</label>
+                                <input type="text" id="username" name="username" class="form-control" placeholder="Digite seu usuário" required>
                             </div>
-                            <h1 class="text-center login-title">Relatórios de Anomalias</h1>
-                            <p class="text-center login-subtitle">Gerencie e registre anomalias com rapidez e segurança</p>
-                            <form action="/" method="POST" id="formLogin">
-                                <div class="mb-3">
-                                    <label for="username" class="form-label">Usuário</label>
-                                    <input type="text" id="username" name="username" class="form-control" placeholder="Digite seu usuário" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="password" class="form-label">Senha</label>
-                                    <input type="password" id="password" name="password" class="form-control" placeholder="Digite sua senha" required>
-                                </div>
-                                <button type="submit" class="btn btn-accent w-100">Entrar</button>
-                            </form>
-                            <% if (typeof erroLogin !== 'undefined' && erroLogin) { %>
-                                <input type="hidden" id="loginErrorMessage" value="<%= erroLogin %>">
-                            <% } %>
-                        </div>
+                            <div class="mb-4">
+                                <label for="password" class="form-label">Senha</label>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="Digite sua senha" required>
+                            </div>
+                            <button type="submit" class="btn btn-accent w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                <span>Entrar</span>
+                            </button>
+                        </form>
+                        <% if (typeof erroLogin !== 'undefined' && erroLogin) { %>
+                            <input type="hidden" id="loginErrorMessage" value="<%= erroLogin %>">
+                        <% } %>
                     </div>
                 </div>
             </div>

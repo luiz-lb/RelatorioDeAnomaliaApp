@@ -1,36 +1,44 @@
 <%- include('../partials/header') %>
-    <main>
-        <div class="container py-3 py-md-5">
+    <main class="d-flex justify-content-center align-items-start min-vh-100 py-4 py-md-5">
+        <div class="container">
             <div class="row justify-content-center">
-                <div class="col-12 col-sm-11 col-md-9 col-lg-8 col-xl-10">
-                    <div class="card form-card shadow bg-white">
-                        <div class="card-body p-3 p-sm-4 p-md-5">
-                            <div class="text-center mb-4">
-                                <h1 class="form-title"><%= formTitle %></h1>
-                            </div>
-                            <form action="<%= formAction %>" id="<%= idForm %>" novalidate>
+                <div class="col-12 col-md-10 col-lg-8 col-xl-11">
+                    <div class="card shadow-sm border-0 rounded-4 bg-white">
+                        <div class="card-header bg-transparent border-0 pt-4 pb-0 text-center">
+                            <h3 class="fw-bold text-dark mb-0"><%= formTitle %></h3>
+                            <div class="mx-auto mt-2 form-title-underline"></div>
+                        </div>
+                        <div class="card-body p-4 p-md-5 pt-4">
+                            <form action="<%= formAction %>" id="<%= idForm %>" novalidate class="needs-validation">
                                 <% inputs.forEach(function(input) { %>
-                                    <div class="mb-3">
+                                    <div class="mb-4">
+                                        <label for="<%= input.id %>" class="form-label fw-medium text-secondary small mb-1"><%= input.label %></label>
                                         <% if(input.type === 'select') { %>
-                                            <label for="<%= input.id %>" class="form-label"><%= input.label %></label>
-                                            <select class="form-select <%= input.class ? input.class : '' %>" id="<%= input.id %>" name="<%= input.name %>" <%= input.required ? 'required' : '' %>>
+                                            <select class="form-select shadow-sm border-light py-2 px-3 <%= input.class ? input.class : '' %>" id="<%= input.id %>" name="<%= input.name %>" <%= input.required ? 'required' : '' %>>
                                                 <option value="">Selecione uma opção</option>
                                                 <% input.options.forEach(function(option) { %>
                                                     <option value="<%= option.value %>" <%= option.value === input.value ? 'selected' : '' %>><%= option.label %></option>
                                                 <% }); %>
                                             </select>
                                         <% } else if(input.type === 'textarea') { %>
-                                            <label for="<%= input.id %>" class="form-label"><%= input.label %></label>
-                                            <textarea class="form-control <%= input.class ? input.class : '' %>" id="<%= input.id %>" name="<%= input.name %>" rows="4" <%= input.required ? 'required' : '' %>><%= input.value ? input.value : '' %></textarea>
+                                            <textarea class="form-control shadow-sm border-light py-2 px-3 <%= input.class ? input.class : '' %>" id="<%= input.id %>" name="<%= input.name %>" rows="4" <%= input.required ? 'required' : '' %> placeholder="<%= input.placeholder ? input.placeholder : '' %>"><%= input.value ? input.value : '' %></textarea>
                                         <% } else { %>
-                                            <label for="<%= input.id %>" class="form-label"><%= input.label %></label>
-                                            <input type="<%= input.type %>" class="form-control <%= input.class ? input.class : '' %>" id="<%= input.id %>" name="<%= input.name %>" value="<%= input.value ? input.value : '' %>" <%= input.required ? 'required' : '' %>>
+                                            <input type="<%= input.type %>" class="form-control shadow-sm border-light py-2 px-3 <%= input.class ? input.class : '' %>" id="<%= input.id %>" name="<%= input.name %>" value="<%= input.value ? input.value : '' %>" <%= input.required ? 'required' : '' %> placeholder="<%= input.placeholder ? input.placeholder : '' %>">
                                         <% } %>
                                     </div>
                                 <% }); %>
-                                <div class="d-grid gap-2 mt-4">
-                                    <button type="button" data-method="<%= formMethod %>" data-form-id="<%= idForm %>" data-redirect="<%= typeof redirectUrl !== 'undefined' ? redirectUrl : '' %>" class="btn btn-accent btn-lg btnSend"><%= typeof btnText !== 'undefined' ? btnText : 'Enviar' %></button>
+                                <div class="d-grid mt-5">
+                                    <button type="button" data-method="<%= formMethod %>" data-form-id="<%= idForm %>" data-redirect="<%= typeof redirectUrl !== 'undefined' ? redirectUrl : '' %>" class="btn btn-accent rounded-pill py-2 fw-medium shadow-sm btnSend d-flex justify-content-center align-items-center gap-2">
+                                        <i class="bi bi-check2-circle fs-5"></i> <%= typeof btnText !== 'undefined' ? btnText : 'Salvar Dados' %>
+                                    </button>
                                 </div>
+                                <% if (typeof redirectUrl !== 'undefined' && redirectUrl !== '') { %>
+                                    <div class="text-center mt-4">
+                                        <a href="<%= redirectUrl %>" class="text-muted text-decoration-none small hover-accent transition-all fw-medium">
+                                            <i class="bi bi-arrow-left"></i> Cancelar e Voltar
+                                        </a>
+                                    </div>
+                                <% } %>
                             </form>
                         </div>
                     </div>
@@ -38,4 +46,5 @@
             </div>
         </div>
     </main>
+
 <%- include('../partials/footer') %>
