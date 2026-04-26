@@ -1,3 +1,4 @@
+
 import { initFormSubmissions } from './common/forms.js';
 import { initLoginLoading, initLogoutConfirmation, showLoginError } from './common/auth.js';
 import { initReportSearch, initTopSelect } from './pages/home.js';
@@ -12,5 +13,3 @@ function initApp() {
     initTopSelect();
     initFiscalizacaoPage();
 }
-
-$(document).ready(initApp);

@@ -1,5 +1,6 @@
 import * as fiscalizacaoModel from '../models/fiscalizacaoModel.js';
 import { verificarPermissaoParaSql } from './authService.js';
+import { sendEmail } from '../utils/mailer.js';
 import fs from 'fs';
 import crypto from 'crypto';
 
@@ -98,12 +99,13 @@ export async function processarNaoConformidade(idRelatorio, arquivo, descricao, 
 
     // Se já houver um hash idêntico para esse relatório, bloquear o envio
     if (usuario.uploadHashes[idRelatorio] === hash) {
-        const resultado = { erro:"Imagem já foi enviada (duplicata detectada)."};
+        const erro = new Error("Imagem já foi enviada (duplicata detectada).");
         // Apagando imagem duplicada do servidor para evitar acúmulo de arquivos
         fs.unlink(arquivo.path, (err) => {
             if (err) console.error('Erro ao apagar arquivo duplicado:', err);
         });
-        return resultado;
+        erro.statusCode = 400;
+        throw erro;
     }
 
     // Salvar no banco de dados
@@ -118,7 +120,7 @@ export async function processarNaoConformidade(idRelatorio, arquivo, descricao, 
     // Marcar hash salvo para esse relatório
     usuario.uploadHashes[idRelatorio] = hash;
 
-    return { caminhoDaImagem, descricao, id: idNaoConformidadeNova };
+    return { caminhoDaImagem, descricao, idNaoConformidade: idNaoConformidadeNova };
 }
 
 export async function editarNaoConformidade(idRelatorio, idNaoConformidade, descricao) {
@@ -160,9 +162,47 @@ export async function enviarRelatorio(idRelatorio, itensSelecionados) {
         if (!resultado) {
             throw new Error("Erro ao inserir checklist no banco de dados.");
         }
-        const resultado2 = await fiscalizacaoModel.enviarRelatorio(idRelatorio, itensSelecionados);
-        console.log('Relatório enviado com sucesso.');
-        return resultado;
+        console.log('Checklist do relatório atualizado com sucesso.');
+
+
+        //const resultado2 = await fiscalizacaoModel.enviarRelatorio(idRelatorio, itensSelecionados);
+        //console.log('Relatório enviado com sucesso.');
+        //return resultado;
+
+        //Teste
+        const htmlEnvioFeito = `<div style="font-family: Arial, sans-serif; color: #333;">
+            <h2 style="color: #007BFF;">Relatório de Fiscalização Enviado</h2>
+            <p>O relatório de fiscalização com ID <strong>${idRelatorio}</strong> foi enviado com sucesso.</p>
+            <h3>Itens Selecionados:</h3>
+            <ul>
+                ${itensSelecionados.map(item => `<li>${item}</li>`).join('')}
+            </ul>
+            <p>Por favor, revise o relatório e tome as ações necessárias.</p>
+        </div>
+        `;
+
+        const configuracaoEmail = {
+            message: {
+                subject: "Alerta de Erros - Rotina X",
+                body: {
+                    contentType: "HTML",
+                    content: htmlEnvioFeito
+                },
+                toRecipients: [{ emailAddress: { address: 'luiz.silva@everestengenharia.com.br' } }]
+            },
+            saveToSentItems: "true"
+        };
+
+        // Delega o envio para a função de infraestrutura
+        const remetente = "chamados@everestengenharia.com.br";
+        const sucesso = await sendEmail(remetente, configuracaoEmail);
+        if (!sucesso) {
+            console.error('Falha ao enviar o e-mail de notificação.');
+            // Aqui você pode decidir se quer lançar um erro ou apenas logar a falha, dependendo da criticidade do e-mail para o processo.
+        }
+        console.log('E-mail de notificação enviado com sucesso.');
+        return sucesso;
+
     } catch (error) {
         console.error('Erro ao enviar o relatório:', error);
         throw new Error('Não foi possível enviar o relatório. Tente novamente mais tarde.');

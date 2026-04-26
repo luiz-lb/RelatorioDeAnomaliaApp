@@ -1,95 +1,117 @@
 <%- include('../partials/header') %>
-    <main class="d-flex justify-content-center align-items-start min-vh-100 py-5">
+    <main class="d-flex justify-content-center align-items-start min-vh-100 py-4 py-md-5">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-12 col-md-10">
-                    <div class="card login-card shadow bg-white">
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h2 class="mb-0">Painel de relatórios</h2>
+                <div class="col-12 col-xl-11">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                        <div>
+                            <h2 class="mb-1 fw-bold text-dark">Painel de Relatórios</h2>
+                            <p class="text-muted mb-0">Gerencie e acompanhe seus relatórios de fiscalização</p>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-end mt-3 mt-md-0">
+                            <% botoes.forEach(function(botao) { %>
+                                <a href="<%= botao.link %>" class="text-decoration-none d-grid d-sm-block">
+                                    <button id="<%= botao.id %>" class="btn btn-accent btnHome shadow-sm d-flex justify-content-center align-items-center gap-2 w-100">
+                                        <% if(botao.nome === 'Novo relatório') { %>
+                                            <i class="bi bi-plus-lg"></i>
+                                        <% } else if (botao.nome === 'Configurações') { %>
+                                            <i class="bi bi-gear"></i>
+                                        <% } %>
+                                        <%= botao.nome %>
+                                    </button>
+                                </a>
+                            <% }) %>
+                            <form action="/adm/logout" method="POST" id="logoutForm" class="m-0 d-grid d-sm-block">
+                                <button type="button" id="btnLogout" class="btn btn-light shadow-sm btnHome text-secondary d-flex justify-content-center align-items-center gap-2 border w-100">
+                                    <i class="bi bi-box-arrow-right"></i> Sair
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border-0 rounded-4 mb-4 bg-white">
+                        <div class="card-body p-3 p-md-4">
+                            <div class="row g-3 align-items-center mb-4">
+                                <!-- Filtro / Busca -->
+                                <div class="col-12 col-md-7 col-lg-8">
+                                    <label for="reportSearch" class="visually-hidden">Pesquisar relatórios</label>
+                                    <div class="input-group search-input shadow-sm rounded-pill px-2 py-1 border bg-white">
+                                        <span class="input-group-text bg-transparent border-0 text-muted"><i class="bi bi-search"></i></span>
+                                        <input type="search" id="reportSearch" class="form-control border-0 shadow-none bg-transparent" placeholder="Pesquisar relatórios..." aria-label="Pesquisar relatórios">
+                                        <button class="btn btn-link text-muted border-0 shadow-none" id="clearSearch" type="button" title="Limpar busca">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 col-md-5 col-lg-4 d-flex justify-content-md-end align-items-center gap-2">
+                                    <span class="text-muted small fw-medium text-nowrap">Exibir:</span>
+                                    <select id="topSelect" class="form-select border-0 shadow-sm rounded-pill px-3 py-2 flex-grow-1 flex-md-grow-0 select-top-filter">
+                                        <option <%= top === 10 ? 'selected' : '' %> value="10">10 resultados</option>
+                                        <option <%= top === 25 ? 'selected' : '' %> value="25">25 resultados</option>
+                                        <option <%= top === 50 ? 'selected' : '' %> value="50">50 resultados</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            <div class="mb-3 d-flex justify-content-between align-items-center">
-                                <div>
-                                    <% botoes.forEach(function(botao) { %>
-                                        <a href="<%= botao.link %>" class="me-2 mb-2 d-inline-block">
-                                            <button id="<%= botao.id %>" class="btn btn-accent btn-sm btnHome"><%= botao.nome %></button>
-                                        </a>
-                                    <% }) %>
-                                </div>
-                                <div class="ms-auto d-flex align-items-center">
-                                    <!-- Busca para desktop (visível em md+) -->
-                                    <div class="d-none d-md-block search-wrapper me-2">
-                                        <label for="reportSearch" class="visually-hidden">Pesquisar relatórios</label>
-                                        <div class="input-group search-input shadow-sm">
-                                            <span class="input-group-text bg-white border-end-0 search-icon" id="searchIcon"><i class="bi bi-search"></i></span>
-                                            <input type="search" id="reportSearch" class="form-control" placeholder="Pesquisar..." aria-label="Pesquisar relatórios" aria-describedby="searchIcon clearSearch">
-                                            <button class="btn btn-outline-secondary" id="clearSearch" type="button" title="Limpar busca" aria-label="Limpar busca">
-                                                <i class="bi bi-x-lg"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Busca mobile: alternável, mantém o layout compacto -->
-                                    <div class="d-md-none mobile-search-wrapper d-flex align-items-center">
-                                        <button id="toggleMobileSearch" class="btn btn-outline-secondary me-2" type="button" aria-label="Abrir busca">
-                                            <i class="bi bi-search"></i>
-                                        </button>
-                                        <div id="mobileSearchContainer" class="d-none">
-                                            <div class="input-group search-input shadow-sm">
-                                                <input type="search" id="reportSearchMobile" class="form-control" placeholder="Pesquisar..." aria-label="Pesquisar relatórios">
-                                                <button class="btn btn-outline-secondary" id="clearSearchMobile" type="button" title="Limpar busca" aria-label="Limpar busca">
-                                                    <i class="bi bi-x-lg"></i>
-                                                </button>
+                            <!-- Grid de Cards em vez de Tabela -->
+                            <div class="row g-4" id="tabela-corpo">
+                                <% relatorios.forEach(function(relatorio) { %>
+                                    <div class="col-12 col-md-6 col-lg-4 searchable-item" data-search="<%= ((relatorio.id || '') + ' ' + (relatorio.site_id || '') + ' ' + (relatorio.tipo_estrutura || '') + ' ' + (relatorio.endereco || '') + ' ' + (relatorio.municipio || '') + ' ' + (relatorio.status || '')).replace(/\"/g, '\\"') %>">
+                                        <div class="card h-100 shadow-sm border border-light rounded-4 hover-shadow transition-all">
+                                            <div class="card-header bg-transparent border-0 pt-3 pb-0 d-flex justify-content-between align-items-start">
+                                                <span class="badge bg-light text-secondary border rounded-pill px-3 py-2 fw-bold badge-id">
+                                                    ID: <%= relatorio.id %>
+                                                </span>
+                                                <span class="badge <%= relatorio.status === 'Concluído' ? 'bg-success' : (relatorio.status === 'Rascunho' ? 'bg-secondary' : 'bg-warning text-dark') %> rounded-pill px-3 py-2 fw-medium">
+                                                    <%= relatorio.status || 'Pendente' %>
+                                                </span>
+                                            </div>
+                                            <div class="card-body pt-3">
+                                                <h5 class="card-title fw-bold text-dark mb-1 text-truncate" title="<%= relatorio.site_id %>">
+                                                    <%= relatorio.site_id || 'Sem Site ID' %>
+                                                </h5>
+                                                <p class="text-muted small mb-3">
+                                                    <i class="bi bi-calendar3 me-1"></i> <%= relatorio.created_at || 'Data não disponível' %>
+                                                </p>
+                                                
+                                                <div class="d-flex flex-column gap-2 mb-3 small">
+                                                    <div class="d-flex align-items-start gap-2">
+                                                        <i class="bi bi-building text-accent mt-1"></i>
+                                                        <div>
+                                                            <strong class="d-block text-dark">Estrutura</strong>
+                                                            <span class="text-muted"><%= relatorio.tipo_estrutura || '-' %> <%= relatorio.altura_torre ? '(' + relatorio.altura_torre + 'm)' : '' %></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex align-items-start gap-2">
+                                                        <i class="bi bi-geo-alt text-accent mt-1"></i>
+                                                        <div>
+                                                            <strong class="d-block text-dark">Localização</strong>
+                                                            <span class="text-muted"><%= relatorio.endereco %>, <%= relatorio.municipio %> - <%= relatorio.UF %></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer bg-transparent border-0 pb-3 pt-0">
+                                                <a href="<%= relatorio.link ? relatorio.link : '/fiscalizacao/edit/' + relatorio.id %>" class="btn btn-outline-secondary w-100 rounded-pill fw-medium">
+                                                    Ver Detalhes
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                <% }) %>
+                                
+                                <% if (relatorios.length === 0) { %>
+                                    <div class="col-12 text-center py-5">
+                                        <div class="text-muted mb-3">
+                                            <i class="bi bi-inbox empty-state-icon"></i>
+                                        </div>
+                                        <h5 class="text-muted">Nenhum relatório encontrado</h5>
+                                        <p class="text-muted small">Tente ajustar sua busca ou crie um novo relatório.</p>
+                                    </div>
+                                <% } %>
                             </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-striped align-middle">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Site ID</th>
-                                            <th>Altura da Torre</th>
-                                            <th>Tipo de Estrutura</th>
-                                            <th>Endereço</th>
-                                            <th>Criado em</th>
-                                            <th>Status</th>
-                                            <th>Ações</th>  
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tabela-corpo">
-                                        <% relatorios.forEach(function(relatorio) { %>
-                                            <tr data-search="<%= ((relatorio.nome || relatorio.titulo || '') + ' ' + (relatorio.descricao || '')).replace(/\"/g, '\\"') %>">
-                                                    <td class="fw-semibold" data-label="Site ID"><%= relatorio.site_id || '' %></td>
-                                                    <td class="text-muted small" data-label="Altura da Torre"><%= relatorio.altura_torre || '' %></td>
-                                                    <td data-label="Tipo de Estrutura"><%= relatorio.tipo_estrutura || '' %></td>
-                                                    <td data-label="Endereço"><%= relatorio.endereco + ", " + relatorio.municipio + ", " + relatorio.UF || '' %></td>
-                                                    <td data-label="Criado em"><%= relatorio.created_at || '' %></td>
-                                                    <td data-label="Status"><%= relatorio.status || '' %></td>
-                                                    <td data-label="Ações">
-                                                        <% if (relatorio.link) { %>
-                                                            <a href="<%= relatorio.link %>" class="btn btn-sm btn-outline-secondary">Ver</a>
-                                                        <% } else { %>
-                                                            <a href="/fiscalizacao/edit/<%= relatorio.id %>" class="btn btn-sm btn-outline-secondary">Ver</a>
-                                                        <% } %>
-                                                    </td>
-                                                </tr>
-                                        <% }) %>
-                                    </tbody>
-                                </table>
-                                <select id="topSelect" class="form-select form-select-sm" style="width: auto;">
-                                    <option <%= top === 10 ? 'selected' : '' %> value="10">Mostrar 10</option>
-                                    <option <%= top === 25 ? 'selected' : '' %> value="25">Mostrar 25</option>
-                                    <option <%= top === 50 ? 'selected' : '' %> value="50">Mostrar 50</option>
-                                </select>
-                            </div>
-
-                            <form action="/adm/logout" method="POST" class="mt-3" id="logoutForm">
-                                <button type="button" id="btnLogout" class="btn btn-outline-secondary">Sair</button>
-                            </form>
                         </div>
                     </div>
                 </div>

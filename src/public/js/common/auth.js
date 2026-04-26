@@ -22,8 +22,10 @@ export function showLoginError() {
 export function initLogoutConfirmation() {
     $(document).on('click', '#btnLogout', function (e) {
         e.preventDefault();
-
-        const { background, text, accent } = getThemeColors();
+        const root = getComputedStyle(document.documentElement);
+        const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+        const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+        const accent = (root.getPropertyValue('--accent') || '#BF3939').trim();
 
         Swal.fire({
             title: 'Confirmar saída',
@@ -32,15 +34,13 @@ export function initLogoutConfirmation() {
             showCancelButton: true,
             confirmButtonText: 'Sair',
             cancelButtonText: 'Cancelar',
-            background,
+            background: bg,
             color: text,
             confirmButtonColor: accent
         }).then((result) => {
             if (result.isConfirmed) {
                 const form = document.getElementById('logoutForm');
-                if (form) {
-                    form.submit();
-                }
+                if (form) form.submit();
             }
         });
     });
@@ -49,7 +49,10 @@ export function initLogoutConfirmation() {
 export function initLoginLoading() {
     $(document).on('submit', '#formLogin', function () {
         try {
-            const { background, text } = getThemeColors();
+            const root = getComputedStyle(document.documentElement);
+            const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+            const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+            const accent = (root.getPropertyValue('--accent') || '#BF3939').trim();
 
             Swal.fire({
                 title: 'Entrando...',
@@ -58,14 +61,18 @@ export function initLoginLoading() {
                 didOpen: () => {
                     Swal.showLoading();
                 },
-                background,
+                background: bg,
                 color: text,
-                showConfirmButton: false
+                showConfirmButton: false,
+                willClose: () => {
+                    // nada
+                }
             });
+            // permitir que o formulário seja enviado normalmente (navegação/redirect)
+            return true;
         } catch (err) {
             console.error('Erro ao mostrar loading SweetAlert:', err);
+            return false;
         }
-
-        return true;
     });
 }

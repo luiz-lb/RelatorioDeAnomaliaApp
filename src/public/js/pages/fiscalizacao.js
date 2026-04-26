@@ -48,121 +48,197 @@ async function uploadNaoConformidade(event) {
 }
 
 async function editarNaoConformidade() {
-    const id = this.id.split('-')[1];
+    const id = this.id.split('-')[1]; // extrai o ID do botão (formato: editar-123)
     const idRelatorio = $(`#editar-${id}`).data('relatorio');
+    
+    const root = getComputedStyle(document.documentElement);
+    const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+    const text = (root.getPropertyValue('--text-dark') || '#333').trim();
 
-    const result = await Swal.fire({
-        title: 'Editar não conformidade',
-        input: 'text',
-        inputLabel: 'Descrição',
-        inputValue: $(`#descricao-${id}`).text(),
+    // Mostrando switch alert para editar apenas a descrição. Depois usando ajax para enviar a nova descrição pro backend e atualizar na tela sem precisar dar refresh
+    Swal.fire({
+        title: 'Editar Não Conformidade',
+        input: 'textarea',
+        inputLabel: 'Altere a descrição da imagem:',
+        inputValue: $(`#descricao-${id}`).text().trim(),
         showCancelButton: true,
         confirmButtonText: 'Salvar',
         cancelButtonText: 'Cancelar',
+        background: bg,
+        color: text,
+        customClass: {
+            popup: 'rounded-4 shadow p-3 p-md-4',
+            title: 'fs-5 fw-bold mb-2',
+            inputLabel: 'text-start w-100 d-block text-muted small mb-2',
+            input: 'form-control shadow-sm m-0 w-100 mw-100',
+            actions: 'd-flex flex-wrap gap-2 w-100 justify-content-center mt-4',
+            confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm m-0',
+            cancelButton: 'btn btn-light border rounded-pill px-4 text-secondary m-0'
+        },
+        buttonsStyling: false,
         preConfirm: (novaDescricao) => {
-            if (!novaDescricao) {
+            if (!novaDescricao || novaDescricao.trim() === '') {
                 Swal.showValidationMessage('A descrição não pode estar vazia');
+            }
+            return novaDescricao.trim();
+        }
+    })
+    // Depois que o usuário clicar em salvar, enviar a nova descrição pro backend e atualizar na tela sem precisar dar refresh
+    .then(async (result) => {
+        if (result.isConfirmed) {
+            const novaDescricao = result.value;
+            // Enviar a nova descrição para o backend usando AJAX
+            try {
+                const resposta = await fetch(`/fiscalizacao/edit/nao-conformidade/${idRelatorio}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ descricao: novaDescricao, idNaoConformidade: id })
+                });
+
+                const dados = await resposta.json();
+
+                if (dados.sucesso) {
+                    // Atualizar a descrição na tela sem precisar dar refresh
+                    $(`#descricao-${id}`).text(novaDescricao);
+                    Swal.fire({
+                        title: 'Sucesso',
+                        text: 'Descrição atualizada com sucesso!',
+                        icon: 'success',
+                        background: bg,
+                        color: text,
+                        confirmButtonText: 'Fechar',
+                        customClass: {
+                            popup: 'rounded-4',
+                            confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                        },
+                        buttonsStyling: false
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Erro',
+                        text: dados.mensagem,
+                        icon: 'error',
+                        background: bg,
+                        color: text,
+                        confirmButtonText: 'Fechar',
+                        customClass: {
+                            popup: 'rounded-4',
+                            confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                        },
+                        buttonsStyling: false
+                    });
+                }
+            } catch (erro) {
+                console.error("Erro na requisição:", erro);
+                Swal.fire({
+                    title: 'Erro',
+                    text: 'Ocorreu um erro de conexão com o servidor.',
+                    icon: 'error',
+                    background: bg,
+                    color: text,
+                    confirmButtonText: 'Fechar',
+                    customClass: {
+                        popup: 'rounded-4',
+                        confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                    },
+                    buttonsStyling: false
+                });
             }
         }
     });
-
-    if (!result.isConfirmed) {
-        return;
-    }
-
-    try {
-        const resposta = await fetch(`/fiscalizacao/edit/nao-conformidade/${idRelatorio}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ descricao: result.value, idNaoConformidade: id })
-        });
-
-        const dados = await resposta.json();
-
-        if (!dados.sucesso) {
-            await Swal.fire({
-                title: 'Erro',
-                text: dados.mensagem,
-                icon: 'error',
-                confirmButtonText: 'Fechar'
-            });
-            return;
-        }
-
-        $(`#descricao-${id}`).text(result.value);
-        await Swal.fire({
-            title: 'Sucesso',
-            text: 'Descrição atualizada com sucesso!',
-            icon: 'success',
-            confirmButtonText: 'Fechar'
-        });
-    } catch (erro) {
-        console.error('Erro na requisição:', erro);
-        await Swal.fire({
-            title: 'Erro',
-            text: 'Ocorreu um erro de conexão com o servidor.',
-            icon: 'error',
-            confirmButtonText: 'Fechar'
-        });
-    }
 }
 
 async function excluirNaoConformidade() {
-    const id = this.id.split('-')[1];
+    const id = this.id.split('-')[1]; // extrai o ID do botão (formato: excluir-123)
     const idRelatorio = $(`#excluir-${id}`).data('relatorio');
+    
+    const root = getComputedStyle(document.documentElement);
+    const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+    const text = (root.getPropertyValue('--text-dark') || '#333').trim();
 
-    const result = await Swal.fire({
+    Swal.fire({
         title: 'Excluir não conformidade',
         text: 'Tem certeza que deseja excluir esta não conformidade?',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Sim',
-        cancelButtonText: 'Cancelar'
-    });
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar',
+        background: bg,
+        color: text,
+        customClass: {
+            popup: 'rounded-4 shadow p-3 p-md-4',
+            title: 'fs-5 fw-bold mb-2',
+            htmlContainer: 'm-0 text-muted',
+            actions: 'd-flex flex-wrap gap-2 w-100 justify-content-center mt-4',
+            confirmButton: 'btn btn-danger rounded-pill px-4 shadow-sm m-0',
+            cancelButton: 'btn btn-light border rounded-pill px-4 text-secondary m-0'
+        },
+        buttonsStyling: false
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const resposta = await fetch(`/fiscalizacao/edit/nao-conformidade/${idRelatorio}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ idNaoConformidade: id })
+                });
 
-    if (!result.isConfirmed) {
-        return;
-    }
+                const dados = await resposta.json();
 
-    try {
-        const resposta = await fetch(`/fiscalizacao/edit/nao-conformidade/${idRelatorio}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ idNaoConformidade: id })
-        });
-
-        const dados = await resposta.json();
-
-        if (!dados.sucesso) {
-            await Swal.fire({
-                title: 'Erro',
-                text: dados.mensagem,
-                icon: 'error',
-                confirmButtonText: 'Fechar'
-            });
-            return;
+                if (dados.sucesso) {
+                    // Remover a não conformidade da tela sem precisar dar refresh
+                    $(`#div-${id}`).closest('.col-12').remove();
+                    Swal.fire({
+                        title: 'Sucesso',
+                        text: 'Não conformidade excluída com sucesso!',
+                        icon: 'success',
+                        background: bg,
+                        color: text,
+                        confirmButtonText: 'Fechar',
+                        customClass: {
+                            popup: 'rounded-4',
+                            confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                        },
+                        buttonsStyling: false
+                    });
+                }
+                else {
+                    Swal.fire({
+                        title: 'Erro',
+                        text: dados.mensagem,
+                        icon: 'error',
+                        background: bg,
+                        color: text,
+                        confirmButtonText: 'Fechar',
+                        customClass: {
+                            popup: 'rounded-4',
+                            confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                        },
+                        buttonsStyling: false
+                    });
+                }
+            } catch (erro) {
+                console.error("Erro na requisição:", erro);
+                Swal.fire({
+                    title: 'Erro',
+                    text: 'Ocorreu um erro de conexão com o servidor.',
+                    icon: 'error',
+                    background: bg,
+                    color: text,
+                    confirmButtonText: 'Fechar',
+                    customClass: {
+                        popup: 'rounded-4',
+                        confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                    },
+                    buttonsStyling: false
+                });
+            }
         }
-
-        $(`#div-${id}`).remove();
-        await Swal.fire({
-            title: 'Sucesso',
-            text: 'Não conformidade excluída com sucesso!',
-            icon: 'success',
-            confirmButtonText: 'Fechar'
-        });
-    } catch (erro) {
-        console.error('Erro na requisição:', erro);
-        await Swal.fire({
-            title: 'Erro',
-            text: 'Ocorreu um erro de conexão com o servidor.',
-            icon: 'error',
-            confirmButtonText: 'Fechar'
-        });
-    }
+    });
 }
 
 async function enviarFormRelatorio(idRelatorio, checklistSelecionado) {
