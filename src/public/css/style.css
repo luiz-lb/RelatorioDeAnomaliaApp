@@ -76,6 +76,16 @@ body { background-color: var(--bg-color); }
 	box-shadow: 0 6px 18px rgba(191,57,57,0.06);
 }
 
+.botao-tranparente{
+	background: none;
+	border: none;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+	border-radius: 8px;
+}
+
 /* ==========================================================================
    FORMULÁRIOS & INPUTS
    ========================================================================== */

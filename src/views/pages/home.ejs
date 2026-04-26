@@ -4,9 +4,12 @@
             <div class="row justify-content-center">
                 <div class="col-12 col-xl-11">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                        <div>
-                            <h2 class="mb-1 fw-bold text-dark">Painel de Relatórios</h2>
-                            <p class="text-muted mb-0">Gerencie e acompanhe seus relatórios de fiscalização</p>
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="/img/RelatorioDeNaoConformidade.png" alt="Painel de Relatórios" class="flex-shrink-0" style="height: auto; max-height: 80px; width: auto; object-fit: contain;">
+                            <div>
+                                <h2 class="mb-1 fw-bold text-dark">Painel de Relatórios</h2>
+                                <p class="text-muted mb-0">Gerencie e acompanhe seus relatórios de fiscalização</p>
+                            </div>
                         </div>
                         
                         <div class="d-grid gap-2 d-sm-flex justify-content-sm-end mt-3 mt-md-0">
@@ -22,8 +25,8 @@
                                     </button>
                                 </a>
                             <% }) %>
-                            <form action="/adm/logout" method="POST" id="logoutForm" class="m-0 d-grid d-sm-block">
-                                <button type="button" id="btnLogout" class="btn btn-light shadow-sm btnHome text-secondary d-flex justify-content-center align-items-center gap-2 border w-100">
+                            <form id="logoutForm" action="/adm/logout" method="POST" class="btn btn-light shadow-sm text-secondary border d-flex align-items-center gap-2 px-2 fw-medium">
+                                <button id="btnLogout" type="button" class="botao-tranparente">
                                     <i class="bi bi-box-arrow-right"></i> Sair
                                 </button>
                             </form>
@@ -47,10 +50,10 @@
                                 
                                 <div class="col-12 col-md-5 col-lg-4 d-flex justify-content-md-end align-items-center gap-2">
                                     <span class="text-muted small fw-medium text-nowrap">Exibir:</span>
-                                    <select id="topSelect" class="form-select border-0 shadow-sm rounded-pill px-3 py-2 flex-grow-1 flex-md-grow-0 select-top-filter">
-                                        <option <%= top === 10 ? 'selected' : '' %> value="10">10 resultados</option>
-                                        <option <%= top === 25 ? 'selected' : '' %> value="25">25 resultados</option>
-                                        <option <%= top === 50 ? 'selected' : '' %> value="50">50 resultados</option>
+                                    <select id="topSelect" class="form-select border-0 shadow-sm rounded-pill px-5 py-2 flex-grow-1 flex-md-grow-0 select-top-filter">
+                                        <option <%= top === 10 ? 'selected' : '' %> value="10">10 resultados </option>
+                                        <option <%= top === 25 ? 'selected' : '' %> value="25">25 resultados </option>
+                                        <option <%= top === 50 ? 'selected' : '' %> value="50">50 resultados </option>
                                     </select>
                                 </div>
                             </div>

@@ -41,6 +41,7 @@ export function paginaNovoRelatorio(req, res, next) {
             formAction: "/fiscalizacao/novo",
             formMethod: "POST",
             btnText: "Próximo",//a resposta vai voltar para qual pagina vai fazer o redirecionamento
+            redirectUrl: "/fiscalizacao",
             inputs: [
                 { id: "siteId", label: "Site ID", name: "siteId", type: "text", required: true, placeholder: "Digite o Site ID" },
                 { id: "alturaTorre", label: "Altura da Torre", name: "alturaTorre", type: "text", required: true, placeholder: "Digite a altura da torre" },
