@@ -71,21 +71,10 @@
                         <div id="galeria" class="row g-4">
                             <% if (resultadoBody.length > 0) { %>
                                 <% resultadoBody.forEach(function(item) { %>
-                                    <div id="div-<%= item.id %>" class="col-12 col-sm-6 col-lg-4">
-                                        <div class="card h-100 shadow-sm border-0 rounded-4">
-                                            <img src="<%= item.caminhoDaImagem %>" alt="Imagem da não conformidade" class="card-img-top rounded-top-4 img-nao-conformidade">
-                                            <div class="card-body d-flex flex-column">
-                                                <p id="descricao-<%= item.id %>" class="card-text text-muted small flex-grow-1"><%= item.descricao %></p>
-                                                <div class="d-flex gap-2 mt-3">
-                                                    <button id="editar-<%= item.id %>" data-relatorio="<%= idRelatorio %>" class="btn btn-sm btn-outline-secondary rounded-pill px-3 btn-editar flex-grow-1">Editar</button>
-                                                    <button id="excluir-<%= item.id %>" data-relatorio="<%= idRelatorio %>" class="btn btn-sm btn-outline-danger rounded-pill px-3 btn-excluir flex-grow-1">Excluir</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <%- include('../partials/card-conformidade', { item: item, idRelatorio: idRelatorio }) %>
                                 <% }); %>
                             <% } else { %>
-                                <div class="col-12" id="empty-state-galeria">
+                                <div id="sem-naoconformidade" class="col-12" id="empty-state-galeria">
                                     <div class="text-center py-5 px-3 bg-light rounded-4 border">
                                         <div class="text-muted mb-3">
                                             <i class="bi bi-camera empty-state-icon"></i>

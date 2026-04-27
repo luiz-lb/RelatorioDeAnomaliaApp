@@ -99,13 +99,12 @@ export async function processarNaoConformidade(idRelatorio, arquivo, descricao, 
 
     // Se já houver um hash idêntico para esse relatório, bloquear o envio
     if (usuario.uploadHashes[idRelatorio] === hash) {
-        const erro = new Error("Imagem já foi enviada (duplicata detectada).");
+        const resultado = { erro:"Imagem já foi enviada (duplicata detectada)."};
         // Apagando imagem duplicada do servidor para evitar acúmulo de arquivos
         fs.unlink(arquivo.path, (err) => {
             if (err) console.error('Erro ao apagar arquivo duplicado:', err);
         });
-        erro.statusCode = 400;
-        throw erro;
+        return resultado;
     }
 
     // Salvar no banco de dados
@@ -120,7 +119,7 @@ export async function processarNaoConformidade(idRelatorio, arquivo, descricao, 
     // Marcar hash salvo para esse relatório
     usuario.uploadHashes[idRelatorio] = hash;
 
-    return { caminhoDaImagem, descricao, idNaoConformidade: idNaoConformidadeNova };
+    return { caminhoDaImagem, descricao, id: idNaoConformidadeNova };
 }
 
 export async function editarNaoConformidade(idRelatorio, idNaoConformidade, descricao) {
@@ -158,11 +157,13 @@ export async function obterChecklistRelatorio() {
 
 export async function enviarRelatorio(idRelatorio, itensSelecionados) {
     try {
+        /*
         const resultado = await fiscalizacaoModel.inserirCheckListSelecionados(idRelatorio, itensSelecionados);
         if (!resultado) {
             throw new Error("Erro ao inserir checklist no banco de dados.");
         }
         console.log('Checklist do relatório atualizado com sucesso.');
+        */
 
 
         //const resultado2 = await fiscalizacaoModel.enviarRelatorio(idRelatorio, itensSelecionados);
@@ -192,6 +193,8 @@ export async function enviarRelatorio(idRelatorio, itensSelecionados) {
             },
             saveToSentItems: "true"
         };
+
+        console.log('Preparando para enviar o e-mail:', configuracaoEmail);
 
         // Delega o envio para a função de infraestrutura
         const remetente = "chamados@everestengenharia.com.br";

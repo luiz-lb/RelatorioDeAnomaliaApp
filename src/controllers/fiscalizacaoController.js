@@ -29,6 +29,7 @@ export async function paginaHome(req, res, next) {
         };
         res.status(200).render('pages/home', dados);
     } catch (error) {
+        console.error('Erro ao renderizar a página inicial de fiscalização:', error);
         next(error);
     }
 }
@@ -41,7 +42,6 @@ export function paginaNovoRelatorio(req, res, next) {
             formAction: "/fiscalizacao/novo",
             formMethod: "POST",
             btnText: "Próximo",//a resposta vai voltar para qual pagina vai fazer o redirecionamento
-            redirectUrl: "/fiscalizacao",
             inputs: [
                 { id: "siteId", label: "Site ID", name: "siteId", type: "text", required: true, placeholder: "Digite o Site ID" },
                 { id: "alturaTorre", label: "Altura da Torre", name: "alturaTorre", type: "text", required: true, placeholder: "Digite a altura da torre" },
@@ -55,6 +55,7 @@ export function paginaNovoRelatorio(req, res, next) {
         }
         res.status(200).render('pages/form', dadosFormulario);
     } catch (error) {
+        console.error('Erro ao renderizar a página de novo relatório:', error);
         next(error);
     }
 }
@@ -72,6 +73,7 @@ export async function paginaEditarRelatorio(req, res, next) {
 
         res.status(200).render('pages/fiscalizacao', { resultadoHeader: dadosRelatorio.header, resultadoBody: dadosRelatorio.body, idRelatorio: idRelatorio });
     } catch (error) {
+        console.error('Erro ao obter relatório para edição:', error);
         next(error);
     }
 }
@@ -91,6 +93,7 @@ export async function salvarNovoRelatorio(req, res, next) {
             res.status(500).json({ message: "Erro ao criar o relatório" });
         }
     } catch (error) {
+        console.error('Erro ao criar o relatório:', error);
         next(error);
     }
 }
@@ -99,15 +102,27 @@ export async function envioNaoConformidade(req, res, next) {
     try {
         const idRelatorio = req.params.idRelatorio;
 
-        const resultado = await fiscalizacaoService.processarNaoConformidade(
+        const resultadoNaoConformidade = await fiscalizacaoService.processarNaoConformidade(
             idRelatorio,
             req.file,
             req.body.descricao,
             req.session.usuario
         );
 
-        return res.status(200).json({ sucesso: true, ...resultado });
+        if (resultadoNaoConformidade.erro) {
+            return res.status(400).json({ sucesso: false, mensagem: resultadoNaoConformidade.erro });
+        }
+
+        res.render('partials/card-conformidade', { item: resultadoNaoConformidade, idRelatorio: idRelatorio }, (err, htmlGerado) => {
+            if (err) {
+                return res.json({ sucesso: false, mensagem: "Erro ao gerar visualização." });
+            }
+            
+            // Devolve para o JQuery a variável 'sucesso' e o HTML mastigado!
+            return res.json({ sucesso: true, htmlDoCard: htmlGerado }); 
+        });
     } catch (error) {
+        console.error("Erro ao enviar a não conformidade:", error);
         next(error);
     }
 }

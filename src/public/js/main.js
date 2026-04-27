@@ -13,3 +13,5 @@ function initApp() {
     initTopSelect();
     initFiscalizacaoPage();
 }
+
+$(document).ready(initApp);

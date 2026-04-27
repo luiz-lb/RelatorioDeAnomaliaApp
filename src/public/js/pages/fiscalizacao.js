@@ -37,7 +37,12 @@ async function uploadNaoConformidade(event) {
             return;
         }
 
+        console.log(dados.htmlDoCard);
+
         $('#galeria').append(dados.htmlDoCard);
+        if($('#sem-naoconformidade').length>0) {
+            $('#sem-naoconformidade').remove();
+        }
         form.reset();
         resetUploadState(form, submitButtons);
     } catch (erro) {
@@ -248,7 +253,7 @@ async function enviarFormRelatorio(idRelatorio, checklistSelecionado) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ checklistSelecionado: checklistSelecionado })
+            body: JSON.stringify({ itensSelecionados: checklistSelecionado })
         });
 
         const dados = await resposta.json();
