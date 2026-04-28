@@ -37,6 +37,7 @@ async function imagemBuffer(fotoPath) {
 
         // Redimensiona para no máximo 900px de largura e comprime em JPEG 70%
         const buffer = await sharp(absPath)
+            .rotate()
             .resize({ width: 900, withoutEnlargement: true })
             .jpeg({ quality: 70, progressive: true })
             .toBuffer();
@@ -483,7 +484,7 @@ export async function gerarRelatorioPDF(header, body, idRelatorio) {
             fillRoundedRect(doc, x, y, imgW, cardH, RADIUS, COR_FUNDO);
             strokeRoundedRect(doc, x, y, imgW, cardH, RADIUS, COR_LINHA);
 
-            const imgBuffer = await imagemBuffer(nc.caminhoDaImagem); // ✅ await funciona aqui
+            const imgBuffer = await imagemBuffer(nc.caminhoDaImagem);
             if (imgBuffer) {
                 try {
                     doc.image(imgBuffer, x + 5, y + 5, {
