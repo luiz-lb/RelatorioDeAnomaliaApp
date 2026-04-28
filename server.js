@@ -44,11 +44,12 @@ app.use((err, req, res, next) => {
     res.status(500).render('pages/erro', { msg: 'Erro interno.'});
 });
 
+
 // iniciar servidor
 (async () => {
     try {
-        app.listen(port, () => {
-            console.log(`Servidor rodando em http://localhost:${port}`);
+        app.listen(port, '0.0.0.0', () => {
+            console.log(`Servidor rodando e acessível na rede na porta: ${port}`);
             console.log(`Ambiente: ${process.env.NODE_ENV || 'dev'}`);
         });
     } catch (err) {
