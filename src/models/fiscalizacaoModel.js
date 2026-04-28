@@ -6,7 +6,7 @@ export async function criarRelatorio(dadosRelatorio) {
     const result = await pool.request()
         .input('user_id', sql.Int, dadosRelatorio.usuarioId)
         .input('site_id', sql.VarChar(255), dadosRelatorio.siteId)
-        .input('altura_torre', sql.VarChar(255), dadosRelatorio.alturaTorre)
+        .input('altura_torre', sql.Decimal(5, 2), dadosRelatorio.alturaTorre)
         .input('tipo_cadeado', sql.VarChar(255), dadosRelatorio.cadeado)
         .input('endereco', sql.VarChar(255), dadosRelatorio.endereco)
         .input('CEP', sql.Int, dadosRelatorio.cep)

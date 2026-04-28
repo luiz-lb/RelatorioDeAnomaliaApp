@@ -44,10 +44,10 @@ export function paginaNovoRelatorio(req, res, next) {
             btnText: "Próximo",//a resposta vai voltar para qual pagina vai fazer o redirecionamento
             inputs: [
                 { id: "siteId", label: "Site ID", name: "siteId", type: "text", required: true, placeholder: "Digite o Site ID" },
-                { id: "alturaTorre", label: "Altura da Torre", name: "alturaTorre", type: "text", required: true, placeholder: "Digite a altura da torre" },
-                { id: "cep", label: "CEP", name: "cep", type: "text", placeholder: "Digite o CEP" },
+                { id: "alturaTorre", label: "Altura da Torre", name: "alturaTorre", type: "text", required: true, placeholder: "Digite a altura da torre", class: "alturaTorre" },
+                { id: "cep", label: "CEP", name: "cep", type: "text", placeholder: "Digite o CEP", class: "cep cepBuscador" },
                 { id: "municipio", label: "Município", name: "municipio", type: "text", required: true, placeholder: "Digite o município" },
-                { id: "uf", label: "UF", name: "uf", type: "text", required: true, placeholder: "Digite a UF" },
+                { id: "uf", label: "UF", name: "uf", type: "select", required: true, placeholder: "Digite a UF", class: "selectUF", options: [{ value: "AC", label: "AC" }, { value: "AL", label: "AL" }, { value: "AP", label: "AP" }, { value: "AM", label: "AM" }, { value: "BA", label: "BA" }, { value: "CE", label: "CE" }, { value: "DF", label: "DF" }, { value: "ES", label: "ES" }, { value: "GO", label: "GO" }, { value: "MA", label: "MA" }, { value: "MT", label: "MT" }, { value: "MS", label: "MS" }, { value: "MG", label: "MG" }, { value: "PA", label: "PA" }, { value: "PB", label: "PB" }, { value: "PR", label: "PR" }, { value: "PE", label: "PE" }, { value: "PI", label: "PI" }, { value: "RJ", label: "RJ" }, { value: "RN", label: "RN" }, { value: "RS", label: "RS" }, { value: "RO", label: "RO" }, { value: "RR", label: "RR" }, { value: "SC", label: "SC" }, { value: "SP", label: "SP" }, { value: "SE", label: "SE" }, { value: "TO", label: "TO" }] },
                 { id: "endereco", label: "Endereço", name: "endereco", type: "text", required: true, placeholder: "Digite o endereço" },
                 { id: "cadeado", label: "Tipo do cadeado", name: "cadeado", type: "text", required: true, placeholder: "Digite o tipo do cadeado do local" },
                 { id: "tipoEstrutura", label: "Tipo da Estrutura", name: "tipoEstrutura", type: "text", required: true, placeholder: "Digite o tipo da estrutura" }
@@ -84,7 +84,9 @@ export async function salvarNovoRelatorio(req, res, next) {
         const usuarioId = req.session.usuario.id_user; // Exemplo de como obter o ID do usuário logado
         const status = "Rascunho"; // Status inicial do relatório
 
-        const resultado = await fiscalizacaoService.criarRelatorio({ siteId, alturaTorre, cep, municipio, uf, endereco, cadeado, tipoEstrutura, usuarioId, status });
+        const cepLimpo = cep ? cep.replace(/\D/g, '') : null;
+
+        const resultado = await fiscalizacaoService.criarRelatorio({ siteId, alturaTorre, cep: cepLimpo, municipio, uf, endereco, cadeado, tipoEstrutura, usuarioId, status });
         console.log('Relatório criado com ID:', resultado);
         if (resultado) {
             console.log('Avisando pro usuário que o relatório foi criado com sucesso, ID:', resultado);
