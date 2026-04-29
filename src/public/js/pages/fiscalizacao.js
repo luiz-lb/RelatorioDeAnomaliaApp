@@ -369,6 +369,41 @@ async function enviarRelatorio() {
     }    
 }
 
+async function baixarRelatorio() {
+    try {
+        const idRelatorio = $(this).data('idrelatorio');
+
+        const res = await fetch(`/fiscalizacao/edit/${idRelatorio}/pdf`);
+
+        if (!res.ok) {
+            const erro = await res.json();
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Download indisponível',
+                text: erro.mensagem || 'Não foi possível baixar o relatório.',
+                confirmButtonColor: '#1a3c5e'
+            });
+            return;
+        }
+
+        const blob = await res.blob();
+        const url  = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href     = url;
+        link.download = `Relatorio_${idRelatorio}.pdf`;
+        link.click();
+        URL.revokeObjectURL(url);
+
+    } catch (err) {
+        await Swal.fire({
+            icon: 'error',
+            title: 'Erro',
+            text: 'Erro ao tentar baixar o relatório.',
+            confirmButtonColor: '#1a3c5e'
+        });
+    }
+}
+
 export function initFiscalizacaoPage() {
     const formUpload = $('#formUpload');
     if (!formUpload.length) {
@@ -379,4 +414,5 @@ export function initFiscalizacaoPage() {
     $(document).on('click', '.btn-editar', editarNaoConformidade);
     $(document).on('click', '.btn-excluir', excluirNaoConformidade);
     $(document).on('click', '#btn-enviar-relatorio', enviarRelatorio);
+    $(document).on('click', '#btn-baixar-relatorio', baixarRelatorio);
 }

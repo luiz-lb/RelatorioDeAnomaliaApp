@@ -1,4 +1,5 @@
 import * as fiscalizacaoService from '../services/fiscalizacaoService.js';
+import { gerarRelatorioPDF } from '../services/pdfService.js';
 
 export async function validarIdRelatorioParams(req, res, next) {
     const idRelatorio = req.params.idRelatorio;
@@ -201,5 +202,38 @@ export async function enviarRelatorio(req, res, next) {
     } catch (error) {
         console.error("Erro ao enviar o relatório:", error);
         return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao enviar o relatório." });
+    }
+}
+
+export async function downloadRelatorioPDF(req, res, next) {
+    try {
+        const idRelatorio      = req.params.id;
+        const idUsuario        = req.session.usuario.id_user;
+        const permissaoUsuario = req.session.usuario.permissao;
+
+        const dadosRelatorio = await fiscalizacaoService.obterRelatorioPorId(idRelatorio, idUsuario, permissaoUsuario);
+
+        if (dadosRelatorio.header.status === 'Rascunho') {
+            return res.status(403).json({
+                sucesso: false,
+                mensagem: 'Relatórios em Rascunho não podem ser baixados.'
+            });
+        }
+
+        const pdfBuffer = await gerarRelatorioPDF(
+            dadosRelatorio.header,
+            dadosRelatorio.body,
+            idRelatorio
+        );
+
+        const nomeArquivo = `Relatorio_Anomalias_${dadosRelatorio.header.site_id || idRelatorio}.pdf`;
+
+        res.setHeader('Content-Type',        'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${nomeArquivo}"`);
+        res.setHeader('Content-Length',      pdfBuffer.length);
+        res.send(pdfBuffer);
+    } catch (error) {
+        console.error('Erro ao gerar PDF do relatório:', error);
+        next(error);
     }
 }
