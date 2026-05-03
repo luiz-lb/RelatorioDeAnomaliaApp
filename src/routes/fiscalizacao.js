@@ -11,7 +11,7 @@ router.get('/', fiscalizacaoController.paginaHome);
 router.get('/novo', fiscalizacaoController.paginaNovoRelatorio);
 router.post('/novo', fiscalizacaoController.salvarNovoRelatorio);
 router.get('/edit/:id', fiscalizacaoController.paginaEditarRelatorio);
-router.get('/edit/:id/pdf', fiscalizacaoController.downloadRelatorioPDF);
+router.get('/edit/:idRelatorio/pdf', fiscalizacaoController.validarIdRelatorioParams, fiscalizacaoController.downloadRelatorioPDF);
 router.post('/edit/nao-conformidade/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, handleUpload('arquivo'), fiscalizacaoController.envioNaoConformidade);
 router.put('/edit/nao-conformidade/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, fiscalizacaoController.editarNaoConformidade);
 router.delete('/edit/nao-conformidade/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, fiscalizacaoController.excluirNaoConformidade);

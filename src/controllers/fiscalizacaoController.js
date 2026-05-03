@@ -191,14 +191,19 @@ export async function enviarRelatorio(req, res, next) {
         console.log('Iniciando o envio do relatório. ID do relatório:', req.params.idRelatorio, 'Itens selecionados:', req.body.itensSelecionados);
         const idRelatorio = req.params.idRelatorio; // Obter o ID do relatório a partir dos parâmetros da rota
         const itensSelecionados = req.body.itensSelecionados;
+        const idUsuario = req.session.usuario.id_user;
+        const permissaoUsuario = req.session.usuario.permissao;
+        
         if (!Array.isArray(itensSelecionados) || itensSelecionados.length === 0) {
             return res.status(400).json({ sucesso: false, mensagem: "Nenhum item selecionado para envio." });
         }
-        const resultado = await fiscalizacaoService.enviarRelatorio(idRelatorio, itensSelecionados);
-        if (!resultado) {
+        const resultado = await fiscalizacaoService.enviarRelatorio(idRelatorio, idUsuario, permissaoUsuario, itensSelecionados);
+        
+        if (!resultado || !resultado.sucesso) {
             return res.status(500).json({ sucesso: false, mensagem: "Erro ao enviar o relatório." });
         }
-        return res.status(200).json({ sucesso: true, mensagem: "Relatório enviado com sucesso." });
+        
+        return res.status(200).json(resultado); // Retorna a mensagem real que veio do Service
     } catch (error) {
         console.error("Erro ao enviar o relatório:", error);
         return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao enviar o relatório." });
@@ -206,34 +211,30 @@ export async function enviarRelatorio(req, res, next) {
 }
 
 export async function downloadRelatorioPDF(req, res, next) {
-    try {
-        const idRelatorio      = req.params.id;
-        const idUsuario        = req.session.usuario.id_user;
-        const permissaoUsuario = req.session.usuario.permissao;
+   try {
+        const idRelatorio = req.params.idRelatorio;
+        const idUsuario = req.session.usuario.id_user;
+        
+        const permissaoUsuario = req.session.usuario.permissao === 'Everest' ? " or 1=1" : "";
+        
+        console.log('Iniciando o processo de download do relatório PDF. ID do relatório:', idRelatorio, 'ID do usuário:', idUsuario, 'Permissão do usuário:', permissaoUsuario);
 
-        const dadosRelatorio = await fiscalizacaoService.obterRelatorioPorId(idRelatorio, idUsuario, permissaoUsuario);
+        const dadosRelatorio = await fiscalizacaoService.obterRelatorioPdfPorId(idRelatorio, idUsuario, permissaoUsuario);
 
-        if (dadosRelatorio.header.status === 'Rascunho') {
-            return res.status(403).json({
-                sucesso: false,
-                mensagem: 'Relatórios em Rascunho não podem ser baixados.'
-            });
-        }
+        // Enviar o arquivo
+        // O res.download já configura o Content-Type, Content-Length e Content-Disposition
+        res.download(dadosRelatorio.caminhoDoArquivo, dadosRelatorio.nomeParaDownload, (err) => {
+            if (err) {
+                console.error('Erro ao transmitir o arquivo PDF:', err);
+                // Se der erro no meio da transferência, evite chamar next(error) se os headers já foram enviados
+                if (!res.headersSent) {
+                    res.status(500).json({ sucesso: false, mensagem: 'Erro ao baixar o arquivo.' });
+                }
+            }
+        });
 
-        const pdfBuffer = await gerarRelatorioPDF(
-            dadosRelatorio.header,
-            dadosRelatorio.body,
-            idRelatorio
-        );
-
-        const nomeArquivo = `Relatorio_Anomalias_${dadosRelatorio.header.site_id || idRelatorio}.pdf`;
-
-        res.setHeader('Content-Type',        'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="${nomeArquivo}"`);
-        res.setHeader('Content-Length',      pdfBuffer.length);
-        res.send(pdfBuffer);
     } catch (error) {
-        console.error('Erro ao gerar PDF do relatório:', error);
+        console.error('Erro no fluxo de download do relatório:', error);
         next(error);
     }
 }

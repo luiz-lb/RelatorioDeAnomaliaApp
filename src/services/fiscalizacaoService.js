@@ -3,6 +3,12 @@ import { verificarPermissaoParaSql } from './authService.js';
 import { sendEmail } from '../utils/mailer.js';
 import fs from 'fs';
 import crypto from 'crypto';
+import path from 'path';
+import { gerarRelatorioPDF } from './pdfService.js';
+
+const ano = new Date().getFullYear(); // Obter o ano atual
+const mes = new Date().getMonth() + 1; // Obter o mês atual (0-11, por isso +1)
+const dia = new Date().getDate(); // Obter o dia atual
 
 function formatarData(data) {
     if (!data) return null;
@@ -155,36 +161,110 @@ export async function obterChecklistRelatorio() {
     }
 }
 
-export async function enviarRelatorio(idRelatorio, itensSelecionados) {
+async function criarEmailDeAviso(idRelatorio) {
     try {
-        /*
-        const resultado = await fiscalizacaoModel.inserirCheckListSelecionados(idRelatorio, itensSelecionados);
-        if (!resultado) {
-            throw new Error("Erro ao inserir checklist no banco de dados.");
-        }
-        console.log('Checklist do relatório atualizado com sucesso.');
-        */
+        /*Tanto faz o id do usuário na chamada da função*/
+        const relatorioEnviado = await fiscalizacaoModel.obterRelatorioHeaderPorId(idRelatorio, 1, " or 1=1");
+        console.log('Relatório para e-mail de aviso obtido com sucesso:', relatorioEnviado);
+        const htmlEnvioFeito = `<!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Relatório de Anomalias</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6;">
+            
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f7f6; padding: 40px 20px;">
+                <tr>
+                <td align="center">
+                    
+                    <!-- Container Principal -->
+                    <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden;">
+                    
+                    <!-- Cabeçalho -->
+                    <tr>
+                        <td style="background-color: #1a365d; padding: 30px 40px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 0.5px;">Relatório de Anomalias</h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Corpo do E-mail -->
+                    <tr>
+                        <td style="padding: 40px;">
+                        <p style="color: #333333; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 25px;">
+                            O usuário <strong>${relatorioEnviado.nome || 'N/A'}</strong> acabou de enviar um relatório:
+                        </p>
 
+                        <!-- Caixa de Detalhes -->
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8fafc; border-left: 4px solid #3182ce; border-radius: 4px; margin-bottom: 30px;">
+                            <tr>
+                            <td style="padding: 20px;">
+                                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td style="padding-bottom: 10px; color: #4a5568; font-size: 15px;">
+                                    <strong>Site ID:</strong> <span style="color: #2d3748;">${relatorioEnviado.site_id || 'N/A'}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-bottom: 10px; color: #4a5568; font-size: 15px;">
+                                    <strong>Data da criação:</strong> <span style="color: #2d3748;">${formatarData(relatorioEnviado.created_at) || 'N/A'}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-bottom: 10px; color: #4a5568; font-size: 15px;">
+                                    <strong>Data do envio:</strong> <span style="color: #2d3748;">${formatarData(relatorioEnviado.enviado_em) || 'N/A'}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #4a5568; font-size: 15px;">
+                                    <strong>Tipo de estrutura:</strong> <span style="color: #2d3748;">${relatorioEnviado.tipo_estrutura || 'N/A'}</span>
+                                    </td>
+                                </tr>
+                                </table>
+                            </td>
+                            </tr>
+                        </table>
 
-        //const resultado2 = await fiscalizacaoModel.enviarRelatorio(idRelatorio, itensSelecionados);
-        //console.log('Relatório enviado com sucesso.');
-        //return resultado;
+                        <p style="color: #333333; font-size: 16px; line-height: 1.6; margin-bottom: 30px; text-align: center;">
+                            Clique no link abaixo para visualizar.
+                        </p>
 
-        //Teste
-        const htmlEnvioFeito = `<div style="font-family: Arial, sans-serif; color: #333;">
-            <h2 style="color: #007BFF;">Relatório de Fiscalização Enviado</h2>
-            <p>O relatório de fiscalização com ID <strong>${idRelatorio}</strong> foi enviado com sucesso.</p>
-            <h3>Itens Selecionados:</h3>
-            <ul>
-                ${itensSelecionados.map(item => `<li>${item}</li>`).join('')}
-            </ul>
-            <p>Por favor, revise o relatório e tome as ações necessárias.</p>
-        </div>
+                        <!-- Botão de Ação (CTA) -->
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                            <td align="center">
+                                <a href="http://localhost:3000/fiscalizacao/edit/${idRelatorio}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: #3182ce; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; text-align: center; transition: background-color 0.3s ease;">
+                                Visualizar Relatório
+                                </a>
+                            </td>
+                            </tr>
+                        </table>
+                        
+                        </td>
+                    </tr>
+                    
+                    <!-- Rodapé -->
+                    <tr>
+                        <td style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+                        <p style="color: #a0aec0; font-size: 13px; margin: 0; line-height: 1.5;">
+                            Este é um e-mail automático gerado pelo sistema.<br>Por favor, não responda a esta mensagem.
+                        </p>
+                        </td>
+                    </tr>
+                    
+                    </table>
+                </td>
+                </tr>
+            </table>
+            
+            </body>
+            </html>
         `;
 
         const configuracaoEmail = {
             message: {
-                subject: "Alerta de Erros - Rotina X",
+                subject: "Relatório de Anomalias - Novo Envio",
                 body: {
                     contentType: "HTML",
                     content: htmlEnvioFeito
@@ -195,19 +275,112 @@ export async function enviarRelatorio(idRelatorio, itensSelecionados) {
         };
 
         console.log('Preparando para enviar o e-mail:', configuracaoEmail);
+        return configuracaoEmail;
+    } catch (error) {
+        console.error('Erro ao criar a configuração do e-mail de aviso:', error);
+        throw new Error('Não foi possível criar a configuração do e-mail de aviso. Tente novamente mais tarde.');
+    }
+}
+
+export async function enviarRelatorio(idRelatorio, idUsuario, permissaoUsuario, itensSelecionados) {
+    // Obter os dados do relatório ANTES da transação para evitar Deadlock (TimeOut).
+    const dadosRelatorio = await obterRelatorioPorId(idRelatorio, idUsuario, permissaoUsuario);
+    // Força o status na memória para sair a cor e texto corretos na geração visual do PDF
+    dadosRelatorio.header.status = 'Finalizado';
+
+    const transaction = await fiscalizacaoModel.iniciarTransacao();
+    let transacaoConcluida = false; // Controle para não fazer rollback em transação fechada
+
+    try {
+        const resultadoCheckList = await fiscalizacaoModel.inserirCheckListSelecionados(transaction, idRelatorio, itensSelecionados);
+        if (!resultadoCheckList) {
+            throw new Error("Erro ao inserir checklist no banco de dados.");
+        }
+        // Atualiza status para Processando
+        const resultadoStatus = await fiscalizacaoModel.atualizarRelatorioParaProcessando(transaction, idRelatorio);
+        
+        if (!resultadoStatus) {
+            throw new Error("Erro ao atualizar o status do relatório para Processando.");
+        }
+
+        const pdfBuffer = await gerarRelatorioPDF(
+            dadosRelatorio.header,
+            dadosRelatorio.body,
+            idRelatorio
+        );
+
+        // Configurar os caminhos e salvar o PDF gerado fisicamente no disco
+        const nomeArquivoPdf = `Relatorio_Anomalias_${idRelatorio}.pdf`;
+        const caminhoRelativoPdf = `src/relatoriosGerados/${ano}/${mes}/${dia}/${nomeArquivoPdf}`;
+
+        const caminhoAbsoluto = path.join(process.cwd(), 'src', 'relatoriosGerados', `${ano}`, `${mes}`, `${dia}`);
+        if (!fs.existsSync(caminhoAbsoluto)) fs.mkdirSync(caminhoAbsoluto, { recursive: true });
+        fs.writeFileSync(path.join(caminhoAbsoluto, nomeArquivoPdf), pdfBuffer);
+        console.log('PDF gerado e salvo no disco com sucesso.');
+
+        // Atualiza o status para finalizado e insere o caminho do PDF
+        await fiscalizacaoModel.finalizandoRelatorio(transaction, idRelatorio, caminhoRelativoPdf);
+
+        // Confirma (Commit) a transação no banco de dados pois todos os passos deram certo!
+        await fiscalizacaoModel.finalizarTransacao(transaction, true);
+        transacaoConcluida = true; // Marca que o banco de dados já foi salvo com segurança!
+        console.log('Transação efetivada no banco de dados com sucesso.');
+
+        const configuracaoEmail = await criarEmailDeAviso(idRelatorio);
 
         // Delega o envio para a função de infraestrutura
         const remetente = "chamados@everestengenharia.com.br";
         const sucesso = await sendEmail(remetente, configuracaoEmail);
         if (!sucesso) {
-            console.error('Falha ao enviar o e-mail de notificação.');
-            // Aqui você pode decidir se quer lançar um erro ou apenas logar a falha, dependendo da criticidade do e-mail para o processo.
+            console.error('Falha ao enviar o e-mail de notificação, mas o processo principal já foi concluído.');
+            return { sucesso: true, mensagem: "Relatório gerado e finalizado, porém com falha ao enviar e-mail de aviso para a Everest." };
         }
-        console.log('E-mail de notificação enviado com sucesso.');
-        return sucesso;
-
+        else {
+            console.log('E-mail de notificação enviado com sucesso.');
+            return { sucesso: true, mensagem: "Relatório enviado com sucesso." };
+        }
     } catch (error) {
+        // Se houver QUALQUER erro (falha na query, falha ao gerar PDF, disco cheio, etc.)
+        if (!transacaoConcluida) {
+            console.error('Falha no processo. Desfazendo alterações no banco de dados (Rollback)...');
+            await fiscalizacaoModel.finalizarTransacao(transaction, false);
+        }
+        
         console.error('Erro ao enviar o relatório:', error);
         throw new Error('Não foi possível enviar o relatório. Tente novamente mais tarde.');
+    }
+}
+
+export async function obterRelatorioPdfPorId(idRelatorio, idUsuario, permissaoUsuario) {
+    try {
+        const relatorioEnviado = await fiscalizacaoModel.obterRelatorioHeaderPorId(idRelatorio, idUsuario, permissaoUsuario);
+
+        if (!relatorioEnviado) {
+            throw new Error("Relatório não encontrado ou sem permissão de acesso.");
+        }
+
+        if (relatorioEnviado.status === 'Rascunho') {
+            throw new Error("Relatório em rascunho não pode ser baixado.");
+        }
+
+        const caminhoDoArquivo = path.join(process.cwd(), relatorioEnviado.pdf_url);
+
+        console.log('Caminho do arquivo PDF encontrado:', caminhoDoArquivo);
+
+        // Verificar se o arquivo realmente existe no disco
+        if (!fs.existsSync(caminhoDoArquivo)) {
+            return {
+                sucesso: false,
+                mensagem: 'Arquivo PDF não encontrado no servidor.'
+            };
+        }
+
+        // Nome que vai aparecer para o usuário quando ele baixar
+        const nomeParaDownload = `Relatorio_Anomalias_${relatorioEnviado.site_id || idRelatorio}.pdf`;
+
+        return { caminhoDoArquivo, nomeParaDownload };
+    } catch (error) {
+        console.error('Erro ao obter o caminho do PDF do relatório:', error);
+        throw new Error('Não foi possível obter o caminho do PDF do relatório.');
     }
 }

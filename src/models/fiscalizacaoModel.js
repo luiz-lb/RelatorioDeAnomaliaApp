@@ -23,7 +23,7 @@ export async function obterRelatorioHeaderPorId(idRelatorio, idUsuario, permissa
     const result = await pool.request()
         .input('idRelatorio', sql.Int, idRelatorio)
         .input('idUsuario', sql.Int, idUsuario)
-        .query(`Select id, usuario_id, site_id, altura_torre, tipo_cadeado, tipo_estrutura, CEP, endereco, municipio, UF, created_at, status From fiscalizacoes where id=@idRelatorio and (usuario_id=@idUsuario ${permissaoSql})`);
+        .query(`Select f.id, u.nome, f.usuario_id, f.site_id, f.altura_torre, f.tipo_cadeado, f.tipo_estrutura, f.CEP, f.endereco, f.municipio, f.UF, f.created_at, f.status, f.enviado_em, f.pdf_url From fiscalizacoes As f Inner Join usuarios as u on u.id = f.usuario_id where f.id=@idRelatorio and (f.usuario_id=@idUsuario ${permissaoSql})`);
     return result.recordset[0];
 }
 
@@ -79,4 +79,57 @@ export async function obterChecklistRelatorio() {
     const result = await pool.request()
         .query(`Select id, descricao, ordem From checklist_itens Where Ativo = 1 Order by ordem`);
     return result.recordset;
+}
+
+export async function inserirCheckListSelecionados(transaction, idRelatorio, itensSelecionados) {
+    const request = new sql.Request(transaction);
+    
+    // Garante que é um array para podermos iterar (trata caso venha como JSON string)
+    const itens = Array.isArray(itensSelecionados) ? itensSelecionados : JSON.parse(itensSelecionados);
+    
+    if (!itens || itens.length === 0) return false;
+
+    request.input('idRelatorio', sql.Int, idRelatorio);
+
+    const values = itens.map((itemId, index) => {
+        request.input(`item_${index}`, sql.Int, itemId);
+        return `(@idRelatorio, @item_${index}, 1)`;
+    });
+
+    const result = await request.query(`Insert Into checklist_respostas (fiscalizacao_id, checklist_item_id, checado) Values ${values.join(', ')}`);
+    return result.rowsAffected[0] > 0;
+}
+
+// --- Funções com Suporte a Transação ---
+
+export async function iniciarTransacao() {
+    const pool = await poolPromise;
+    const transaction = new sql.Transaction(pool);
+    await transaction.begin();
+    return transaction;
+}
+
+export async function finalizarTransacao(transaction, sucesso = true) {
+    if (sucesso) {
+        await transaction.commit();
+    } else {
+        await transaction.rollback();
+    }
+}
+
+export async function atualizarRelatorioParaProcessando(transaction, idRelatorio) {
+    const request = new sql.Request(transaction);
+    request.input('idRelatorio', sql.Int, idRelatorio);
+    
+    const result = await request.query(`Update fiscalizacoes Set status = 'Processando' Where id = @idRelatorio`);
+    return result.rowsAffected[0] > 0;
+}
+
+export async function finalizandoRelatorio(transaction, idRelatorio, pdfUrl) {
+    const request = new sql.Request(transaction);
+    request.input('idRelatorio', sql.Int, idRelatorio);
+    request.input('pdfUrl', sql.VarChar(255), pdfUrl);
+
+    const result = await request.query(`Update fiscalizacoes Set status = 'Concluído', pdf_url = @pdfUrl, enviado_em = GETDATE() Where id = @idRelatorio`);
+    return result.rowsAffected[0] > 0;
 }
