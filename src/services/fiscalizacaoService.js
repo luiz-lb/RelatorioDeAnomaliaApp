@@ -333,7 +333,7 @@ export async function enviarRelatorio(idRelatorio, idUsuario, permissaoUsuario, 
         const sucesso = await sendEmail(remetente, configuracaoEmail);
         if (!sucesso) {
             console.error('Falha ao enviar o e-mail de notificação, mas o processo principal já foi concluído.');
-            return { sucesso: true, mensagem: "Relatório gerado e finalizado, porém com falha ao enviar e-mail de aviso para a Everest." };
+            return { sucesso: true, emailFalhou: true, mensagem: "Relatório gerado e finalizado, porém com falha ao enviar e-mail de aviso para a Everest." };
         }
         else {
             console.log('E-mail de notificação enviado com sucesso.');

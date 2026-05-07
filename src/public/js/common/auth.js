@@ -6,7 +6,7 @@ export function showLoginError() {
         return;
     }
 
-    const { background, text, accent } = getThemeColors();
+    const { background, text } = getThemeColors();
 
     Swal.fire({
         title: 'Erro no login',
@@ -14,8 +14,12 @@ export function showLoginError() {
         icon: 'error',
         background,
         color: text,
-        confirmButtonColor: accent,
-        confirmButtonText: 'Fechar'
+        confirmButtonText: 'Fechar',
+        customClass: {
+            popup: 'rounded-4',
+            confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+        },
+        buttonsStyling: false
     });
 }
 
@@ -25,7 +29,6 @@ export function initLogoutConfirmation() {
         const root = getComputedStyle(document.documentElement);
         const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
         const text = (root.getPropertyValue('--text-dark') || '#333').trim();
-        const accent = (root.getPropertyValue('--accent') || '#BF3939').trim();
 
         Swal.fire({
             title: 'Confirmar saída',
@@ -36,7 +39,14 @@ export function initLogoutConfirmation() {
             cancelButtonText: 'Cancelar',
             background: bg,
             color: text,
-            confirmButtonColor: accent
+            customClass: {
+                popup: 'rounded-4 shadow p-3 p-md-4',
+                title: 'fs-5 fw-bold mb-2',
+                actions: 'd-flex flex-wrap gap-2 w-100 justify-content-center mt-4',
+                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm m-0',
+                cancelButton: 'btn btn-light border rounded-pill px-4 text-secondary m-0'
+            },
+            buttonsStyling: false
         }).then((result) => {
             if (result.isConfirmed) {
                 const form = document.getElementById('logoutForm');

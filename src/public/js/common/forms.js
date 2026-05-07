@@ -1,4 +1,8 @@
 export async function enviarFormulario(idForm, method, formData, redirectUrl) {
+    const root = getComputedStyle(document.documentElement);
+    const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+    const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+
     try {
         const url = $(`#${idForm}`).attr('action');
         const response = await fetch(url, {
@@ -23,13 +27,29 @@ export async function enviarFormulario(idForm, method, formData, redirectUrl) {
 
         return data;
     } catch (error) {
-        alert(error.response?.data?.message || 'Ocorreu um erro ao enviar o formulário.');
+        Swal.fire({
+            title: 'Erro',
+            text: error.response?.data?.message || 'Ocorreu um erro ao enviar o formulário.',
+            icon: 'error',
+            background: bg,
+            color: text,
+            confirmButtonText: 'Fechar',
+            customClass: {
+                popup: 'rounded-4',
+                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+            },
+            buttonsStyling: false
+        });
         console.error(error);
         return null;
     }
 }
 
 function buscadorCep() {
+    const root = getComputedStyle(document.documentElement);
+    const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+    const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+
     const cep = $(this).val().replace(/\D/g, '');
     if (cep.length === 8) {
         const url = `https://viacep.com.br/ws/${cep}/json/`;
@@ -40,10 +60,34 @@ function buscadorCep() {
                 $('#municipio').val(data.localidade);
                 $('#uf').val(data.uf);
             } else {
-                alert("CEP não encontrado.");
+                Swal.fire({
+                    title: 'Aviso',
+                    text: 'CEP não encontrado.',
+                    icon: 'warning',
+                    background: bg,
+                    color: text,
+                    confirmButtonText: 'Fechar',
+                    customClass: {
+                        popup: 'rounded-4',
+                        confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                    },
+                    buttonsStyling: false
+                });
             }
         }).fail(function() {
-            alert("Erro ao buscar as informações do CEP.");
+            Swal.fire({
+                title: 'Erro',
+                text: 'Erro ao buscar as informações do CEP.',
+                icon: 'error',
+                background: bg,
+                color: text,
+                confirmButtonText: 'Fechar',
+                customClass: {
+                    popup: 'rounded-4',
+                    confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                },
+                buttonsStyling: false
+            });
         });
     }
 };
@@ -52,13 +96,6 @@ function aplicarMascaras() {
     $('.date').mask('00/00/0000');
     $('.cep').mask('00000-000');
     $('.alturaTorre').mask('###0,00', {reverse: true});
-
-    $('.selectUF').select2({
-        theme: "bootstrap-5",
-        width: '100%',
-        placeholder: "Selecione uma UF", // O texto fica aqui agora
-        allowClear: true // (Opcional) Adiciona um "x" para limpar
-    });
 }
 
 export function initFormSubmissions() {
