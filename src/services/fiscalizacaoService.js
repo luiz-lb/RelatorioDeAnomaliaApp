@@ -331,13 +331,24 @@ export async function enviarRelatorio(idRelatorio, idUsuario, permissaoUsuario, 
         // Delega o envio para a função de infraestrutura
         const remetente = "chamados@everestengenharia.com.br";
         const sucesso = await sendEmail(remetente, configuracaoEmail);
+
+        const horaEnvio = formatarData(new Date());
+        const comprovante = {
+            siteId: dadosRelatorio.header.site_id || 'N/A',
+            enviadoPor: dadosRelatorio.header.nome || dadosRelatorio.header.usuario_id || 'N/A',
+            dataEnvio: horaEnvio,
+            municipioUf: (dadosRelatorio.header.municipio && (dadosRelatorio.header.UF || dadosRelatorio.header.uf)) ? `${dadosRelatorio.header.municipio} / ${dadosRelatorio.header.UF || dadosRelatorio.header.uf}` : 'N/A',
+            tipoEstrutura: dadosRelatorio.header.tipo_estrutura || 'N/A',
+            qtdNcs: dadosRelatorio.body ? dadosRelatorio.body.length : 0
+        };
+
         if (!sucesso) {
             console.error('Falha ao enviar o e-mail de notificação, mas o processo principal já foi concluído.');
-            return { sucesso: true, emailFalhou: true, mensagem: "Relatório gerado e finalizado, porém com falha ao enviar e-mail de aviso para a Everest." };
+            return { sucesso: true, emailFalhou: true, mensagem: "Relatório gerado e finalizado, porém com falha ao enviar e-mail de aviso para a Everest.", comprovante };
         }
         else {
             console.log('E-mail de notificação enviado com sucesso.');
-            return { sucesso: true, mensagem: "Relatório enviado com sucesso." };
+            return { sucesso: true, mensagem: "Relatório enviado com sucesso.", comprovante };
         }
     } catch (error) {
         // Se houver QUALQUER erro (falha na query, falha ao gerar PDF, disco cheio, etc.)

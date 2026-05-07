@@ -96,6 +96,12 @@ function aplicarMascaras() {
     $('.date').mask('00/00/0000');
     $('.cep').mask('00000-000');
     $('.alturaTorre').mask('###0,00', {reverse: true});
+    $('.selectUF').select2({
+        theme: "bootstrap-5",
+        width: '100%',
+        placeholder: "Selecione uma UF", // O texto fica aqui agora
+        allowClear: true // (Opcional) Adiciona um "x" para limpar
+    });
 }
 
 export function initFormSubmissions() {

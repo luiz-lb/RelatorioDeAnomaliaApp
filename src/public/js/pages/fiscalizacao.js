@@ -318,9 +318,68 @@ async function enviarFormRelatorio(idRelatorio, checklistSelecionado) {
             return;
         }
 
+        let htmlMensagem = `<div class="mb-3">${dados.mensagem || 'Relatório enviado com sucesso!'}</div>`;
+        
+        // Tenta pegar os dados detalhados retornados pelo backend, ou usa valores seguros no fallback
+        const dataHoraEnvio = dados.comprovante?.dataEnvio || new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        const siteId = dados.comprovante?.siteId || 'Não informado';
+        const enviadoPor = dados.comprovante?.enviadoPor || 'Usuário do Sistema';
+        const municipioUf = dados.comprovante?.municipioUf || 'N/A';
+        const tipoEstrutura = dados.comprovante?.tipoEstrutura || 'N/A';
+        const qtdNcs = dados.comprovante?.qtdNcs !== undefined ? dados.comprovante.qtdNcs : 0;
+
+        htmlMensagem += `
+            <div class="text-start p-3 mt-2 comprovante-envio">
+                <div class="text-center mb-3">
+                    <h6 class="fw-bold mb-0 text-uppercase text-accent comprovante-titulo">Comprovante de Envio</h6>
+                    <small class="text-muted comprovante-subtitulo">Autenticação Eletrônica</small>
+                </div>
+                <div class="comprovante-corpo">
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="fw-bold">Nº do Relatório:</span>
+                        <span>${idRelatorio}</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="fw-bold">Site ID:</span>
+                        <span class="fw-semibold text-dark">${siteId}</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="fw-bold">Localidade:</span>
+                        <span class="text-end">${municipioUf}</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="fw-bold">Estrutura:</span>
+                        <span class="text-end">${tipoEstrutura}</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="fw-bold">Problemas (NCs):</span>
+                        <span>${qtdNcs} registro(s)</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="fw-bold">Status:</span>
+                        <span class="badge bg-success">Enviado</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="fw-bold">Responsável:</span>
+                        <span>${enviadoPor}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Data / Hora:</span>
+                        <span>${dataHoraEnvio}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <button type="button" id="btnBaixarComprovante" class="btn btn-outline-secondary rounded-pill px-4 shadow-sm" style="font-size: 0.9rem;">
+                    <i class="bi bi-file-earmark-arrow-down-fill me-2"></i> Baixar PDF
+                </button>
+            </div>
+        `;
+
         await Swal.fire({
             title: dados.emailFalhou ? 'Atenção' : 'Comprovante de Envio',
             text: dados.mensagem || 'Relatório enviado com sucesso!',
+            html: htmlMensagem,
             icon: dados.emailFalhou ? 'warning' : 'success',
             background: bg,
             color: text,
@@ -329,7 +388,42 @@ async function enviarFormRelatorio(idRelatorio, checklistSelecionado) {
                 popup: 'rounded-4',
                 confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
             },
-            buttonsStyling: false
+            buttonsStyling: false,
+            didOpen: () => {
+                const btnBaixar = document.getElementById('btnBaixarComprovante');
+                if (btnBaixar) {
+                    btnBaixar.addEventListener('click', () => {
+                        const originalText = btnBaixar.innerHTML;
+                        btnBaixar.innerHTML = 'Gerando...';
+                        btnBaixar.disabled = true;
+
+                        const downloadPdf = () => {
+                            const opt = {
+                                margin: 0.5,
+                                filename: `Comprovante_Envio_${idRelatorio}.pdf`,
+                                image: { type: 'jpeg', quality: 0.98 },
+                                html2canvas: { scale: 2, useCORS: true },
+                                jsPDF: { unit: 'in', format: 'a5', orientation: 'portrait' }
+                            };
+                            
+                            const element = document.querySelector('.comprovante-envio');
+                            window.html2pdf().set(opt).from(element).save().then(() => {
+                                btnBaixar.innerHTML = originalText;
+                                btnBaixar.disabled = false;
+                            });
+                        };
+
+                        if (typeof window.html2pdf === 'undefined') {
+                            const script = document.createElement('script');
+                            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                            script.onload = downloadPdf;
+                            document.head.appendChild(script);
+                        } else {
+                            downloadPdf();
+                        }
+                    });
+                }
+            }
         }).then(() => {
             window.location.reload();
         });
@@ -402,7 +496,7 @@ async function enviarRelatorio() {
         const checklist = dados.checklist;
         // colocando o checklist em uma variável para usar como checkbox no swal
         const checklistHtml = checklist.map((item) => `
-            <label style="display:flex;gap:8px;align-items:center;margin:6px 0;">
+            <label class="swal-checklist-label">
                 <input type="checkbox" class="swal-check-item" value="${item.id}">
                 <span>${item.descricao}</span>
             </label>
@@ -411,8 +505,8 @@ async function enviarRelatorio() {
         const result = await Swal.fire({
             title: 'Enviar relatório',
             html: `
-                <p style="margin-bottom:10px;">Selecione os itens do checklist que foram atendidos:</p>
-                <div id="swal-checklist" style="text-align:left;max-height:250px;overflow:auto;">
+                <p class="mb-2">Selecione os itens do checklist que foram atendidos:</p>
+                <div id="swal-checklist" class="swal-checklist-container">
                     ${checklistHtml}
                 </div>
             `,
