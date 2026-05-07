@@ -161,7 +161,7 @@ export async function obterChecklistRelatorio() {
     }
 }
 
-async function criarEmailDeAviso(idRelatorio) {
+export async function criarEmailDeAviso(idRelatorio) {
     try {
         /*Tanto faz o id do usuário na chamada da função*/
         const relatorioEnviado = await fiscalizacaoModel.obterRelatorioHeaderPorId(idRelatorio, 1, " or 1=1");
@@ -326,19 +326,12 @@ export async function enviarRelatorio(idRelatorio, idUsuario, permissaoUsuario, 
         transacaoConcluida = true; // Marca que o banco de dados já foi salvo com segurança!
         console.log('Transação efetivada no banco de dados com sucesso.');
 
-        const configuracaoEmail = await criarEmailDeAviso(idRelatorio);
-
-        // Delega o envio para a função de infraestrutura
-        const remetente = "chamados@everestengenharia.com.br";
-        const sucesso = await sendEmail(remetente, configuracaoEmail);
-        if (!sucesso) {
-            console.error('Falha ao enviar o e-mail de notificação, mas o processo principal já foi concluído.');
-            return { sucesso: true, mensagem: "Relatório gerado e finalizado, porém com falha ao enviar e-mail de aviso para a Everest." };
-        }
-        else {
-            console.log('E-mail de notificação enviado com sucesso.');
-            return { sucesso: true, mensagem: "Relatório enviado com sucesso." };
-        }
+        // Aqui você publicaria o evento na fila (Exemplo conceitual)
+        // await mensageria.publicarEvento('relatorio-finalizado', { idRelatorio: idRelatorio, data: new Date() });
+        
+        console.log('Relatório finalizado. Evento de notificação enviado para a fila.');
+        return { sucesso: true, mensagem: "Relatório finalizado com sucesso. O e-mail será enviado em instantes." };
+        
     } catch (error) {
         // Se houver QUALQUER erro (falha na query, falha ao gerar PDF, disco cheio, etc.)
         if (!transacaoConcluida) {

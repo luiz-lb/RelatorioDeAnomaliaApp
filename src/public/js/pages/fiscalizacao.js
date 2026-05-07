@@ -9,6 +9,9 @@ async function uploadNaoConformidade(event) {
     const form = event.currentTarget;
     if (form.dataset.uploadInProgress === 'true') {
         return;
+    } else if($('#descricao').val().trim() === '') {
+        alert('A descrição da não conformidade é obrigatória.');
+        return;
     }
 
     form.dataset.uploadInProgress = 'true';

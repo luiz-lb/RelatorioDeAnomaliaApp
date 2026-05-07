@@ -104,11 +104,15 @@ export async function salvarNovoRelatorio(req, res, next) {
 export async function envioNaoConformidade(req, res, next) {
     try {
         const idRelatorio = req.params.idRelatorio;
+        const descricao = req.body.descricao;
+        if (!descricao) {
+            return res.status(400).json({ sucesso: false, mensagem: "Descrição da não conformidade não informado." });
+        }
 
         const resultadoNaoConformidade = await fiscalizacaoService.processarNaoConformidade(
             idRelatorio,
             req.file,
-            req.body.descricao,
+            descricao,
             req.session.usuario
         );
 
@@ -116,7 +120,7 @@ export async function envioNaoConformidade(req, res, next) {
             return res.status(400).json({ sucesso: false, mensagem: resultadoNaoConformidade.erro });
         }
 
-        res.render('partials/card-conformidade', { item: resultadoNaoConformidade, idRelatorio: idRelatorio }, (err, htmlGerado) => {
+        res.render('partials/card-conformidade', { item: resultadoNaoConformidade, idRelatorio: idRelatorio, status: "Rascunho" }, (err, htmlGerado) => {
             if (err) {
                 return res.json({ sucesso: false, mensagem: "Erro ao gerar visualização." });
             }
@@ -135,6 +139,10 @@ export function editarNaoConformidade(req, res, next) {
         const idRelatorio = req.params.idRelatorio; // Obter o ID do relatório a partir dos parâmetros da rota
         const descricao = req.body.descricao;
         const idNaoConformidade = req.body.idNaoConformidade;
+
+        if (!descricao) {
+            return res.status(400).json({ sucesso: false, mensagem: "Descrição da não conformidade não informado." });
+        }
 
         console.log('Editando a não conformidade com ID:', idNaoConformidade, 'do relatório ID:', idRelatorio, 'com a nova descrição:', descricao);
 

@@ -58,29 +58,21 @@
                                                             data-label="<%= thead[index] %>">
                                                             <%- dado %>
                                                         </td>
-                                                        <% }); %>
+                                                    <% }); %>
 
-                                                            <!-- Ações -->
-                                                            <td class="py-3 text-center" data-label="Ações">
-                                                                <div class="d-flex justify-content-center gap-2">
-                                                                    <a href="/adm/user/edit/<%= Object.values(linha)[0] %>"
-                                                                        class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm d-flex align-items-center gap-1"
-                                                                        title="Editar">
-                                                                        <i class="bi bi-pencil"></i> <span
-                                                                            class="d-none d-sm-inline">Editar</span>
-                                                                    </a>
-
-                                                                    <button
-                                                                        class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm btnDeleteUser d-flex align-items-center gap-1"
-                                                                        id="<%= Object.values(linha)[0] %>"
-                                                                        title="Excluir">
-                                                                        <i class="bi bi-trash"></i> <span
-                                                                            class="d-none d-sm-inline">Excluir</span>
-                                                                    </button>
-                                                                </div>
-                                                            </td>
+                                                    <!-- Ações -->
+                                                    <td class="py-3 text-center" data-label="Ações">
+                                                        <div class="d-flex gap-2">
+                                                            <a href="/adm/user/edit/<%= Object.values(linha)[0] %>"
+                                                                class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm d-flex align-items-center gap-1"
+                                                                title="Editar">
+                                                                <i class="bi bi-pencil"></i> <span
+                                                                    class="d-none d-sm-inline">Editar</span>
+                                                            </a>
+                                                        </div>
+                                                    </td>
                                                 </tr>
-                                                <% }); %>
+                                            <% }); %>
                                         </tbody>
 
                                         <% } else { %>
