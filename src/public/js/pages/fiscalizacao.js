@@ -6,6 +6,10 @@ function resetUploadState(form, submitButtons) {
 async function uploadNaoConformidade(event) {
     event.preventDefault();
 
+    const root = getComputedStyle(document.documentElement);
+    const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+    const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+
     const form = event.currentTarget;
     if (form.dataset.uploadInProgress === 'true') {
         return;
@@ -35,7 +39,19 @@ async function uploadNaoConformidade(event) {
         const dados = await resposta.json();
 
         if (!dados.sucesso) {
-            alert(`Erro ao subir a imagem: ${dados.mensagem}`);
+            Swal.fire({
+                title: 'Erro',
+                text: `Erro ao subir a imagem: ${dados.mensagem}`,
+                icon: 'error',
+                background: bg,
+                color: text,
+                confirmButtonText: 'Fechar',
+                customClass: {
+                    popup: 'rounded-4',
+                    confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                },
+                buttonsStyling: false
+            });
             resetUploadState(form, submitButtons);
             return;
         }
@@ -50,7 +66,19 @@ async function uploadNaoConformidade(event) {
         resetUploadState(form, submitButtons);
     } catch (erro) {
         console.error('Erro na requisição:', erro);
-        alert('Ocorreu um erro de conexão com o servidor.');
+        Swal.fire({
+            title: 'Erro',
+            text: 'Ocorreu um erro de conexão com o servidor.',
+            icon: 'error',
+            background: bg,
+            color: text,
+            confirmButtonText: 'Fechar',
+            customClass: {
+                popup: 'rounded-4',
+                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+            },
+            buttonsStyling: false
+        });
         resetUploadState(form, submitButtons);
     }
 }
@@ -180,7 +208,7 @@ async function excluirNaoConformidade() {
             title: 'fs-5 fw-bold mb-2',
             htmlContainer: 'm-0 text-muted',
             actions: 'd-flex flex-wrap gap-2 w-100 justify-content-center mt-4',
-            confirmButton: 'btn btn-danger rounded-pill px-4 shadow-sm m-0',
+            confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm m-0',
             cancelButton: 'btn btn-light border rounded-pill px-4 text-secondary m-0'
         },
         buttonsStyling: false
@@ -250,7 +278,22 @@ async function excluirNaoConformidade() {
 }
 
 async function enviarFormRelatorio(idRelatorio, checklistSelecionado) {
+    const root = getComputedStyle(document.documentElement);
+    const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+    const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+
     try {
+        Swal.fire({
+            title: 'Gerando Relatório...',
+            html: 'Processando os dados e gerando o PDF.<br>Por favor, aguarde...',
+            allowOutsideClick: false,
+            background: bg,
+            color: text,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         const resposta = await fetch(`/fiscalizacao/enviar-relatorio/${idRelatorio}`, {
             method: 'POST',
             headers: {
@@ -266,15 +309,32 @@ async function enviarFormRelatorio(idRelatorio, checklistSelecionado) {
                 title: 'Erro',
                 text: dados.mensagem,
                 icon: 'error',
-                confirmButtonText: 'Fechar'
+                background: bg,
+                color: text,
+                confirmButtonText: 'Fechar',
+                customClass: {
+                    popup: 'rounded-4',
+                    confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                },
+                buttonsStyling: false
             });
             return;
         }
+
         await Swal.fire({
-            title: 'Sucesso',
-            text: 'Relatório enviado com sucesso!',
-            icon: 'success',
-            confirmButtonText: 'Fechar'
+            title: dados.emailFalhou ? 'Atenção' : 'Comprovante de Envio',
+            text: dados.mensagem || 'Relatório enviado com sucesso!',
+            icon: dados.emailFalhou ? 'warning' : 'success',
+            background: bg,
+            color: text,
+            confirmButtonText: 'Fechar',
+            customClass: {
+                popup: 'rounded-4',
+                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+            },
+            buttonsStyling: false
+        }).then(() => {
+            window.location.reload();
         });
         return;
     } catch (erro) {
@@ -283,13 +343,24 @@ async function enviarFormRelatorio(idRelatorio, checklistSelecionado) {
             title: 'Erro',
             text: 'Erro ao enviar relatorio.',
             icon: 'error',
-            confirmButtonText: 'Fechar'
+            background: bg,
+            color: text,
+            confirmButtonText: 'Fechar',
+            customClass: {
+                popup: 'rounded-4',
+                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+            },
+            buttonsStyling: false
         });
         return;
     }
 }
 
 async function enviarRelatorio() {
+    const root = getComputedStyle(document.documentElement);
+    const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+    const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+
     try {
         const idRelatorio = $(this).data('relatorio');
         if (!idRelatorio) {
@@ -297,7 +368,14 @@ async function enviarRelatorio() {
                 title: 'Erro',
                 text: 'ID do relatório não encontrado.',
                 icon: 'error',
-                confirmButtonText: 'Fechar'
+                background: bg,
+                color: text,
+                confirmButtonText: 'Fechar',
+                customClass: {
+                    popup: 'rounded-4',
+                    confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                },
+                buttonsStyling: false
             });
             return;
         }
@@ -313,7 +391,14 @@ async function enviarRelatorio() {
                 title: 'Erro',
                 text: dados.mensagem,
                 icon: 'error',
-                confirmButtonText: 'Fechar'
+                background: bg,
+                color: text,
+                confirmButtonText: 'Fechar',
+                customClass: {
+                    popup: 'rounded-4',
+                    confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                },
+                buttonsStyling: false
             });
             return;
         }
@@ -338,6 +423,16 @@ async function enviarRelatorio() {
             showCancelButton: true,
             confirmButtonText: 'Enviar',
             cancelButtonText: 'Cancelar',
+            background: bg,
+            color: text,
+            customClass: {
+                popup: 'rounded-4 shadow p-3 p-md-4',
+                title: 'fs-5 fw-bold mb-2',
+                actions: 'd-flex flex-wrap gap-2 w-100 justify-content-center mt-4',
+                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm m-0',
+                cancelButton: 'btn btn-light border rounded-pill px-4 text-secondary m-0'
+            },
+            buttonsStyling: false,
             preConfirm: () => {
                 const selecionados = Array.from(
                     $('#swal-checklist .swal-check-item:checked')
@@ -366,15 +461,37 @@ async function enviarRelatorio() {
             title: 'Erro',
             text: 'Erro ao enviar relatorio.',
             icon: 'error',
-            confirmButtonText: 'Fechar'
+            background: bg,
+            color: text,
+            confirmButtonText: 'Fechar',
+            customClass: {
+                popup: 'rounded-4',
+                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+            },
+            buttonsStyling: false
         });
         return;
     }    
 }
 
 async function baixarRelatorio() {
+    const root = getComputedStyle(document.documentElement);
+    const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+    const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+
     try {
         const idRelatorio = $(this).data('idrelatorio');
+
+        Swal.fire({
+            title: 'Iniciando download...',
+            html: 'Buscando o arquivo PDF, por favor aguarde.',
+            allowOutsideClick: false,
+            background: bg,
+            color: text,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
         const res = await fetch(`/fiscalizacao/edit/${idRelatorio}/pdf`);
 
@@ -384,7 +501,14 @@ async function baixarRelatorio() {
                 icon: 'warning',
                 title: 'Download indisponível',
                 text: erro.mensagem || 'Não foi possível baixar o relatório.',
-                confirmButtonColor: '#1a3c5e'
+                background: bg,
+                color: text,
+                confirmButtonText: 'Fechar',
+                customClass: {
+                    popup: 'rounded-4',
+                    confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                },
+                buttonsStyling: false
             });
             return;
         }
@@ -397,12 +521,21 @@ async function baixarRelatorio() {
         link.click();
         URL.revokeObjectURL(url);
 
+        Swal.close();
+
     } catch (err) {
         await Swal.fire({
             icon: 'error',
             title: 'Erro',
             text: 'Erro ao tentar baixar o relatório.',
-            confirmButtonColor: '#1a3c5e'
+            background: bg,
+            color: text,
+            confirmButtonText: 'Fechar',
+            customClass: {
+                popup: 'rounded-4',
+                confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+            },
+            buttonsStyling: false
         });
     }
 }
