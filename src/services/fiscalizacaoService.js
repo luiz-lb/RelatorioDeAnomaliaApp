@@ -5,6 +5,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import path from 'path';
 import { gerarRelatorioPDF } from './pdfService.js';
+import { Kafka } from 'kafkajs';
 
 const ano = new Date().getFullYear(); // Obter o ano atual
 const mes = new Date().getMonth() + 1; // Obter o mês atual (0-11, por isso +1)
@@ -274,7 +275,6 @@ export async function criarEmailDeAviso(idRelatorio) {
             saveToSentItems: "true"
         };
 
-        console.log('Preparando para enviar o e-mail:', configuracaoEmail);
         return configuracaoEmail;
     } catch (error) {
         console.error('Erro ao criar a configuração do e-mail de aviso:', error);
@@ -326,8 +326,18 @@ export async function enviarRelatorio(idRelatorio, idUsuario, permissaoUsuario, 
         transacaoConcluida = true; // Marca que o banco de dados já foi salvo com segurança!
         console.log('Transação efetivada no banco de dados com sucesso.');
 
-        // Aqui você publicaria o evento na fila (Exemplo conceitual)
-        // await mensageria.publicarEvento('relatorio-finalizado', { idRelatorio: idRelatorio, data: new Date() });
+        // Inicializando o Producer do Kafka e enviando o evento
+        const kafka = new Kafka({ clientId: 'relatorio-app-producer', brokers: ['localhost:9092'] });
+        const producer = kafka.producer();
+        
+        await producer.connect();
+        await producer.send({
+            topic: 'relatorio-finalizado',
+            messages: [
+                { value: JSON.stringify({ idRelatorio: idRelatorio, data: new Date() }) }
+            ],
+        });
+        await producer.disconnect();
         
         console.log('Relatório finalizado. Evento de notificação enviado para a fila.');
         return { sucesso: true, mensagem: "Relatório finalizado com sucesso. O e-mail será enviado em instantes." };

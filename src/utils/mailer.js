@@ -21,7 +21,6 @@ export async function sendEmail(remetente, mail) {
             }
         });
 
-        console.log('E-mail enviado com sucesso via Axios!');
         return true;
     } catch (error) {
         console.error('Erro ao enviar e-mail via Axios:', error);

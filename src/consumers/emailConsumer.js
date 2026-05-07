@@ -13,6 +13,19 @@ const consumer = kafka.consumer({ groupId: 'email-notificacao-group' });
 
 export async function iniciarConsumidorDeEmail() {
     try {
+        // Usando o Admin Client para garantir que o tópico existe antes de escutar
+        const admin = kafka.admin();
+        await admin.connect();
+        const topicosExistentes = await admin.listTopics();
+        
+        if (!topicosExistentes.includes('relatorio-finalizado')) {
+            await admin.createTopics({
+                topics: [{ topic: 'relatorio-finalizado', numPartitions: 1 }]
+            });
+            console.log('⚙️ Tópico "relatorio-finalizado" criado no Kafka com sucesso.');
+        }
+        await admin.disconnect();
+
         await consumer.connect();
         console.log('✅ Consumidor de E-mail conectado ao broker de mensageria.');
 
@@ -26,10 +39,10 @@ export async function iniciarConsumidorDeEmail() {
                 console.log(`[Worker] Processando envio de e-mail para o relatório ID: ${evento.idRelatorio}`);
 
                 try {
-                    // 1. Busca os dados e monta o HTML do e-mail
+                    // Busca os dados e monta o HTML do e-mail
                     const configuracaoEmail = await criarEmailDeAviso(evento.idRelatorio);
                     
-                    // 2. Dispara o e-mail
+                    // Dispara o e-mail
                     const remetente = "chamados@everestengenharia.com.br";
                     await sendEmail(remetente, configuracaoEmail);
                     

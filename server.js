@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import session from 'express-session';
 import { fileURLToPath } from 'url';
 import routes from './src/routes/index.js';
-
+import { iniciarConsumidorDeEmail } from './src/consumers/emailConsumer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,6 +49,7 @@ app.use((err, req, res, next) => {
 (async () => {
     try {
         app.listen(port, '0.0.0.0', () => {
+            iniciarConsumidorDeEmail();
             console.log(`Servidor rodando e acessível na rede na porta: ${port}`);
             console.log(`Ambiente: ${process.env.NODE_ENV || 'dev'}`);
         });
