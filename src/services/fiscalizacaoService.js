@@ -58,7 +58,8 @@ export async function obterRelatorioPorId(idRelatorio, idUsuario, permissaoUsuar
         throw new Error('Relatório não encontrado ou acesso negado.');
     }
 
-    resultadoHeader.created_at = formatarData(resultadoHeader.created_at);
+    // Adicionar versão formatada para uso na view, mantendo created_at raw para o PDF
+    resultadoHeader.created_at_formatado = formatarData(resultadoHeader.created_at);
 
     console.log('Consulta feita com sucesso.');
 

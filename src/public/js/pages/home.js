@@ -3,10 +3,10 @@ function normalize(text) {
 }
 
 function filterReports(query) {
-    const rows = $('#tabela-corpo tr');
+    const items = $('.searchable-item');
     const normalizedQuery = normalize(query);
 
-    rows.each(function () {
+    items.each(function () {
         const target = normalize($(this).attr('data-search'));
         $(this).toggle(!normalizedQuery || target.includes(normalizedQuery));
     });
@@ -24,12 +24,8 @@ function debounce(fn, wait) {
 export function initReportSearch() {
     const searchInput = $('#reportSearch');
     const clearBtn = $('#clearSearch');
-    const mobileSearchInput = $('#reportSearchMobile');
-    const clearBtnMobile = $('#clearSearchMobile');
-    const toggleMobileBtn = $('#toggleMobileSearch');
-    const mobileSearchContainer = $('#mobileSearchContainer');
 
-    if (!searchInput.length && !mobileSearchInput.length && !toggleMobileBtn.length) {
+    if (!searchInput.length) {
         return;
     }
 
@@ -37,50 +33,15 @@ export function initReportSearch() {
         filterReports(value);
     }, 180);
 
-    if (searchInput.length) {
-        searchInput.on('input', function () {
-            debouncedHandler($(this).val());
-        });
-    }
-
-    if (mobileSearchInput.length) {
-        mobileSearchInput.on('input', function () {
-            debouncedHandler($(this).val());
-        });
-    }
+    searchInput.on('input', function () {
+        debouncedHandler($(this).val());
+    });
 
     if (clearBtn.length) {
         clearBtn.on('click', () => {
-            if (searchInput.length) {
-                searchInput.val('');
-                searchInput.trigger('focus');
-            }
+            searchInput.val('');
+            searchInput.trigger('focus');
             filterReports('');
-        });
-    }
-
-    if (clearBtnMobile.length) {
-        clearBtnMobile.on('click', () => {
-            if (mobileSearchInput.length) {
-                mobileSearchInput.val('');
-                mobileSearchInput.trigger('focus');
-            }
-            filterReports('');
-        });
-    }
-
-    if (toggleMobileBtn.length && mobileSearchContainer.length) {
-        toggleMobileBtn.on('click', () => {
-            mobileSearchContainer.toggleClass('d-none');
-            const isVisible = !mobileSearchContainer.hasClass('d-none');
-
-            if (isVisible) {
-                setTimeout(() => {
-                    if (mobileSearchInput.length) {
-                        mobileSearchInput.trigger('focus');
-                    }
-                }, 60);
-            }
         });
     }
 }

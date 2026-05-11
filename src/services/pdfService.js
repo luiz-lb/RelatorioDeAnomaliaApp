@@ -164,7 +164,7 @@ function desenharCapa(doc, header, idRelatorio) {
     doc.fontSize(8).fillColor(COR_TEXTO_LEVE)
         .text(`Criado em: ${header.created_at ? formatarData(header.created_at) : 'N/A'}`, cardX + 16, infoY(80));
     doc.fontSize(8).fillColor(COR_TEXTO_LEVE)
-        .text(`Responsável: ${header.usuario_id || 'N/A'}`, cardX + 16, infoY(93));
+        .text(`Responsável: ${header.nome || 'N/A'}`, cardX + 16, infoY(93));
     doc.font('Helvetica');
 
     // Badge de status

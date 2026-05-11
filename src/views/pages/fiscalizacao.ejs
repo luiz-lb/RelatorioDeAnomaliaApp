@@ -55,7 +55,7 @@
                                 <div class="col-12 col-sm-6 col-lg-4">
                                     <small class="text-muted d-block">Criado em</small>
                                     <span class="fw-bold text-dark">
-                                        <%= resultadoHeader.created_at || 'N/A' %>
+                                        <%= resultadoHeader.created_at_formatado || 'N/A' %>
                                     </span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-lg-4">
@@ -133,9 +133,9 @@
                             <div class="card-body p-3 p-md-4">
                                 <form id="formUpload" data-relatorio="<%= idRelatorio %>" novalidate>
                                     <div class="mb-3">
-                                        <label for="arquivoInput" class="form-label fw-medium">Selecione uma foto:</label>
-                                        <input type="file" id="arquivoInput" accept="image/png, image/jpeg, image/jpg"
-                                            name="arquivo" class="form-control" required>
+                                        <label for="arquivoInput" class="form-label fw-medium">Adicionar Imagem:</label>
+                                        <input type="file" id="arquivoInput" accept="image/*"
+                                            name="arquivo" class="form-control" capture="environment" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="descricao" class="form-label fw-medium">Descrição:</label>
