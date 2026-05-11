@@ -7,6 +7,10 @@ import path from 'path';
 import { gerarRelatorioPDF } from './pdfService.js';
 import { Kafka } from 'kafkajs';
 
+// Inicializando o Kafka fora da função para reutilizar a conexão (Singleton)
+const kafka = new Kafka({ clientId: 'relatorio-app-producer', brokers: ['localhost:9092'] });
+const producer = kafka.producer();
+
 const ano = new Date().getFullYear(); // Obter o ano atual
 const mes = new Date().getMonth() + 1; // Obter o mês atual (0-11, por isso +1)
 const dia = new Date().getDate(); // Obter o dia atual
@@ -326,10 +330,7 @@ export async function enviarRelatorio(idRelatorio, idUsuario, permissaoUsuario, 
         transacaoConcluida = true; // Marca que o banco de dados já foi salvo com segurança!
         console.log('Transação efetivada no banco de dados com sucesso.');
 
-        // Inicializando o Producer do Kafka e enviando o evento
-        const kafka = new Kafka({ clientId: 'relatorio-app-producer', brokers: ['localhost:9092'] });
-        const producer = kafka.producer();
-        
+        // Enviando o evento para o Kafka
         await producer.connect();
         await producer.send({
             topic: 'relatorio-finalizado',
@@ -337,7 +338,7 @@ export async function enviarRelatorio(idRelatorio, idUsuario, permissaoUsuario, 
                 { value: JSON.stringify({ idRelatorio: idRelatorio, data: new Date() }) }
             ],
         });
-        await producer.disconnect();
+        // Não desconectamos o producer para que ele possa ser usado na próxima chamada
         
         console.log('Relatório finalizado. Evento de notificação enviado para a fila.');
         return { sucesso: true, mensagem: "Relatório finalizado com sucesso. O e-mail será enviado em instantes." };

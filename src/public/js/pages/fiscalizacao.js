@@ -3,6 +3,39 @@ function resetUploadState(form, submitButtons) {
     submitButtons.prop('disabled', false);
 }
 
+async function comprimirImagem(file, maxWidth = 1200, maxHeight = 1200, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        if (!file.type.startsWith('image/')) return resolve(file);
+        
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+            URL.revokeObjectURL(img.src);
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height && width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+            } else if (height > width && height > maxHeight) {
+                width = Math.round((width * maxHeight) / height);
+                height = maxHeight;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+                resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+            }, 'image/jpeg', quality);
+        };
+        img.onerror = reject;
+    });
+}
+
 async function uploadNaoConformidade(event) {
     event.preventDefault();
 
@@ -22,8 +55,33 @@ async function uploadNaoConformidade(event) {
     const submitButtons = $(form).find('button[type=submit], input[type=submit]');
     submitButtons.prop('disabled', true);
 
-    const arquivo = $('#arquivoInput')[0]?.files?.[0];
+    let arquivo = $('#arquivoInput')[0]?.files?.[0];
     const descricao = $('#descricao').val();
+
+    // Dispara o alerta
+    Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    }).fire({
+        title: "Enviando imagem..."
+    });
+
+    // Comprime a imagem antes de fazer o envio, caso seja uma foto
+    if (arquivo && arquivo.type.startsWith('image/')) {
+        try {
+            arquivo = await comprimirImagem(arquivo);
+        } catch (e) {
+            console.error("Erro ao comprimir a imagem no celular, enviando a original.", e);
+        }
+    }
+
     const formData = new FormData();
     formData.append('arquivo', arquivo);
     formData.append('descricao', descricao);
@@ -37,6 +95,8 @@ async function uploadNaoConformidade(event) {
         });
 
         const dados = await resposta.json();
+        
+        Swal.close(); // Fecha o spinner de carregamento
 
         if (!dados.sucesso) {
             Swal.fire({
@@ -542,7 +602,7 @@ async function baixarRelatorio() {
 
 export function initFiscalizacaoPage() {
     const formUpload = $('#formUpload');
-    if (!formUpload.length) {
+    if (!formUpload.length && !$('#btn-baixar-relatorio').length) {
         return;
     }
 
