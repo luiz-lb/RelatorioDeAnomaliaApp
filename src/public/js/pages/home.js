@@ -46,6 +46,31 @@ export function initReportSearch() {
     }
 }
 
+export function initUserSearch() {
+    const searchInput = $('#userSearch');
+    const clearBtn = $('#clearUserSearch');
+
+    if (!searchInput.length) {
+        return;
+    }
+
+    const debouncedHandler = debounce((value) => {
+        filterReports(value);
+    }, 180);
+
+    searchInput.on('input', function () {
+        debouncedHandler($(this).val());
+    });
+
+    if (clearBtn.length) {
+        clearBtn.on('click', () => {
+            searchInput.val('');
+            searchInput.trigger('focus');
+            filterReports('');
+        });
+    }
+}
+
 export function initTopSelect() {
     const topSelect = $('#topSelect');
     if (!topSelect.length) {

@@ -58,8 +58,7 @@ export async function obterRelatorioPorId(idRelatorio, idUsuario, permissaoUsuar
         throw new Error('Relatório não encontrado ou acesso negado.');
     }
 
-    // Adicionar versão formatada para uso na view, mantendo created_at raw para o PDF
-    resultadoHeader.created_at_formatado = formatarData(resultadoHeader.created_at);
+    resultadoHeader.created_at = formatarData(resultadoHeader.created_at);
 
     console.log('Consulta feita com sucesso.');
 
@@ -164,6 +163,17 @@ export async function obterChecklistRelatorio() {
     } catch (error) {
         console.error('Erro ao obter o checklist do relatório:', error);
         throw new Error('Não foi possível obter o checklist do relatório. Tente novamente mais tarde.');
+    }
+}
+
+export async function obterNaoConformidadesRelatorio(idRelatorio) {
+    try {
+        const naoConformidades = await fiscalizacaoModel.obterNaoConformidadesRelatorio(idRelatorio);
+        console.log('Não conformidades obtidas com sucesso.');
+        return naoConformidades;
+    } catch (error) {
+        console.error('Erro ao obter as não conformidades do relatório:', error);
+        throw new Error('Não foi possível obter as não conformidades do relatório. Tente novamente mais tarde.');
     }
 }
 
