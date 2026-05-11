@@ -32,10 +32,25 @@
                         </div>
                     </div>
 
-                    <!-- Card com a Tabela -->
+                    <!-- Card com Busca e Tabela -->
                     <div class="card shadow-sm border-0 rounded-4 bg-white mb-4">
-                        <div class="card-body p-0 overflow-hidden rounded-4">
-                            <div class="table-responsive">
+                        <div class="card-body p-3 p-md-4">
+                            <!-- Filtro / Busca -->
+                            <div class="row g-3 align-items-center mb-4">
+                                <div class="col-12">
+                                    <label for="userSearch" class="visually-hidden">Pesquisar usuários</label>
+                                    <div class="input-group search-input shadow-sm rounded-pill px-2 py-1 border bg-white">
+                                        <span class="input-group-text bg-transparent border-0 text-muted"><i class="bi bi-search"></i></span>
+                                        <input type="search" id="userSearch" class="form-control border-0 shadow-none bg-transparent" placeholder="Pesquisar usuários por nome, email, CPF ou permissão..." aria-label="Pesquisar usuários">
+                                        <button class="btn btn-link text-muted border-0 shadow-none" id="clearUserSearch" type="button" title="Limpar busca">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <!-- Tabela de Usuários -->
+                        <div class="table-responsive">
                                 <table class="table table-hover align-middle border-0 mb-0" id="<%= tableidheader %>">
 
                                     <% if (typeof tbody !=='undefined' && tbody.length> 0) { %>
@@ -52,7 +67,7 @@
 
                                         <tbody id="<%= tableid %>">
                                             <% tbody.forEach(function(linha) { %>
-                                                <tr data-search="<%= Object.values(linha).join(' ') %>">
+                                                <tr class="searchable-item" data-search="<%= (Object.values(linha).join(' ')).toLowerCase() %>">
                                                     <% Object.values(linha).forEach(function(dado, index) { %>
                                                         <td class="py-3 text-dark px-4"
                                                             data-label="<%= thead[index] %>">

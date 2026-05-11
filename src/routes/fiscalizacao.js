@@ -15,7 +15,8 @@ router.get('/edit/:idRelatorio/pdf', fiscalizacaoController.validarIdRelatorioPa
 router.post('/edit/nao-conformidade/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, handleUpload('arquivo'), fiscalizacaoController.envioNaoConformidade);
 router.put('/edit/nao-conformidade/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, fiscalizacaoController.editarNaoConformidade);
 router.delete('/edit/nao-conformidade/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, fiscalizacaoController.excluirNaoConformidade);
-router.get('/checklist/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, fiscalizacaoController.pegarChecklistRelatorio);
+router.get('/checklist/:idRelatorio', fiscalizacaoController.pegarChecklistRelatorio);
+router.post('/checklist-respostas/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, fiscalizacaoController.salvarChecklistRespostas);
 router.post('/enviar-relatorio/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, fiscalizacaoController.enviarRelatorio);
 
 export default router;

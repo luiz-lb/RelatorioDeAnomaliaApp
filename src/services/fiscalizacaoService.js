@@ -166,6 +166,17 @@ export async function obterChecklistRelatorio() {
     }
 }
 
+export async function obterNaoConformidadesRelatorio(idRelatorio) {
+    try {
+        const naoConformidades = await fiscalizacaoModel.obterNaoConformidadesRelatorio(idRelatorio);
+        console.log('Não conformidades obtidas com sucesso.');
+        return naoConformidades;
+    } catch (error) {
+        console.error('Erro ao obter as não conformidades do relatório:', error);
+        throw new Error('Não foi possível obter as não conformidades do relatório. Tente novamente mais tarde.');
+    }
+}
+
 export async function criarEmailDeAviso(idRelatorio) {
     try {
         /*Tanto faz o id do usuário na chamada da função*/

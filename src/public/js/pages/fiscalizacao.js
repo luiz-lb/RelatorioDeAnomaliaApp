@@ -440,16 +440,17 @@ async function enviarRelatorio() {
             return;
         }
 
-        const resposta = await fetch(`/fiscalizacao/checklist/${idRelatorio}`, {
+        // Passo 1: Buscar o checklist padrão (itens ativos ordenados)
+        const respostaChecklist = await fetch(`/fiscalizacao/checklist/${idRelatorio}`, {
             method: 'GET'
         });
 
-        const dados = await resposta.json();
+        const dadosChecklist = await respostaChecklist.json();
 
-        if (!dados.sucesso) {
+        if (!dadosChecklist.sucesso) {
             await Swal.fire({
                 title: 'Erro',
-                text: dados.mensagem,
+                text: dadosChecklist.mensagem,
                 icon: 'error',
                 background: bg,
                 color: text,
@@ -462,8 +463,10 @@ async function enviarRelatorio() {
             });
             return;
         }
-        const checklist = dados.checklist;
-        // colocando o checklist em uma variável para usar como checkbox no swal
+
+        const checklist = dadosChecklist.checklist;
+        
+        // Montar HTML do checklist ordenado por "ordem"
         const checklistHtml = checklist.map((item) => `
             <label style="display:flex;gap:8px;align-items:center;margin:6px 0;">
                 <input type="checkbox" class="swal-check-item" value="${item.id}">
@@ -471,10 +474,11 @@ async function enviarRelatorio() {
             </label>
         `).join('');
 
+        // Passo 2: Exibir modal com checklist para o usuário selecionar itens
         const result = await Swal.fire({
             title: 'Enviar relatório',
             html: `
-                <p style="margin-bottom:10px;">Selecione os itens do checklist que foram atendidos:</p>
+                <p style="margin-bottom:10px;">Confirme os itens da fiscalização que foram atendidos:</p>
                 <div id="swal-checklist" style="text-align:left;max-height:250px;overflow:auto;">
                     ${checklistHtml}
                 </div>
@@ -498,9 +502,9 @@ async function enviarRelatorio() {
                     $('#swal-checklist .swal-check-item:checked')
                 ).map((el) => Number($(el).val()));
 
-                // Regra: precisa marcar todos
+                // Regra: precisa marcar todos os itens do checklist
                 if (selecionados.length !== checklist.length) {
-                    Swal.showValidationMessage('Você deve selecionar todos os campos para enviar o relatório.');
+                    Swal.showValidationMessage(`Você deve confirmar todos os ${checklist.length} itens do checklist para enviar o relatório.`);
                     return false;
                 }
 
@@ -512,7 +516,35 @@ async function enviarRelatorio() {
             return;
         }
 
-        // Enviando o formulário para o backend com os itens do checklist selecionados
+        // Passo 3: Salvar as respostas do checklist no banco de dados
+        const respostaSalvar = await fetch(`/fiscalizacao/checklist-respostas/${idRelatorio}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ itensSelecionados: result.value })
+        });
+
+        const dadosSalvar = await respostaSalvar.json();
+
+        if (!dadosSalvar.sucesso) {
+            await Swal.fire({
+                title: 'Erro',
+                text: dadosSalvar.mensagem || 'Erro ao salvar o checklist.',
+                icon: 'error',
+                background: bg,
+                color: text,
+                confirmButtonText: 'Fechar',
+                customClass: {
+                    popup: 'rounded-4',
+                    confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm'
+                },
+                buttonsStyling: false
+            });
+            return;
+        }
+
+        // Passo 4: Prosseguir com o fluxo de envio do relatório
         await enviarFormRelatorio(idRelatorio, result.value);        
 
     } catch (erro) {

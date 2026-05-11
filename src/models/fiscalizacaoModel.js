@@ -83,13 +83,24 @@ export async function obterChecklistRelatorio() {
     return result.recordset;
 }
 
+export async function obterNaoConformidadesRelatorio(idRelatorio) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('idRelatorio', sql.Int, idRelatorio)
+        .query(`Select id, descricao From nao_conformidades Where fiscalizacao_id = @idRelatorio Order by id`);
+    return result.recordset;
+}
+
 export async function inserirCheckListSelecionados(transaction, idRelatorio, itensSelecionados) {
     const request = new sql.Request(transaction);
     
     // Garante que é um array para podermos iterar (trata caso venha como JSON string)
     const itens = Array.isArray(itensSelecionados) ? itensSelecionados : JSON.parse(itensSelecionados);
     
-    if (!itens || itens.length === 0) return false;
+    if (!itens || itens.length === 0) {
+        console.log('Nenhum item selecionado para inserir.');
+        return false;
+    }
 
     request.input('idRelatorio', sql.Int, idRelatorio);
 
@@ -98,8 +109,18 @@ export async function inserirCheckListSelecionados(transaction, idRelatorio, ite
         return `(@idRelatorio, @item_${index}, 1)`;
     });
 
-    const result = await request.query(`Insert Into checklist_respostas (fiscalizacao_id, checklist_item_id, checado) Values ${values.join(', ')}`);
-    return result.rowsAffected[0] > 0;
+    const query = `Insert Into checklist_respostas (fiscalizacao_id, checklist_item_id, checado) Values ${values.join(', ')}`;
+    console.log('Query de inserção:', query);
+    console.log('Itens a inserir:', itens);
+    
+    try {
+        const result = await request.query(query);
+        console.log('Resultado do insert:', result.rowsAffected);
+        return result.rowsAffected[0] > 0;
+    } catch (error) {
+        console.error('Erro ao executar insert de checklist_respostas:', error);
+        throw error;
+    }
 }
 
 // --- Funções com Suporte a Transação ---

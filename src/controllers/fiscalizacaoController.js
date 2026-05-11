@@ -1,5 +1,7 @@
 import * as fiscalizacaoService from '../services/fiscalizacaoService.js';
+import * as fiscalizacaoModel from '../models/fiscalizacaoModel.js';
 import { gerarRelatorioPDF } from '../services/pdfService.js';
+import { sql, poolPromise } from '../config/dbConfig.js';
 
 export async function validarIdRelatorioParams(req, res, next) {
     const idRelatorio = req.params.idRelatorio;
@@ -186,7 +188,7 @@ export async function pegarChecklistRelatorio(req, res, next) {
         if (!Array.isArray(checklist) || checklist.length === 0) {
             return res.status(404).json({
                 sucesso: false,
-                mensagem: "Checklist não encontrado para o relatório especificado."
+                mensagem: "Checklist não encontrado. Nenhum item ativo no sistema."
             });
         }
         return res.status(200).json({ sucesso: true, checklist: checklist });
@@ -194,6 +196,75 @@ export async function pegarChecklistRelatorio(req, res, next) {
     } catch (error) {
         console.error("Erro ao obter o checklist do relatório:", error);
         return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao obter o checklist do relatório." });
+    }
+}
+
+export async function pegarNaoConformidadesRelatorio(req, res, next) {
+    try {
+        const idRelatorio = req.params.idRelatorio;
+        const naoConformidades = await fiscalizacaoService.obterNaoConformidadesRelatorio(idRelatorio);
+        if (!Array.isArray(naoConformidades) || naoConformidades.length === 0) {
+            return res.status(404).json({
+                sucesso: false,
+                mensagem: "Nenhuma não conformidade encontrada para este relatório."
+            });
+        }
+        return res.status(200).json({ sucesso: true, naoConformidades: naoConformidades });
+
+    } catch (error) {
+        console.error("Erro ao obter as não conformidades do relatório:", error);
+        return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao obter as não conformidades do relatório." });
+    }
+}
+
+export async function salvarChecklistRespostas(req, res, next) {
+    try {
+        const idRelatorio = req.params.idRelatorio;
+        const itensSelecionados = req.body.itensSelecionados;
+
+        console.log('=== SALVANDO CHECKLIST RESPOSTAS ===');
+        console.log('ID Relatório:', idRelatorio);
+        console.log('Itens Selecionados:', itensSelecionados);
+
+        if (!Array.isArray(itensSelecionados) || itensSelecionados.length === 0) {
+            return res.status(400).json({
+                sucesso: false,
+                mensagem: "Nenhum item do checklist foi selecionado."
+            });
+        }
+
+        // Criar transação
+        const pool = await poolPromise;
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        try {
+            console.log('Transação iniciada, chamando inserirCheckListSelecionados...');
+            const resultado = await fiscalizacaoModel.inserirCheckListSelecionados(transaction, idRelatorio, itensSelecionados);
+            
+            console.log('Resultado da inserção:', resultado);
+            
+            if (!resultado) {
+                console.log('Falha na inserção, fazendo rollback...');
+                await transaction.rollback();
+                return res.status(500).json({
+                    sucesso: false,
+                    mensagem: "Erro ao salvar as respostas do checklist."
+                });
+            }
+
+            console.log('Inserção bem-sucedida, fazendo commit...');
+            await transaction.commit();
+            return res.status(200).json({ sucesso: true, mensagem: "Checklist salvo com sucesso." });
+        } catch (err) {
+            console.error('Erro na transação, fazendo rollback:', err);
+            await transaction.rollback();
+            throw err;
+        }
+
+    } catch (error) {
+        console.error("Erro ao salvar o checklist do relatório:", error);
+        return res.status(500).json({ sucesso: false, mensagem: "Erro interno ao salvar o checklist: " + error.message });
     }
 }
 
