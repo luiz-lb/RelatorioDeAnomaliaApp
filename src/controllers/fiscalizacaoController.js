@@ -17,8 +17,10 @@ export async function validarIdRelatorioParams(req, res, next) {
 export async function paginaHome(req, res, next) {
     try{
         const top = parseInt(req.query.top) || 10; // Obter o valor de "top" da query string, ou usar 10 como padrão
+        const status = req.query.status || ""; // Obter filtro de status da query string, ou usar "" (todos) como padrão
         const idUsuario = req.session.usuario.id_user; 
-        const relatorio = await fiscalizacaoService.obterRelatoriosPorUsuario(idUsuario, top);
+        const permissaoUsuario = req.session.usuario.permissao;
+        const relatorio = await fiscalizacaoService.obterRelatoriosPorUsuario(idUsuario, permissaoUsuario, top, status);
 
         const dados = {
             "botoes": [
@@ -26,7 +28,8 @@ export async function paginaHome(req, res, next) {
                 { "id": "btnConfiguracoes", "nome": "Configurações", "link": "/adm" }
             ], 
             "relatorios": relatorio,
-            "top": top
+            "top": top,
+            "status": status
         };
         res.status(200).render('pages/home', dados);
     } catch (error) {

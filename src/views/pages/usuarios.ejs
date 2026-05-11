@@ -52,7 +52,7 @@
 
                                         <tbody id="<%= tableid %>">
                                             <% tbody.forEach(function(linha) { %>
-                                                <tr>
+                                                <tr data-search="<%= Object.values(linha).join(' ') %>">
                                                     <% Object.values(linha).forEach(function(dado, index) { %>
                                                         <td class="py-3 text-dark px-4"
                                                             data-label="<%= thead[index] %>">

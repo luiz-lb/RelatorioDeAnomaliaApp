@@ -34,6 +34,7 @@ export async function editarUsuario(req, res, next) {
         }
         const idUsuario = req.params.id;
         const usuario = await syncService.getUser(idUsuario);
+        const ativoValue = usuario.ativo ? "1" : "0";
 
         const dadosFormulario = {
             formTitle: "Editar Usuário",
@@ -50,7 +51,7 @@ export async function editarUsuario(req, res, next) {
                     { value: "Everest", label: "Everest" },
                     { value: "Terceiro", label: "Terceiro" }
                 ] },
-                { id: "ativo", label: "Ativo", name: "ativo", type: "select", required: true, value: usuario.ativo, options: [
+                { id: "ativo", label: "Ativo", name: "ativo", type: "select", required: true, value: ativoValue, options: [
                     { value: "1", label: "Sim" },
                     { value: "0", label: "Não" }
                 ] }

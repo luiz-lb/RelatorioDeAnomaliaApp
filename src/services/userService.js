@@ -23,6 +23,10 @@ export async function getUser(id) {
 }
 
 export async function updateUser(idUsuario, dadosUsuario) {
+    // Se a senha foi fornecida e não está vazia, gera o hash
+    if (dadosUsuario.senha && dadosUsuario.senha.trim() !== '') {
+        dadosUsuario.senha_hash = await bcrypt.hash(dadosUsuario.senha, 10);
+    }
     const resultado = await syncModel.atualizarUsuario(idUsuario, dadosUsuario);
     return resultado;
 }
@@ -32,4 +36,3 @@ export async function createdUser(dadosUsuario) {
     const resultado = await syncModel.criarUsuario(dadosUsuario, senha_hash);
     return resultado;
 }
-

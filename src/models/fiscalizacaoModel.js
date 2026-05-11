@@ -35,12 +35,14 @@ export async function obterRelatorioPorId(idRelatorio) {
     return result.recordset;
 }
 
-export async function obterRelatoriosPorUsuario(idUsuario, top = 10) {
+export async function obterRelatoriosPorUsuario(idUsuario, permissaoUsuario, top = 10, status = "") {
     const pool = await poolPromise;
     const result = await pool.request()
         .input('idUsuario', sql.Int, idUsuario)
+        .input('permissaoUsuario', sql.VarChar(50), permissaoUsuario)
         .input('top', sql.Int, top)
-        .query(`Select top (@top) id, usuario_id, site_id, altura_torre, tipo_cadeado, tipo_estrutura, CEP, endereco, municipio, UF, created_at, status From fiscalizacoes where usuario_id=@idUsuario order by created_at desc`);
+        .input('status', sql.VarChar(50), status)
+        .query(`Select top (@top) id, usuario_id, site_id, altura_torre, tipo_cadeado, tipo_estrutura, CEP, endereco, municipio, UF, created_at, status From fiscalizacoes where (@permissaoUsuario = 'Everest' or usuario_id=@idUsuario) and (@status = '' or status = @status) order by created_at desc`);
     return result.recordset;
 }
 

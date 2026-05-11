@@ -18,14 +18,34 @@ export async function getUserById(id) {
 
 export async function atualizarUsuario(id, dadosUsuario) {
     const pool = await poolPromise;
-    const result = await pool.request()
-        .input('id', sql.Int, id)
-        .input('nome', sql.VarChar(255), dadosUsuario.nomeCompleto)
-        .input('email', sql.VarChar(255), dadosUsuario.email)
-        .input('empresa', sql.VarChar(255), dadosUsuario.empresa)
-        .input('permissao', sql.VarChar(50), dadosUsuario.permissao)
-        .input('ativo', sql.Bit, dadosUsuario.ativo)
-        .query('UPDATE usuarios SET nome = @nome, email = @email, empresa = @empresa, permissao = @permissao, ativo = @ativo WHERE id = @id');
+    const request = pool.request();
+    request.input('id', sql.Int, id);
+
+    const camposParaAtualizar = [];
+    
+    // Mapeamento dinâmico: chave no objeto dadosUsuario => nome da coluna no Banco
+    const mapping = [
+        { key: 'nomeCompleto', col: 'nome', type: sql.VarChar(255) },
+        { key: 'email', col: 'email', type: sql.VarChar(255) },
+        { key: 'empresa', col: 'empresa', type: sql.VarChar(255) },
+        { key: 'permissao', col: 'permissao', type: sql.VarChar(50) },
+        { key: 'ativo', col: 'ativo', type: sql.Bit },
+        { key: 'senha_hash', col: 'senha_hash', type: sql.VarChar(255) }
+    ];
+
+    mapping.forEach(item => {
+        // Verifica se o campo existe no objeto e se não é uma string vazia
+        if (dadosUsuario[item.key] !== undefined && dadosUsuario[item.key] !== '') {
+            request.input(item.key, item.type, dadosUsuario[item.key]);
+            camposParaAtualizar.push(`${item.col} = @${item.key}`);
+        }
+    });
+
+    // Se nenhum campo foi alterado, apenas retorna sucesso para evitar erro de sintaxe SQL
+    if (camposParaAtualizar.length === 0) return true;
+
+    const query = `UPDATE usuarios SET ${camposParaAtualizar.join(', ')} WHERE id = @id`;
+    const result = await request.query(query);
     return result.rowsAffected[0] > 0;
 }
 

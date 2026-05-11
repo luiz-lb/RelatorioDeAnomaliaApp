@@ -70,9 +70,9 @@ export async function obterRelatorioPorId(idRelatorio, idUsuario, permissaoUsuar
     return resultado;
 }
 
-export async function obterRelatoriosPorUsuario(idUsuario, top = 10) {
+export async function obterRelatoriosPorUsuario(idUsuario, permissaoUsuario, top = 10, status = "") {
     console.log('Consultando relatórios para o usuário do ID ', idUsuario);
-    const resultado = await fiscalizacaoModel.obterRelatoriosPorUsuario(idUsuario, top);
+    const resultado = await fiscalizacaoModel.obterRelatoriosPorUsuario(idUsuario, permissaoUsuario, top, status);
 
     resultado.forEach(relatorio => {
         relatorio.created_at = formatarData(relatorio.created_at);
