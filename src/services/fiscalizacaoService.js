@@ -8,7 +8,7 @@ import { gerarRelatorioPDF } from './pdfService.js';
 import { Kafka } from 'kafkajs';
 
 // Inicializando o Kafka fora da função para reutilizar a conexão (Singleton)
-const kafka = new Kafka({ clientId: 'relatorio-app-producer', brokers: ['localhost:9092'] });
+const kafka = new Kafka({ clientId: 'relatorio-app-producer', brokers: [process.env.KAFKA_BROKERS || 'localhost:9092'] });
 const producer = kafka.producer();
 
 const ano = new Date().getFullYear(); // Obter o ano atual

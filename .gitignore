@@ -95,6 +95,10 @@ dist
 uploads/temp/
 src/public/uploads/temp/
 
+#pasta de relaorios
+relatoriosGerados/
+src/relatoriosGerados/
+
 # vuepress v2.x temp and cache directory
 .temp
 .cache

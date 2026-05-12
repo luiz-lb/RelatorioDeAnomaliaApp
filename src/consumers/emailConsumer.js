@@ -5,7 +5,7 @@ import { sendEmail } from '../utils/mailer.js';
 // Configuração do cliente Kafka
 const kafka = new Kafka({
     clientId: 'relatorio-app',
-    brokers: ['localhost:9092'] // Endereço de conexão do seu Kafka
+    brokers: [process.env.KAFKA_BROKERS || 'localhost:9092']
 });
 
 // Criando o consumidor e definindo o "Consumer Group"
