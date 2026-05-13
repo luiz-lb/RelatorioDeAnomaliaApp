@@ -285,7 +285,7 @@ export async function criarEmailDeAviso(idRelatorio) {
                     contentType: "HTML",
                     content: htmlEnvioFeito
                 },
-                toRecipients: [{ emailAddress: { address: 'luiz.silva@everestengenharia.com.br' } }]
+                toRecipients: [{ emailAddress: { address: 'alecio.ramos@everestengenharia.com.br' } }]
             },
             saveToSentItems: "true"
         };
