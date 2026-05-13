@@ -1,7 +1,7 @@
 import sql from 'mssql';
 
 const dbConfig = {
-    user: process.env.DB_USER,
+    user: process.env.DB_USERENV,
     password: process.env.DB_PASSWORD,
     server: process.env.DB_SERVER,
     database: process.env.DB_DATABASE,
