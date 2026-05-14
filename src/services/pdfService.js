@@ -274,9 +274,56 @@ function linhaInfo(doc, label, valor, x, y, colLargura, linhaH = 16) {
             { width: colLargura * 0.60 - 8, lineBreak: false });
 }
 
+function desenharChecklistSelecionado(doc, checklist, y, idRelatorio) {
+    if (y > PAGE_H - MARGIN - 140) {
+        doc.addPage({ size: 'A4', margin: 0 });
+        y = desenharCabecalho(doc, idRelatorio);
+    }
+
+    y = tituloSecao(doc, 'Checklist', y);
+
+    if (!Array.isArray(checklist) || checklist.length === 0) {
+        const boxHeight = 38;
+        fillRoundedRect(doc, MARGIN, y, COL_W, boxHeight, RADIUS, COR_FUNDO);
+        strokeRoundedRect(doc, MARGIN, y, COL_W, boxHeight, RADIUS, COR_LINHA);
+        doc.fontSize(8).fillColor(COR_TEXTO_LEVE)
+            .text('Nenhum item de checklist selecionado.', MARGIN + 12, y + 12, { width: COL_W - 24 });
+        return y + boxHeight + 12;
+    }
+
+    let itemY = y + 10;
+    const itemHeight = 22;
+    const markerSize = 16;
+    let itemIndex = 1;
+
+    for (const item of checklist) {
+        if (itemY + itemHeight > PAGE_H - MARGIN - 30) {
+            doc.addPage({ size: 'A4', margin: 0 });
+            y = desenharCabecalho(doc, idRelatorio);
+            y = tituloSecao(doc, 'Checklist (continuação)', y);
+            itemY = y + 10;
+        }
+
+        const markerX = MARGIN + 12;
+        const markerY = itemY + 2;
+        fillRoundedRect(doc, markerX, markerY, markerSize, markerSize, 3, COR_ACCENT);
+        doc.fontSize(8).fillColor('#ffffff').font('Helvetica-Bold')
+            .text(`${itemIndex}`, markerX, markerY + (markerSize / 2) - 4, { width: markerSize, align: 'center' });
+        doc.font('Helvetica');
+
+        doc.fontSize(8).fillColor(COR_TEXTO)
+            .text(item.descricao, markerX + markerSize + 8, markerY + (markerSize / 2) - 4, { width: COL_W - markerSize - 36 });
+
+        itemY += itemHeight;
+        itemIndex += 1;
+    }
+
+    return itemY + 12;
+}
+
 // ─── Gerador principal ──────────────────────────────────────────────────────
 
-export async function gerarRelatorioPDF(header, body, idRelatorio) {
+export async function gerarRelatorioPDF(header, body, idRelatorio, checklistSelecionado = []) {
     // Coleta os chunks do stream em uma Promise separada e aguarda no final
     const doc = new PDFDocument({ size: 'A4', margin: 0, bufferPages: true });
 
@@ -378,83 +425,8 @@ export async function gerarRelatorioPDF(header, body, idRelatorio) {
     }
     y += tableH + 18;
 
-    // ── Seção: Resumo de NCs ────────────────────────────────────────
-    const FOOTER_SAFE = PAGE_H - MARGIN - 30;
-    const rowH = 16;
-    const headerH = 16;
-
-    if (body.length === 0) {
-        y = tituloSecao(doc, 'Resumo de Não Conformidades', y);
-        fillRoundedRect(doc, MARGIN, y, COL_W, 28, RADIUS, COR_FUNDO);
-        strokeRoundedRect(doc, MARGIN, y, COL_W, 28, RADIUS, COR_LINHA);
-        doc.fontSize(9).fillColor(COR_TEXTO_LEVE)
-            .text('Nenhuma não conformidade registrada.', MARGIN, y + 10,
-                { width: COL_W, align: 'center' });
-        y += 28 + 12;
-    } else {
-        const novaSecaoPagina = (continuacao = true) => {
-            doc.addPage({ size: 'A4', margin: 0 });
-            let ny = desenharCabecalho(doc, idRelatorio);
-            ny = tituloSecao(doc,
-                continuacao
-                    ? 'Resumo de Não Conformidades (continuação)'
-                    : 'Resumo de Não Conformidades',
-                ny);
-            return ny;
-        };
-
-        if (y + 28 + headerH + rowH > FOOTER_SAFE) {
-            y = novaSecaoPagina(false);
-        } else {
-            y = tituloSecao(doc, 'Resumo de Não Conformidades', y);
-        }
-
-        const desenharHeaderTabela = (startY) => {
-            fillRoundedRect(doc, MARGIN, startY, COL_W, headerH, RADIUS, COR_PRIMARIA);
-            doc.fontSize(7).fillColor('#ffffff').font('Helvetica-Bold')
-                .text('#', MARGIN + 6, startY + 5, { width: 20, lineBreak: false })
-                .text('Descrição da Não Conformidade', MARGIN + 30, startY + 5,
-                    { width: COL_W - 38, lineBreak: false });
-            doc.font('Helvetica');
-            return startY + headerH;
-        };
-
-        let rowY = desenharHeaderTabela(y);
-        let globalIdx = 0;
-
-        for (const nc of body) {
-            if (rowY + rowH > FOOTER_SAFE) {
-                strokeRoundedRect(doc, MARGIN, y, COL_W, rowY - y, RADIUS, COR_LINHA);
-                y = novaSecaoPagina(true);
-                rowY = desenharHeaderTabela(y);
-                globalIdx = 0;
-            }
-
-            if (globalIdx % 2 === 0) {
-                doc.save().rect(MARGIN, rowY, COL_W, rowH).fill(COR_FUNDO).restore();
-            }
-            if (globalIdx > 0) {
-                doc.save()
-                    .moveTo(MARGIN + 4, rowY).lineTo(PAGE_W - MARGIN - 4, rowY)
-                    .strokeColor(COR_LINHA).lineWidth(0.3).stroke()
-                    .restore();
-            }
-
-            const textRowY = rowY + Math.floor((rowH - 7) / 2);
-            doc.fontSize(7).fillColor(COR_ACCENT2).font('Helvetica-Bold')
-                .text(`${body.indexOf(nc) + 1}`, MARGIN + 6, textRowY,
-                    { width: 20, lineBreak: false });
-            doc.font('Helvetica').fillColor(COR_TEXTO)
-                .text(nc.descricao || '', MARGIN + 30, textRowY,
-                    { width: COL_W - 38, ellipsis: true, lineBreak: false });
-
-            rowY += rowH;
-            globalIdx++;
-        }
-
-        strokeRoundedRect(doc, MARGIN, y, COL_W, rowY - y, RADIUS, COR_LINHA);
-        y = rowY + 18;
-    }
+    // ── Seção: Checklist selecionado ───────────────────────────────
+    y = desenharChecklistSelecionado(doc, checklistSelecionado, y, idRelatorio);
 
     // ── Seção: Fotos ────────────────────────────────────────────────
     if (body.some(nc => nc.caminhoDaImagem)) {
@@ -532,3 +504,83 @@ export async function gerarRelatorioPDF(header, body, idRelatorio) {
     await streamFinalizado;
     return Buffer.concat(chunks);
 }
+
+/* ── Seçãoo antiga que listava todas as não conformidades primeiro no PDF sem as fotos, removida pois o usuário preferiu a nova abordagem colocando o 
+        checklist primeiro────────────────────────────────────────
+
+    const FOOTER_SAFE = PAGE_H - MARGIN - 30;
+    const rowH = 16;
+    const headerH = 16;
+
+    if (body.length === 0) {
+        y = tituloSecao(doc, 'Resumo de Não Conformidades', y);
+        fillRoundedRect(doc, MARGIN, y, COL_W, 28, RADIUS, COR_FUNDO);
+        strokeRoundedRect(doc, MARGIN, y, COL_W, 28, RADIUS, COR_LINHA);
+        doc.fontSize(9).fillColor(COR_TEXTO_LEVE)
+            .text('Nenhuma não conformidade registrada.', MARGIN, y + 10,
+                { width: COL_W, align: 'center' });
+        y += 28 + 12;
+    } else {
+        const novaSecaoPagina = (continuacao = true) => {
+            doc.addPage({ size: 'A4', margin: 0 });
+            let ny = desenharCabecalho(doc, idRelatorio);
+            ny = tituloSecao(doc,
+                continuacao
+                    ? 'Resumo de Não Conformidades (continuação)'
+                    : 'Resumo de Não Conformidades',
+                ny);
+            return ny;
+        };
+
+        if (y + 28 + headerH + rowH > FOOTER_SAFE) {
+            y = novaSecaoPagina(false);
+        } else {
+            y = tituloSecao(doc, 'Resumo de Não Conformidades', y);
+        }
+
+        const desenharHeaderTabela = (startY) => {
+            fillRoundedRect(doc, MARGIN, startY, COL_W, headerH, RADIUS, COR_PRIMARIA);
+            doc.fontSize(7).fillColor('#ffffff').font('Helvetica-Bold')
+                .text('#', MARGIN + 6, startY + 5, { width: 20, lineBreak: false })
+                .text('Descrição da Não Conformidade', MARGIN + 30, startY + 5,
+                    { width: COL_W - 38, lineBreak: false });
+            doc.font('Helvetica');
+            return startY + headerH;
+        };
+
+        let rowY = desenharHeaderTabela(y);
+        let globalIdx = 0;
+
+        for (const nc of body) {
+            if (rowY + rowH > FOOTER_SAFE) {
+                strokeRoundedRect(doc, MARGIN, y, COL_W, rowY - y, RADIUS, COR_LINHA);
+                y = novaSecaoPagina(true);
+                rowY = desenharHeaderTabela(y);
+                globalIdx = 0;
+            }
+
+            if (globalIdx % 2 === 0) {
+                doc.save().rect(MARGIN, rowY, COL_W, rowH).fill(COR_FUNDO).restore();
+            }
+            if (globalIdx > 0) {
+                doc.save()
+                    .moveTo(MARGIN + 4, rowY).lineTo(PAGE_W - MARGIN - 4, rowY)
+                    .strokeColor(COR_LINHA).lineWidth(0.3).stroke()
+                    .restore();
+            }
+
+            const textRowY = rowY + Math.floor((rowH - 7) / 2);
+            doc.fontSize(7).fillColor(COR_ACCENT2).font('Helvetica-Bold')
+                .text(`${body.indexOf(nc) + 1}`, MARGIN + 6, textRowY,
+                    { width: 20, lineBreak: false });
+            doc.font('Helvetica').fillColor(COR_TEXTO)
+                .text(nc.descricao || '', MARGIN + 30, textRowY,
+                    { width: COL_W - 38, ellipsis: true, lineBreak: false });
+
+            rowY += rowH;
+            globalIdx++;
+        }
+
+        strokeRoundedRect(doc, MARGIN, y, COL_W, rowY - y, RADIUS, COR_LINHA);
+        y = rowY + 18;
+    } */

@@ -303,6 +303,8 @@ export async function enviarRelatorio(idRelatorio, idUsuario, permissaoUsuario, 
     // Força o status na memória para sair a cor e texto corretos na geração visual do PDF
     dadosRelatorio.header.status = 'Finalizado';
 
+    const checklistSelecionado = await fiscalizacaoModel.obterChecklistItensPorIds(itensSelecionados);
+
     const transaction = await fiscalizacaoModel.iniciarTransacao();
     let transacaoConcluida = false; // Controle para não fazer rollback em transação fechada
 
@@ -321,7 +323,8 @@ export async function enviarRelatorio(idRelatorio, idUsuario, permissaoUsuario, 
         const pdfBuffer = await gerarRelatorioPDF(
             dadosRelatorio.header,
             dadosRelatorio.body,
-            idRelatorio
+            idRelatorio,
+            checklistSelecionado
         );
 
         // Configurar os caminhos e salvar o PDF gerado fisicamente no disco

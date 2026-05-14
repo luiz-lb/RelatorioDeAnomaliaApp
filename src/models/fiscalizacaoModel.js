@@ -81,6 +81,25 @@ export async function obterChecklistRelatorio() {
     return result.recordset;
 }
 
+export async function obterChecklistItensPorIds(itensSelecionados) {
+    const pool = await poolPromise;
+    const itens = Array.isArray(itensSelecionados) ? itensSelecionados : JSON.parse(itensSelecionados);
+
+    if (!Array.isArray(itens) || itens.length === 0) {
+        return [];
+    }
+
+    const params = itens.map((itemId, index) => `@item_${index}`);
+    const request = pool.request();
+    itens.forEach((itemId, index) => {
+        request.input(`item_${index}`, sql.Int, itemId);
+    });
+
+    const query = `Select id, descricao, ordem From checklist_itens Where id in (${params.join(', ')}) Order by ordem`;
+    const result = await request.query(query);
+    return result.recordset;
+}
+
 export async function obterNaoConformidadesRelatorio(idRelatorio) {
     const pool = await poolPromise;
     const result = await pool.request()
