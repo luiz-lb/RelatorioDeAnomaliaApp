@@ -32,6 +32,12 @@
                                 <i class="bi bi-file-earmark-text text-accent"></i> Informações Gerais
                             </h5>
                             <div class="align-items-end py-2 d-flex gap-3">
+                                <% if(resultadoHeader.status==='Rascunho') { %>
+                                    <button id="btnEditarFisHeader" type="button" data-relatorio="<%= idRelatorio %>" class="btn btn-secondary badge border-0 shadow-sm rounded-pill px-3 py-2 fw-medium">
+                                        <i class="bi bi-pencil"></i>
+                                        <span class="d-none d-sm-inline"></span>
+                                    </button>
+                                <% } %>
                                 <span
                                     class="badge <%= resultadoHeader.status === 'Concluído' ? 'bg-success' : (resultadoHeader.status === 'Rascunho' ? 'bg-secondary' : 'bg-warning text-dark') %> rounded-pill px-3 py-2 fw-medium">
                                     <%= resultadoHeader.status || 'Pendente' %>
@@ -42,44 +48,43 @@
                             <div class="row g-4">
                                 <div class="col-12 col-sm-6 col-lg-4">
                                     <small class="text-muted d-block">Site ID</small>
-                                    <span class="fw-bold text-dark">
+                                    <span id="site-id" data-siteid="<%= resultadoHeader.site_id || 'N/A' %>" class="fw-bold text-dark">
                                         <%= resultadoHeader.site_id || 'N/A' %>
                                     </span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-lg-4">
                                     <small class="text-muted d-block">Criado por</small>
-                                    <span class="fw-bold text-dark">
+                                    <span id="criado-por" class="fw-bold text-dark">
                                         <%= resultadoHeader.nome || 'N/A' %>
                                     </span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-lg-4">
                                     <small class="text-muted d-block">Criado em</small>
-                                    <span class="fw-bold text-dark">
-                                        <%= resultadoHeader.created_at_formatado || 'N/A' %>
+                                    <span id="criado-em" class="fw-bold text-dark">
+                                        <%= resultadoHeader.created_at || 'N/A' %>
                                     </span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-lg-4">
                                     <small class="text-muted d-block">Estrutura / Altura</small>
-                                    <span class="fw-bold text-dark">
-                                        <%= resultadoHeader.tipo_estrutura || 'N/A' %> (<%= resultadoHeader.altura_torre
-                                                || 'N/A' %>m)
+                                    <span id="estrutura-altura" data-estrutura="<%= resultadoHeader.tipo_estrutura || 'N/A' %>" data-altura="<%= resultadoHeader.altura_torre || 'N/A' %>" class="fw-bold text-dark">
+                                        <%= resultadoHeader.tipo_estrutura || 'N/A' %> (<%= resultadoHeader.altura_torre || 'N/A' %>m)
                                     </span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-lg-4">
                                     <small class="text-muted d-block">Tipo do Cadeado</small>
-                                    <span class="fw-bold text-dark">
+                                    <span id="tipo-cadeado" data-cadeado="<%= resultadoHeader.tipo_cadeado || 'N/A' %>" class="fw-bold text-dark">
                                         <%= resultadoHeader.tipo_cadeado || 'N/A' %>
                                     </span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-lg-4">
                                     <small class="text-muted d-block">CEP</small>
-                                    <span class="fw-bold text-dark">
+                                    <span id="cep" data-cep="<%= resultadoHeader.CEP || 'N/A' %>" class="fw-bold text-dark">
                                         <%= resultadoHeader.CEP || 'N/A' %>
                                     </span>
                                 </div>
                                 <div class="col-12">
                                     <small class="text-muted d-block">Endereço Completo</small>
-                                    <span class="fw-bold text-dark">
+                                    <span id="endereço-completo" data-endereco="<%= resultadoHeader.endereco || 'N/A' %>" data-municipio="<%= resultadoHeader.municipio || 'N/A' %>" data-uf="<%= resultadoHeader.UF || 'N/A' %>" class="fw-bold text-dark">
                                         <%= resultadoHeader.endereco || 'N/A' %>, <%= resultadoHeader.municipio || 'N/A'
                                                 %> - <%= resultadoHeader.UF || 'N/A' %>
                                     </span>

@@ -156,3 +156,21 @@ export async function finalizandoRelatorio(transaction, idRelatorio, pdfUrl) {
     const result = await request.query(`Update fiscalizacoes Set status = 'Concluído', pdf_url = @pdfUrl, enviado_em = GETDATE() Where id = @idRelatorio`);
     return result.rowsAffected[0] > 0;
 }
+
+
+export async function atualizarRelatorioHeader(idRelatorio, dados, idUsuario, permissaoSql = "") {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('idRelatorio', sql.Int, idRelatorio)
+        .input('idUsuario', sql.Int, idUsuario)
+        .input('site_id', sql.VarChar(255), dados.siteId)
+        .input('altura_torre', sql.Decimal(5, 2), dados.alturaTorre)
+        .input('tipo_cadeado', sql.VarChar(255), dados.cadeado)
+        .input('endereco', sql.VarChar(255), dados.endereco)
+        .input('CEP', sql.Int, dados.cep)
+        .input('municipio', sql.VarChar(70), dados.municipio)
+        .input('uf', sql.VarChar(2), dados.uf)
+        .input('tipo_estrutura', sql.VarChar(255), dados.tipoEstrutura)
+        .query(`Update fiscalizacoes Set site_id=@site_id, altura_torre=@altura_torre, tipo_cadeado=@tipo_cadeado, endereco=@endereco, CEP=@CEP, municipio=@municipio, uf=@uf, tipo_estrutura=@tipo_estrutura Where id=@idRelatorio and (usuario_id=@idUsuario ${permissaoSql})`);
+    return result.rowsAffected[0] > 0;
+}

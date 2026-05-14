@@ -18,5 +18,6 @@ router.delete('/edit/nao-conformidade/:idRelatorio', fiscalizacaoController.vali
 router.get('/checklist/:idRelatorio', fiscalizacaoController.pegarChecklistRelatorio);
 router.post('/checklist-respostas/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, fiscalizacaoController.salvarChecklistRespostas);
 router.post('/enviar-relatorio/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, fiscalizacaoController.enviarRelatorio);
+router.put('/edit/header/:idRelatorio', fiscalizacaoController.validarIdRelatorioParams, fiscalizacaoController.editarHeaderFiscalizacao);
 
 export default router;

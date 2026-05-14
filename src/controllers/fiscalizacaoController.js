@@ -320,3 +320,23 @@ export async function downloadRelatorioPDF(req, res, next) {
         next(error);
     }
 }
+
+export async function editarHeaderFiscalizacao(req, res, next) {
+    try {
+        const idRelatorio = req.params.idRelatorio;
+        const dadosHeader = req.body;
+        const idUsuario = req.session.usuario.id_user;
+        
+        const permissaoUsuario = req.session.usuario.permissao === 'Everest' ? " or 1=1" : "";
+
+        const resultado = await fiscalizacaoService.editarHeaderFiscalizacao(idRelatorio, dadosHeader, idUsuario, permissaoUsuario);
+        if (!resultado) {
+            return res.status(404).json({ sucesso: false, mensagem: "Erro ao alterar no banco de dados." });
+        }
+        return res.status(200).json({ sucesso: true, mensagem: "Header editado com sucesso." });
+    }
+    catch (error) {
+        console.error('Erro ao editar o header da fiscalização:', error);
+        next(error);
+    }
+}

@@ -502,12 +502,6 @@ async function enviarRelatorio() {
                     $('#swal-checklist .swal-check-item:checked')
                 ).map((el) => Number($(el).val()));
 
-                // Regra: precisa marcar todos os itens do checklist
-                if (selecionados.length !== checklist.length) {
-                    Swal.showValidationMessage(`Você deve confirmar todos os ${checklist.length} itens do checklist para enviar o relatório.`);
-                    return false;
-                }
-
                 return selecionados;
             }
         });
@@ -632,6 +626,110 @@ async function baixarRelatorio() {
     }
 }
 
+async function editarHeaderRelatorio() {
+    const btn = $(this);
+    const idRelatorio = btn.data('relatorio');
+    const root = getComputedStyle(document.documentElement);
+    const bg = (root.getPropertyValue('--bg-color') || '#fff').trim();
+    const text = (root.getPropertyValue('--text-dark') || '#333').trim();
+
+    const { value: formValues } = await Swal.fire({
+        title: 'Editar Dados do Relatório',
+        html: `
+            <div class="row g-3 text-start">
+                <div class="col-12">
+                    <label class="small text-muted mb-1">Site ID</label>
+                    <input id="swal-siteId" class="form-control shadow-sm" value="${$('#site-id').data('siteid') || ''}">
+                </div>
+                <div class="col-6">
+                    <label class="small text-muted mb-1">Altura Torre (m)</label>
+                    <input id="swal-alturaTorre" class="form-control shadow-sm" value="${$('#estrutura-altura').data('altura') || ''}">
+                </div>
+                <div class="col-6">
+                    <label class="small text-muted mb-1">CEP</label>
+                    <input id="swal-cep" class="form-control shadow-sm" value="${$('#cep').data('cep') || ''}">
+                </div>
+                <div class="col-8">
+                    <label class="small text-muted mb-1">Município</label>
+                    <input id="swal-municipio" class="form-control shadow-sm" value="${$('#endereço-completo').data('municipio') || ''}">
+                </div>
+                <div class="col-4">
+                    <label class="small text-muted mb-1">UF</label>
+                    <input id="swal-uf" class="form-control shadow-sm" maxlength="2" value="${$('#endereço-completo').data('uf') || ''}">
+                </div>
+                <div class="col-12">
+                    <label class="small text-muted mb-1">Endereço</label>
+                    <input id="swal-endereco" class="form-control shadow-sm" value="${$('#endereço-completo').data('endereco') || ''}">
+                </div>
+                <div class="col-6">
+                    <label class="small text-muted mb-1">Tipo de Cadeado</label>
+                    <input id="swal-cadeado" class="form-control shadow-sm" value="${$('#tipo-cadeado').data('cadeado') || ''}">
+                </div>
+                <div class="col-6">
+                    <label class="small text-muted mb-1">Tipo de Estrutura</label>
+                    <input id="swal-tipoEstrutura" class="form-control shadow-sm" value="${$('#estrutura-altura').data('estrutura') || ''}">
+                </div>
+            </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Salvar Alterações',
+        cancelButtonText: 'Cancelar',
+        background: bg,
+        color: text,
+        customClass: {
+            popup: 'rounded-4 shadow p-3 p-md-4',
+            title: 'fs-5 fw-bold mb-2',
+            actions: 'd-flex flex-wrap gap-2 w-100 justify-content-center mt-4',
+            confirmButton: 'btn btn-accent rounded-pill px-4 shadow-sm m-0',
+            cancelButton: 'btn btn-light border rounded-pill px-4 text-secondary m-0'
+        },
+        buttonsStyling: false,
+        preConfirm: () => {
+            return {
+                siteId: $('#swal-siteId').val(),
+                alturaTorre: $('#swal-alturaTorre').val(),
+                cep: $('#swal-cep').val(),
+                municipio: $('#swal-municipio').val(),
+                uf: $('#swal-uf').val(),
+                endereco: $('#swal-endereco').val(),
+                cadeado: $('#swal-cadeado').val(),
+                tipoEstrutura: $('#swal-tipoEstrutura').val()
+            }
+        }
+    });
+
+    if (formValues) {
+        try {
+            Swal.fire({
+                title: 'Salvando...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            const response = await fetch(`/fiscalizacao/edit/header/${idRelatorio}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formValues)
+            });
+
+            const result = await response.json();
+
+            if (result.sucesso) {
+                window.location.reload();
+            } else {
+                throw new Error(result.mensagem || 'Erro ao atualizar o cabeçalho.');
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: error.message
+            });
+        }
+    }
+}
+
 export function initFiscalizacaoPage() {
     const formUpload = $('#formUpload');
     if (!formUpload.length && !$('#btn-baixar-relatorio').length) {
@@ -643,4 +741,5 @@ export function initFiscalizacaoPage() {
     $(document).on('click', '.btn-excluir', excluirNaoConformidade);
     $(document).on('click', '#btn-enviar-relatorio', enviarRelatorio);
     $(document).on('click', '#btn-baixar-relatorio', baixarRelatorio);
+    $(document).on('click', '#btnEditarFisHeader', editarHeaderRelatorio);
 }

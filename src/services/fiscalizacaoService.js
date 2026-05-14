@@ -57,7 +57,7 @@ export async function obterRelatorioPorId(idRelatorio, idUsuario, permissaoUsuar
         console.log('Relatório não encontrado ou acesso negado para o usuário ID:', idUsuario);
         throw new Error('Relatório não encontrado ou acesso negado.');
     }
-
+    
     resultadoHeader.created_at = formatarData(resultadoHeader.created_at);
 
     console.log('Consulta feita com sucesso.');
@@ -397,5 +397,19 @@ export async function obterRelatorioPdfPorId(idRelatorio, idUsuario, permissaoUs
     } catch (error) {
         console.error('Erro ao obter o caminho do PDF do relatório:', error);
         throw new Error('Não foi possível obter o caminho do PDF do relatório.');
+    }
+}
+
+export async function editarHeaderFiscalizacao(idRelatorio, dadosHeader, idUsuario, permissaoUsuario) {
+    try {
+        const permissaoSql = permissaoUsuario; // Já vem formatado do controller neste caso
+        
+        const cepLimpo = dadosHeader.cep ? String(dadosHeader.cep).replace(/\D/g, '') : null;
+        const dadosProcessados = { ...dadosHeader, cep: cepLimpo };
+
+        return await fiscalizacaoModel.atualizarRelatorioHeader(idRelatorio, dadosProcessados, idUsuario, permissaoSql);
+    } catch (error) {
+        console.error('Erro ao editar o header da fiscalização no service:', error);
+        throw new Error('Não foi possível editar os dados principais do relatório.');
     }
 }
