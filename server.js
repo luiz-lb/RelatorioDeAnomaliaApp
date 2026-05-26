@@ -45,11 +45,19 @@ app.use((err, req, res, next) => {
 });
 
 
+process.on('unhandledRejection', (reason) => {
+    console.error('Unhandled Rejection:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+});
+
 // iniciar servidor
 (async () => {
     try {
         app.listen(port, '0.0.0.0', () => {
-            iniciarConsumidorDeEmail();
+            iniciarConsumidorDeEmail().catch(err => console.error('Falha ao iniciar o consumidor de e-mail:', err));
             console.log(`Servidor rodando e acessível na rede na porta: ${port}`);
             console.log(`Ambiente: ${process.env.NODE_ENV || 'dev'}`);
         });

@@ -13,15 +13,24 @@ const dbConfig = {
     pool: { max: 10, min: 0, idleTimeoutMillis: 30000 }
 };
 
-const poolPromise = new sql.ConnectionPool(dbConfig)
-.connect()
-.then(pool => {
-    console.log('Connected to SQL Server');
-    return pool;
-})
-.catch(err => {
-    console.error('DB Connection Failed', err);
-    throw err;
-});
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function connectWithRetry() {
+    while (true) {
+        try {
+            const pool = await new sql.ConnectionPool(dbConfig).connect();
+            pool.on('error', (err) => {
+                console.error('SQL Server pool error:', err);
+            });
+            console.log('✅ Connected to SQL Server');
+            return pool;
+        } catch (err) {
+            console.error('❌ Falha ao conectar ao SQL Server. Tentando novamente em 5 segundos...', err.message || err);
+            await sleep(5000);
+        }
+    }
+}
+
+const poolPromise = connectWithRetry();
 
 export { sql, poolPromise };

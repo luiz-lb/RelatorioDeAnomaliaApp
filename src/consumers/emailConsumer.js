@@ -1,21 +1,11 @@
-import { Kafka } from 'kafkajs';
 import { criarEmailDeAviso } from '../services/fiscalizacaoService.js';
 import { sendEmail } from '../utils/mailer.js';
-
-// Configuração do cliente Kafka
-const kafka = new Kafka({
-    clientId: 'relatorio-app',
-    brokers: [process.env.KAFKA_BROKERS || 'localhost:9092']
-});
-
-// Criando o consumidor e definindo o "Consumer Group"
-const consumer = kafka.consumer({ groupId: 'email-notificacao-group' });
+import { consumer, admin, connectAdmin, connectConsumer } from '../config/kafkaConfig.js';
 
 export async function iniciarConsumidorDeEmail() {
     try {
         // Usando o Admin Client para garantir que o tópico existe antes de escutar
-        const admin = kafka.admin();
-        await admin.connect();
+        await connectAdmin();
         const topicosExistentes = await admin.listTopics();
         
         if (!topicosExistentes.includes('relatorio-finalizado')) {
@@ -26,7 +16,7 @@ export async function iniciarConsumidorDeEmail() {
         }
         await admin.disconnect();
 
-        await consumer.connect();
+        await connectConsumer();
         console.log('✅ Consumidor de E-mail conectado ao broker de mensageria.');
 
         // Inscrevendo-se no tópico

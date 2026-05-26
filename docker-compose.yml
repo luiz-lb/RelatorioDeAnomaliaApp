@@ -5,12 +5,18 @@ services:
     container_name: mssql_server
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=${DB_PASSWORD:-SuaSenhaForte123!}
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
       - MSSQL_PID=Express
     ports:
       - "1433:1433"
     volumes:
       - mssql_data:/var/opt/mssql
+      # Mapeia a pasta local para dentro do contêiner
+      - ./mssql-init:/usr/src/app
+      # Volume para persistir os dados do banco na sua máquina
+      - mssql_data:/var/opt/mssql
+    # Altera o entrypoint padrão para executar o script de inicialização
+    entrypoint: /bin/bash /usr/src/app/entrypoint.sh
 
   app:
     build: .
@@ -24,11 +30,11 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - DB_SERVER=db
-      - DB_USER=sa
-      - DB_PASSWORD=${DB_PASSWORD:-SuaSenhaForte123!}
-      - DB_DATABASE=${DB_DATABASE:-RelatorioDB}
+      - DB_USER=${DB_USERENV}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
       - KAFKA_BROKERS=kafka:9092
-      - SESSION_SECRET=${SESSION_SECRET:-chave_secreta_padrao}
+      - SESSION_SECRET=${SESSION_SECRET}
     volumes:
       - ./src/public/uploads:/app/src/public/uploads
       - ./src/relatoriosGerados:/app/src/relatoriosGerados

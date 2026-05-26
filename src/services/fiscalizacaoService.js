@@ -5,11 +5,10 @@ import fs from 'fs';
 import crypto from 'crypto';
 import path from 'path';
 import { gerarRelatorioPDF } from './pdfService.js';
-import { Kafka } from 'kafkajs';
+import { producer, connectProducer } from '../config/kafkaConfig.js';
 
-// Inicializando o Kafka fora da função para reutilizar a conexão (Singleton)
-const kafka = new Kafka({ clientId: 'relatorio-app-producer', brokers: [process.env.KAFKA_BROKERS || 'localhost:9092'] });
-const producer = kafka.producer();
+// Producer Kafka inicializado fora da função para reutilizar a conexão (Singleton)
+
 
 const ano = new Date().getFullYear(); // Obter o ano atual
 const mes = new Date().getMonth() + 1; // Obter o mês atual (0-11, por isso +1)
@@ -250,7 +249,7 @@ export async function criarEmailDeAviso(idRelatorio) {
                         <table width="100%" cellpadding="0" cellspacing="0" border="0">
                             <tr>
                             <td align="center">
-                                <a href="http://localhost:3000/fiscalizacao/edit/${idRelatorio}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: #3182ce; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; text-align: center; transition: background-color 0.3s ease;">
+                                <a href="http://${process.env.HOST}/fiscalizacao/edit/${idRelatorio}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: #3182ce; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; text-align: center; transition: background-color 0.3s ease;">
                                 Visualizar Relatório
                                 </a>
                             </td>
@@ -342,14 +341,13 @@ export async function enviarRelatorio(idRelatorio, idUsuario, permissaoUsuario, 
         console.log('Transação efetivada no banco de dados com sucesso.');
 
         // Enviando o evento para o Kafka
-        await producer.connect();
+        await connectProducer();
         await producer.send({
             topic: 'relatorio-finalizado',
             messages: [
                 { value: JSON.stringify({ idRelatorio: idRelatorio, data: new Date() }) }
             ],
         });
-        // Não desconectamos o producer para que ele possa ser usado na próxima chamada
         
         console.log('Relatório finalizado. Evento de notificação enviado para a fila.');
         return { sucesso: true, mensagem: "Relatório finalizado com sucesso. O e-mail será enviado em instantes." };

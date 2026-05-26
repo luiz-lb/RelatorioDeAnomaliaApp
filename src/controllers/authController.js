@@ -11,7 +11,7 @@ export function paginaLogin(req, res, next) {
 export async function login(req, res, next) {
     try {
         const { username, password } = req.body;
-        console.log('Recebendo login para usuário:', username, ' ',password);
+        console.log('Recebendo login para usuário:', username);
 
         const resultado = await authService.autenticar(username, password);
 
